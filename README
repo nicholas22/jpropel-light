@@ -1,0 +1,52 @@
+Hi there!
+
+jpropel-light is a Java library which can seriously hinder your salary if 
+you are paid by the number of lines of code you create!
+
+  
+// create alphabet char[]
+char[] alphabet = new Character('A').to(new Character('Z')).unbox();
+char[] numerics = new Character('1').to(new Character('9')).unbox();
+
+// join two arrays and put in list 
+List<Character> allowed = alphabet.join(numerics).box().toList(); 
+
+// select distinct j* names, using LINQ-style statements
+new String[] { "james", "john", "john", "eddie" }.where(startsWith("j")).distinct();
+
+
+
+Full example:
+---------------
+
+import java.util.Arrays;
+import lombok.ExtensionMethod;
+import lombok.val;
+import propel.core.utils.Linq;
+import propel.core.utils.StringUtils;
+import static propel.core.functional.predicates.Predicates.*;
+import static propel.core.functional.projections.Projections.*;
+
+@ExtensionMethod({Arrays.class, Linq.class, StringUtils.class})
+public class Main
+{
+
+  /**
+   * @param args
+   */
+  public static void main(String[] args)
+  {
+    val names = new String[] { "john", "james", "john", "eddie" }.where(startsWith("j")).distinct();    
+    System.out.println(Arrays.toString(names));
+  }
+}
+
+Please note that jpropel-light is a lightweight version of jpropel,
+which can be found at https://github.com/nicholas22/jpropel
+
+It uses a Scala-like programming-style library called lombok-pg,
+which can be found at https://github.com/peichhorn/lombok-pg
+
+If you use Eclipse or NetBeans, patch it by running lombok.jar,
+found in the "lib" folder, by double-clicking it for example.
+No patching is required to use jpropel-light with javac or Ant.
