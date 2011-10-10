@@ -17,10 +17,10 @@ A very popular language feature of C#, Language INtegrated Query adds native dat
 
 Here is an equivalent Java snippet:
 
-`List<SomeElement> results = new ArrayList<SomeElement>(); 
-for(SomeElement c : SomeCollection) 
-  if(c.SomeProperty < someValue * 2) 
-    results.add(c);`
+`List<SomeElement> results = new ArrayList<SomeElement>();`
+`for(SomeElement c : SomeCollection)`
+`  if(c.SomeProperty < someValue * 2)`
+`    results.add(c);`
 
 This is a trivial example, but it becomes obvious that for more complex queries, such as group by, select many, etc. the code becomes much more verbose. Even the low level of verbosity shown above hides the real purpose of the snippet, so one has to read it multiple lines of code in their entirety to understand it. This gets in the way of the developer and is not good for productivity. So is the following *valid* Java code perhaps better?
 
