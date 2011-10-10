@@ -22,26 +22,31 @@ Here is an equivalent Java snippet:
       if(c.SomeProperty < someValue * 2)
         results.add(c);
 
-This is a trivial example, but it becomes obvious that for more complex queries, such as group by, select many, etc. the code becomes much more verbose. Even the low level of verbosity shown above hides the real purpose of the snippet, so one has to read it multiple lines of code in their entirety to understand it. This gets in the way of the developer and is not good for productivity. So is the following *valid* Java code perhaps better?
+This is a trivial example, but it becomes obvious that for more complex queries, such as group by, select many, etc. the code becomes much more verbose. Even the low level of verbosity shown above hides the real purpose of the snippet, so one has to read it multiple lines of code in their entirety to understand it. This gets in the way of the developer and is not good for productivity. 
+
+So is the following *valid* Java code perhaps better?
 
     List results = someCollection.where(propertyLessThan(someValue*2));
 
-How is this possible? Well, firstly we have to import the right class, which would be the Linq class of the framework. It has implementations for all methods found in the .NET implementation such as: all, any, select, where, distinct, first, last, zip, etc.
+How is this possible? Well, firstly we have to import the right class, which would be the Linq class of the framework. It has implementations for all methods found in the .NET implementation such as: [all, any, select, where, distinct, first, last, zip, etc.](https://github.com/nicholas22/jpropel-light/blob/master/src/propel/core/utils/Linq.java)
 
 The second step is to annotate the class that contains your code with the @ExtensionMethod annotation, imported from a library called [lombok-pg](https://github.com/peichhorn/lombok-pg). This library makes a lot of the shown syntactic sugar possible by instructing your compiler to pre-process the class code before compiling. This is done transparently to the developer. As far as bytecode is concerned, the code is converted to standard Java calls. So for the snippet above, the code effectively becomes:
 
     List results = Linq.where(someCollection, propertyLessThan(someValue*2));
 
-This you will recognise is standard Java static method call. This is how extension methods work under-the-hood in other languages too. But crucially, you as a developer do not have to work as such and can be much more expressive, using a builder-like fluent API: 
+This you will recognise is standard Java static method call. This is how [extension methods](http://en.wikipedia.org/wiki/Extension_method) work under-the-hood in other languages too. 
+But crucially, you as a developer *do not* have to work as such and can be much more expressive, using a fluent API: 
 
     List names = new String[] {"james","john","john","eddie"}.where(startsWith("j").select(toUppercase()).distinct().toList();
 
-The above statement returns ["JAMES", "JOHN"] and is arguably more readable and concise than the equivalent imperative series of Java statements that it gets compiled down to, don't you agree? 
+Isn't that nice? :)
+
+The above statement returns ["JAMES", "JOHN"] and is arguably more readable and concise than the equivalent imperative series of Java statements that it gets processed down to:
 
     String[] array = String[] {"james","john","john","eddie"};
     array = Linq.toList(Linq.distinct(Linq.select(Linq.where(array, startsWith("j")), toUppercase())));
 
-The other interesting thing to note here is how can we seemingly pass functions as arguments (e.g. see startsWith, toUppercase). Everyone knows that Java does not have first class functions, in other words, cannot pass methods/functions around as objects. This is another area where lombok-pg helps us, allowing for the annotation of methods/functions with @Function, enabling easier functional programming in Java. 
+Another interesting thing to note here is how can we seemingly pass functions as arguments (e.g. see startsWith, toUppercase). Everyone knows that Java does not have first class functions, in other words, cannot pass methods/functions around as objects. This is another area where lombok-pg helps us, allowing for the annotation of methods/functions with @Function, enabling easier functional programming in Java. 
 
     @Function 
     private static String toUppercase(String element) { 
@@ -50,18 +55,17 @@ The other interesting thing to note here is how can we seemingly pass functions 
 
 The above annotation will pre-process the code by wrapping the annotated function in an anonymous class, allowing us to pass it around as an object. This is what the resulting code would look like if you decompiled the class:
 
-    private static Function1 toUppercase(String element) {
-      return new Function1() {
+    private static Function1<String, String> toUppercase(String element) {
+      return new Function1<String, String>() {
         public String apply(String arg) { 
           return element.toUpperCase(); 
         } 
       } 
     }
 
-This is very similar to how Scala functions are implemented. You can then pass these 'functions' (which are really just Java objects / anonymous classes) around, just like you would pass objects 
-around in other languages. And these are the types of objects that the Linq class accepts as selectors, predicates, filters, etc. Here is for example the source code of the select() method:
+This is very similar to how Scala functions are implemented. You can then pass these 'functions' (which are really just Java objects / anonymous classes) around, just like you would pass objects around in other languages. And these are the types of objects that the Linq class accepts as selectors, predicates, filters, etc. Here is for example the source code of the select() method:
 
-    public static TResult[] select(final TSource[] values, final Function1 selector) 
+    public static TResult[] select(final TSource[] values, final Function1<TSource, TResult> selector) 
     { 
       List result = new ArrayList(values.length); 
     
@@ -77,7 +81,7 @@ The JVM deals with anonymous classes very frequently when you code against it us
 
 Most Linq methods come in two flavors. One accepts generic arrays and one accepts generic Iterables. There are two reasons for this. Firstly, arrays and Iterables do not share a common super class which would allow for traversal of items. Secondly, arrays and Iterables are handled completely differently from the JPropel library perspective. 
 
-So when you pass an array to be processed, the resultant array is allocated and all results are inserted before it is returned. This is not the case with iterables. Iterables are created using a block iterator, similarly to how yielding works in C#. This means that if you do not iterate over the entire collection, then only some of the elements are processed, which is more efficient, because it allows you to for instance break the iteration process without consuming as much memory and processing resources.
+So when you pass an array to be processed, the resulting array is allocated and all results are inserted before it is returned. This is not the case with iterables. Iterables are created using a block iterator, similarly to how yielding works in C# and is down to lombok's [yield construct](http://peichhorn.github.com/lombok-pg/Yield.html). This means that if you do not iterate over the entire collection, then only some of the elements are processed, which is more efficient, because it allows you, for instance, to break the iteration process without consuming as much memory and processing resources as the array would.
 
 
 
