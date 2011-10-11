@@ -6,7 +6,7 @@ jpropel-light is a Java library which can seriously hinder your salary if you ar
     char[] alphabet = new Character('A').to(new Character('Z')).unbox();
  
     // join two arrays and put in list 
-    List<Character> = alphabet.join(numbers).toList(); 
+    List<Character> allowed = alphabet.join(numbers).toList(); 
 
     // select names starting with j, using LINQ-style statements
     new String[] { "james", "john", "john", "eddie" }.where(startsWith("j")).distinct();
