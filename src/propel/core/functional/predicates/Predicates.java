@@ -1,22 +1,11 @@
 /*
- ///////////////////////////////////////////////////////////
- //  This file is part of Propel.
- //
- //  Propel is free software: you can redistribute it and/or modify
- //  it under the terms of the GNU Lesser General Public License as published by
- //  the Free Software Foundation, either version 3 of the License, or
- //  (at your option) any later version.
- //
- //  Propel is distributed in the hope that it will be useful,
- //  but WITHOUT ANY WARRANTY; without even the implied warranty of
- //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- //  GNU Lesser General Public License for more details.
- //
- //  You should have received a copy of the GNU Lesser General Public License
- //  along with Propel.  If not, see <http://www.gnu.org/licenses/>.
- ///////////////////////////////////////////////////////////
- //  Authored by: Nikolaos Tountas -> salam.kaser-at-gmail.com
- ///////////////////////////////////////////////////////////
+ * /////////////////////////////////////////////////////////// // This file is part of Propel. // // Propel is free software: you can
+ * redistribute it and/or modify // it under the terms of the GNU Lesser General Public License as published by // the Free Software
+ * Foundation, either version 3 of the License, or // (at your option) any later version. // // Propel is distributed in the hope that it
+ * will be useful, // but WITHOUT ANY WARRANTY; without even the implied warranty of // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the // GNU Lesser General Public License for more details. // // You should have received a copy of the GNU Lesser General Public
+ * License // along with Propel. If not, see <http://www.gnu.org/licenses/>. /////////////////////////////////////////////////////////// //
+ * Authored by: Nikolaos Tountas -> salam.kaser-at-gmail.com ///////////////////////////////////////////////////////////
  */
 package propel.core.functional.predicates;
 
@@ -128,7 +117,7 @@ public final class Predicates
   {
     return !StringUtils.isNullOrEmpty(element);
   }
-  
+
   @Function
   public static Boolean isNullOrBlank(String element)
   {
@@ -140,14 +129,13 @@ public final class Predicates
   {
     return !StringUtils.isNullOrBlank(element);
   }
-  
 
   @Function
   public static Boolean startsWith(String element, String _prefix)
   {
     return StringUtils.startsWith(element, _prefix, StringComparison.Ordinal);
   }
-  
+
   @Function
   public static Boolean startsWith(String element, String _prefix, StringComparison _comparison)
   {
@@ -159,34 +147,41 @@ public final class Predicates
   {
     return StringUtils.endsWith(element, _suffix, StringComparison.Ordinal);
   }
-  
+
   @Function
   public static Boolean endsWith(String element, String _suffix, StringComparison _comparison)
   {
     return StringUtils.endsWith(element, _suffix, _comparison);
   }
-  
+
   @Function
   public static Boolean contains(String element, String _part)
   {
     return StringUtils.contains(element, _part, StringComparison.Ordinal);
   }
-  
+
   @Function
   public static Boolean contains(String element, String _part, StringComparison _comparison)
   {
     return StringUtils.contains(element, _part, _comparison);
   }
-  
+
   @Function
   public static Boolean isEqual(String element, String _other)
   {
     return StringUtils.equal(element, _other, StringComparison.Ordinal);
   }
-  
+
   @Function
   public static Boolean isEqual(String element, String _other, StringComparison _comparison)
   {
     return StringUtils.equal(element, _other, _comparison);
+  }
+
+  @Function
+  public static <T> boolean println(T element)
+  {
+    System.out.println(element);
+    return true;
   }
 }
