@@ -2,6 +2,16 @@
 
 jpropel-light is a Java library which can seriously hinder your salary if you are paid by the number of lines of code you create!
 
+    // create alphabet char[]
+    char[] alphabet = new Character('A').to(new Character('Z')).unbox();
+ 
+    // join two arrays and put in list 
+    List<Character> = alphabet.join(numbers).toList(); 
+
+    // select names starting with j, using LINQ-style statements
+    new String[] { "james", "john", "john", "eddie" }.where(startsWith("j")).distinct();
+
+
 It is a free and open-source Java library aiming to cut down code bloat, boilerplate and generally the number of lines of code Java developers have to write in order to complete a task.
 
 It comes with full LINQ support, reified generic collections and concise one-liners for performing common tasks such as reading an entire text file into memory, array manipulations, XML processing/querying, etc. 
@@ -164,7 +174,7 @@ There are a lot of very concise one-liners supported by the library which allow 
     // check if all elements are present
     boolean itsTrue = "abcdef".containsAll(new String[] {"bc", "cd"}, StringComparison.Ordinal);`
 
-There are too many utilities to cover here, around the areas of reflection, XML, conversions (e.g. binary, octal, hex, decimal, base64, etc.), character escaping, hashing, strings, etc. Have a look at the `propel.core.utils.*` package for more. 
+There are too many utilities to cover here, around the areas of reflection, XML, conversions (e.g. binary, octal, hex, decimal, base64, etc.), character escaping, hashing, strings, etc. Have a look at the [propel.core.utils.*](https://github.com/nicholas22/jpropel-light/tree/master/src/propel/core/utils) package for more. For more examples also see [the JPropel changelog (https://github.com/nicholas22/jpropel) 
 
 
 ## JPropel
