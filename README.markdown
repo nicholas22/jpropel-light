@@ -51,11 +51,16 @@ But crucially, you as a developer *do not* have to work as such and can be much 
 
 Isn't that nice? :)
 
-The above statement returns ["JAMES", "JOHN"] and is more readable and concise than the following equivalent statement:
+The above statement returns ["JAMES", "JOHN"] and is more readable and concise than the following equivalent (but horrible) statement:
 
     Linq.toList(Linq.distinct(Linq.select(Linq.where(new String[] { "james","john","john","eddie"}, startsWith("j")), toUppercase())));
 
-Another interesting thing to note here is how can we seemingly pass functions as arguments (e.g. see startsWith, toUppercase). Everyone knows that Java does not have first class functions, in other words, cannot pass methods/functions around as objects. This is another area where lombok-pg helps us, allowing for the annotation of methods/functions with @Function, enabling easier functional programming in Java. 
+It's verbose and bug prone because it's hard to understand. Let's get back on the prettier version:
+
+    new String[] {"james","john","john","eddie"}.where(startsWith("j").select(toUppercase()).distinct().toList();
+
+
+The other interesting with the above statement is how can we seemingly pass functions as arguments (e.g. see startsWith, toUppercase). Everyone knows that Java does not have first class functions, in other words, cannot pass methods/functions around as objects. This is another area where lombok-pg helps us, allowing for the annotation of methods/functions with @Function, enabling easier functional programming in Java. 
 
     @Function 
     private static String toUppercase(String element) { 
