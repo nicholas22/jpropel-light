@@ -9,7 +9,7 @@ jpropel-light is a Java library which can seriously hinder your salary if you ar
     List<Character> allowed = alphabet.join(numbers).toList(); 
 
     // select names starting with j, using LINQ-style statements
-    new String[] { "james", "john", "john", "eddie" }.where(startsWith("j")).distinct().println();
+    new String[] { "james", "john", "john", "eddie" }.where(startsWith("j")).distinct().all(println());
     
 
 It is a free and open-source Java library aiming to cut down code bloat, boilerplate and generally the number of lines of code Java developers have to write in order to complete a task.
