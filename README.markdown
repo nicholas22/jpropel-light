@@ -201,6 +201,20 @@ This allows you to focus on the task at hand without worrying if you have enough
 
 All calls to methods of the myClass instance that have been annotated with @Trace will emit logging statements of all method arguments, results (if not void) and exceptions (if thrown). The logger uses  SLF4j so will plug into any popular logging library you are using. The format of messages is highly configurable as well.
 
+Finally, another nice feature is a validation framework, where you define your POJOs' metadata and can validate in a single line of code, removing the need for convoluted if-then-else statements sprinkled around many places in your code:
+
+    boolean notNull = true;
+    boolean notEmpty = true;
+    boolean notNullChars = true;
+    StringPropertyMetadata name = new StringPropertyMetadata("Name", 3, 20, notNull, notEmpty, notNullChars);
+
+    // perform validation
+    name.validate(null); // "Name cannot be null"
+    name.validate(""); // "Name cannot be empty"
+    name.validate("John"); // OK
+    name.validate("Jo"); // "Name cannot be 2 or fewer characters in length"
+    name.validate("123456789012345678901"); // "Name cannot be 21 or more characters in length"
+
 
 
 ##Lombok-pg
