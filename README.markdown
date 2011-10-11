@@ -178,7 +178,7 @@ There are a lot of very concise one-liners supported by the library which allow 
     Stopwatch sw = Stopwatch.startNew();
     long ns = sw.getElapsedNanos();
 
-There are too many utilities to cover here, around the areas of reflection, XML, conversions (e.g. binary, octal, hex, decimal, base64, etc.), character escaping, hashing, strings, etc. Have a look at the [propel.core.utils.*](https://github.com/nicholas22/jpropel-light/tree/master/src/propel/core/utils) package for more. For more examples also see [the JPropel changelog (https://github.com/nicholas22/jpropel) 
+There are too many utilities to cover here, around the areas of reflection, XML, conversions (e.g. binary, octal, hex, decimal, base64, etc.), character escaping, hashing, strings, etc. Have a look at the [propel.core.utils.*](https://github.com/nicholas22/jpropel-light/tree/master/src/propel/core/utils) package for more. For more examples also see [the JPropel changelog] (https://github.com/nicholas22/jpropel) 
 
 
 ## JPropel
