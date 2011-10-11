@@ -9,8 +9,8 @@ jpropel-light is a Java library which can seriously hinder your salary if you ar
     List<Character> allowed = alphabet.join(numbers).toList(); 
 
     // select names starting with j, using LINQ-style statements
-    new String[] { "james", "john", "john", "eddie" }.where(startsWith("j")).distinct();
-
+    new String[] { "james", "john", "john", "eddie" }.where(startsWith("j")).distinct().println();
+    
 
 It is a free and open-source Java library aiming to cut down code bloat, boilerplate and generally the number of lines of code Java developers have to write in order to complete a task.
 
@@ -47,14 +47,13 @@ The second step is to annotate the class that contains your code with the @Exten
 This you will recognise is standard Java static method call. This is how [extension methods](http://en.wikipedia.org/wiki/Extension_method) work under-the-hood in other languages too. 
 But crucially, you as a developer *do not* have to work as such and can be much more expressive, using a fluent API: 
 
-    List names = new String[] {"james","john","john","eddie"}.where(startsWith("j").select(toUppercase()).distinct().toList();
+    new String[] {"james","john","john","eddie"}.where(startsWith("j").select(toUppercase()).distinct().toList();
 
 Isn't that nice? :)
 
-The above statement returns ["JAMES", "JOHN"] and is arguably more readable and concise than the equivalent imperative series of Java statements that it gets processed down to:
+The above statement returns ["JAMES", "JOHN"] and is more readable and concise than the following equivalent statement:
 
-    String[] array = String[] {"james","john","john","eddie"};
-    array = Linq.toList(Linq.distinct(Linq.select(Linq.where(array, startsWith("j")), toUppercase())));
+    Linq.toList(Linq.distinct(Linq.select(Linq.where(new String[] { "james","john","john","eddie"}, startsWith("j")), toUppercase())));
 
 Another interesting thing to note here is how can we seemingly pass functions as arguments (e.g. see startsWith, toUppercase). Everyone knows that Java does not have first class functions, in other words, cannot pass methods/functions around as objects. This is another area where lombok-pg helps us, allowing for the annotation of methods/functions with @Function, enabling easier functional programming in Java. 
 
