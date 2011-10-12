@@ -234,3 +234,20 @@ If you are using an IDE such as Eclipse or Netbeans, you should patch it so that
 Javac and Ant do not require any patching as such.
 
 You may visit the [lombok](http://projectlombok.org/slideshow.html) project website for more info, or ask [Philipp](https://github.com/peichhorn) more about it.
+
+
+##Changelog
+
+1.0.2
+Lots of new statically importable predicates and projections:
+
+    import static propel.core.functional.predicates.Predicates.*;
+    import static propel.core.functional.projections.Projections.*;
+
+(beta) Matcher allowing for fewer if-then-else statements
+
+1.0.1
+`println()` predicate
+
+1.0.0
+Lightweight version forked from [JPropel](https://github.com/nicholas22/jpropel)

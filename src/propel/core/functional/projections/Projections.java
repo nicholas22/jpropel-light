@@ -115,16 +115,6 @@ public final class Projections
   }
 
   /**
-   * Calls System.out.println() passing the function argument to be printed
-   */
-  @Function
-  public static <T> boolean println(T element)
-  {
-    System.out.println(element);
-    return true;
-  }
-
-  /**
    * Action that appends some text data to a file. No EOL character is appended, just the given text.
    * 
    * @throws NullPointerException An argument is null
