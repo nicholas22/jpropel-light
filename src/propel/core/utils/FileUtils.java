@@ -149,31 +149,45 @@ public final class FileUtils
     * Note: Creation date is not possible to obtain and set in a cross platform way in Java prior to 1.7.
     *
     * @throws NullPointerException  An argument is null
-    * @throws IOException		   An I/O error occurs
+    * @throws IOException                  An I/O error occurs
     * @throws FileNotFoundException The file specified is a directory, it does not exist or cannot be read/created.
-    * @throws SecurityException	 Access to filesystem is denied by a SecurityManager
+    * @throws SecurityException  Access to filesystem is denied by a SecurityManager
     */
    public static void cloneFile(String originatingPath, String destinationPath)
            throws IOException
    {
-      copy(originatingPath, destinationPath);
+      copyFile(originatingPath, destinationPath);
 
       File source = new File(originatingPath);
       File dest = new File(destinationPath);
-      
+     
       if (!dest.setLastModified(source.lastModified()))
          throw new IOException("Could not set last modified date/time.");
    }
+  
+   /**
+    * Clones a file from source to destination, returning true if the operation was successful.
+    * The file is not copied if any exception occurs. No exception is thrown under any circumstance.
+    */
+   public static boolean tryCloneFile(String sourceAbsPath, String destAbsPath)
+   {
+      try {
+         cloneFile(sourceAbsPath, destAbsPath);
+         return true;
+      } catch (Throwable e) {
+         return false;
+      }
+   }
    
    /**
-    * Copies a file from source to destination 
+    * Copies a file from source to destination
     *
     * @throws NullPointerException  An argument is null
     * @throws IOException      An I/O error occurs
     * @throws FileNotFoundException The file specified is a directory, it does not exist or cannot be read/created.
     * @throws SecurityException  Access to filesystem is denied by a SecurityManager
     */
-   public static void copy(String originatingPath, String destinationPath)
+   public static void copyFile(String originatingPath, String destinationPath)
            throws IOException
    {
       if (originatingPath == null)
@@ -202,14 +216,28 @@ public final class FileUtils
             fos.close();
       }
    }
-
+  
+   /**
+    * Copies a file from source to destination, returning true if the operation was successful.
+    * The file is not copied if any exception occurs. No exception is thrown under any circumstance.
+    */
+   public static boolean tryCopyFile(String sourceAbsPath, String destAbsPath)
+   {
+      try {
+         copyFile(sourceAbsPath, destAbsPath);
+         return true;
+      } catch (Throwable e) {
+         return false;
+      }
+   }
+   
    /**
     * Deletes a file, if it exists.
     *
     * @throws NullPointerException  An argument is null
-    * @throws IOException		   An I/O error occurs
+    * @throws IOException                  An I/O error occurs
     * @throws FileNotFoundException The file was a directory
-    * @throws SecurityException	 Access to filesystem is denied by a SecurityManager
+    * @throws SecurityException  Access to filesystem is denied by a SecurityManager
     */
    public static void deleteFile(String fileAbsPath)
            throws IOException
@@ -248,6 +276,41 @@ public final class FileUtils
       }
    }
 
+   /**
+    * Moves a file from source to destination
+    *
+    * @throws NullPointerException  An argument is null
+    * @throws IOException      An I/O error occurs
+    * @throws FileNotFoundException The file specified is a directory, it does not exist or cannot be read/created.
+    * @throws SecurityException  Access to filesystem is denied by a SecurityManager
+    */
+   public static void moveFile(String originatingPath, String destinationPath)
+           throws IOException
+   {
+      if (originatingPath == null)
+         throw new NullPointerException("originatingPath");
+      if (destinationPath == null)
+         throw new NullPointerException("destinationPath");
+
+      File source = new File(originatingPath);     
+      File dest = new File(destinationPath);
+      source.renameTo(dest);
+   }
+  
+   /**
+    * Moves a file from source to destination, returning true if the operation was successful.
+    * The file is not moved if any exception occurs. No exception is thrown under any circumstance.
+    */
+   public static boolean tryMoveFile(String sourceAbsPath, String destAbsPath)
+   {
+      try {
+         moveFile(sourceAbsPath, destAbsPath);
+         return true;
+      } catch (Throwable e) {
+         return false;
+      }
+   }
+   
    /**
     * Returns the URL to a resource, by its class path e.g. /java/util/test.xml. 
     * 

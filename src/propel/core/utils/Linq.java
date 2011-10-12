@@ -2095,11 +2095,6 @@ public final class Linq
 	@Validate
 	public static <T> boolean sequenceEqual(@NotNull final Iterable<? super T> values1, @NotNull final Iterable<T> values2)
 	{
-		if(values1 == null)
-			throw new NullPointerException("values1");
-		if(values2 == null)
-			throw new NullPointerException("values2");
-
 		if(count(values1) != count(values2))
 			return false;
 		else
