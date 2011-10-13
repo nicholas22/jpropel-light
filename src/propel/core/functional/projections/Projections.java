@@ -1,23 +1,21 @@
-/*
- ///////////////////////////////////////////////////////////
- //  This file is part of Propel.
- //
- //  Propel is free software: you can redistribute it and/or modify
- //  it under the terms of the GNU Lesser General Public License as published by
- //  the Free Software Foundation, either version 3 of the License, or
- //  (at your option) any later version.
- //
- //  Propel is distributed in the hope that it will be useful,
- //  but WITHOUT ANY WARRANTY; without even the implied warranty of
- //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- //  GNU Lesser General Public License for more details.
- //
- //  You should have received a copy of the GNU Lesser General Public License
- //  along with Propel.  If not, see <http://www.gnu.org/licenses/>.
- ///////////////////////////////////////////////////////////
- //  Authored by: Nikolaos Tountas -> salam.kaser-at-gmail.com
- ///////////////////////////////////////////////////////////
- */
+// /////////////////////////////////////////////////////////
+// This file is part of Propel.
+//
+// Propel is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Propel is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with Propel. If not, see <http://www.gnu.org/licenses/>.
+// /////////////////////////////////////////////////////////
+// Authored by: Nikolaos Tountas -> salam.kaser-at-gmail.com
+// /////////////////////////////////////////////////////////
 package propel.core.functional.projections;
 
 import java.lang.reflect.Method;
@@ -280,7 +278,7 @@ public final class Projections
 
       // initialiser block
       {
-        method = getSingleMethodIfExists(obj,  methodName);
+        method = getSingleMethodIfExists(obj, methodName);
       }
 
       @SneakyThrows
@@ -301,8 +299,8 @@ public final class Projections
   }
 
   /**
-   * Returns a one-argument action which invokes the method name specified on the given object, passing the function argument to the
-   * invoked method.
+   * Returns a one-argument action which invokes the method name specified on the given object, passing the function argument to the invoked
+   * method.
    * 
    * @throws NullPointerException An argument is null
    * @throws IllegalArgumentException There is no method found having the specified method name on the given object, or more than one
@@ -317,7 +315,7 @@ public final class Projections
 
       // initialiser block
       {
-        method = getSingleMethodIfExists(obj,  methodName);
+        method = getSingleMethodIfExists(obj, methodName);
       }
 
       @SneakyThrows
@@ -336,7 +334,7 @@ public final class Projections
       }
     };
   }
-  
+
   /**
    * Returns a no-argument function which invokes the method name specified on the given object.
    * 
@@ -353,7 +351,7 @@ public final class Projections
 
       // initialiser block
       {
-        method = getSingleMethodIfExists(obj,  methodName);
+        method = getSingleMethodIfExists(obj, methodName);
       }
 
       @SneakyThrows
@@ -371,7 +369,7 @@ public final class Projections
       }
     };
   }
-  
+
   /**
    * Returns a one-argument function which invokes the method name specified on the given object, passing the function argument to the
    * invoked method.
@@ -389,7 +387,7 @@ public final class Projections
 
       // initialiser block
       {
-        method = getSingleMethodIfExists(obj,  methodName);
+        method = getSingleMethodIfExists(obj, methodName);
       }
 
       @SneakyThrows
@@ -407,7 +405,7 @@ public final class Projections
       }
     };
   }
-  
+
   /**
    * Returns a one-argument action which invokes the no-arg method on this argument
    * 
@@ -420,7 +418,7 @@ public final class Projections
   {
     return invokeMethod(methodName, null);
   }
-  
+
   /**
    * Returns a one-argument action which invokes the one-arg method on this argument
    * 
@@ -437,7 +435,7 @@ public final class Projections
       {
         try
         {
-          Method method = getSingleMethodIfExists(arg,  methodName);
+          Method method = getSingleMethodIfExists(arg, methodName);
           method.invoke(arg, obj);
         }
         catch(InvocationTargetException e)
@@ -449,7 +447,7 @@ public final class Projections
       }
     };
   }
-  
+
   /**
    * Returns a one-argument function which invokes the no-arg method on this argument
    * 
@@ -462,7 +460,7 @@ public final class Projections
   {
     return invokeFunction(methodName, null);
   }
-  
+
   /**
    * Returns a one-argument action which invokes the one-arg method on this argument
    * 
@@ -479,7 +477,7 @@ public final class Projections
       {
         try
         {
-          Method method = getSingleMethodIfExists(arg,  methodName);
+          Method method = getSingleMethodIfExists(arg, methodName);
           return (T) method.invoke(arg, obj);
         }
         catch(InvocationTargetException e)
@@ -490,8 +488,9 @@ public final class Projections
       }
     };
   }
-  
-  private static Method getSingleMethodIfExists(Object obj, String methodName) {
+
+  private static Method getSingleMethodIfExists(Object obj, String methodName)
+  {
     Method[] methods = ReflectionUtils.getMethods(obj.getClass(), methodName, false);
     if (methods.length > 1)
       throw new IllegalArgumentException("Found multiple method overloads for " + obj.getClass() + "." + methodName);

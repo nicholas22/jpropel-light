@@ -1,23 +1,21 @@
-/*
-///////////////////////////////////////////////////////////
-//  This file is part of Propel.
+// /////////////////////////////////////////////////////////
+// This file is part of Propel.
 //
-//  Propel is free software: you can redistribute it and/or modify
-//  it under the terms of the GNU Lesser General Public License as published by
-//  the Free Software Foundation, either version 3 of the License, or
-//  (at your option) any later version.
+// Propel is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 //
-//  Propel is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU Lesser General Public License for more details.
+// Propel is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public License
-//  along with Propel.  If not, see <http://www.gnu.org/licenses/>.
-///////////////////////////////////////////////////////////
-//  Authored by: Nikolaos Tountas -> salam.kaser-at-gmail.com
-///////////////////////////////////////////////////////////
- */
+// You should have received a copy of the GNU Lesser General Public License
+// along with Propel. If not, see <http://www.gnu.org/licenses/>.
+// /////////////////////////////////////////////////////////
+// Authored by: Nikolaos Tountas -> salam.kaser-at-gmail.com
+// /////////////////////////////////////////////////////////
 package propel.core.utils;
 
 import java.io.BufferedInputStream;
@@ -56,1379 +54,1483 @@ import propel.core.functional.tuples.Pair;
 public final class FileUtils
 {
 
-   private FileUtils()
-   {
-   }
-
-   /**
-    * Appends some binary data to a file in the specified path. If the file does not exist, it is created.
-    *
-    * @throws NullPointerException	 An argument is null
-    * @throws IllegalArgumentException An argument is out of range
-    * @throws IOException			  An I/O error occurs
-    * @throws FileNotFoundException	The file specified is a directory, or it does not exist and cannot be created, or cannot be appended to.
-    * @throws SecurityException		Access to filesystem is denied by a SecurityManager
-    */
-   public static void appendData(String fileAbsPath, byte[] data, int offset, int count)
-           throws IOException
-   {
-      if (fileAbsPath == null)
-         throw new NullPointerException("fileAbsPath");
-      if (data == null)
-         throw new NullPointerException("data");
-      if (offset > data.length)
-         throw new IllegalArgumentException("offset=" + offset + " dataLen=" + data.length);
-      if (count < 0 || count > data.length)
-         throw new IllegalArgumentException("count=" + count + " dataLen=" + data.length);
-      if (offset + count > data.length || offset + count < 0)
-         throw new IllegalArgumentException("offset=" + offset + " count=" + count + " dataLen=" + data.length);
-
-      BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(fileAbsPath, true));
-      bos.write(data, offset, count);
-      bos.flush();
-      bos.close();
-   }
-
-   /**
-    * Appends some text to a file in the specified path. If the file does not exist, it is created.
-    * No EOL terminator is appended, e.g. Environment.NewLine.
-    *
-    * @throws NullPointerException	 An argument is null
-    * @throws IllegalArgumentException An argument is out of range
-    * @throws IOException			  An I/O error occurs
-    * @throws FileNotFoundException	The file specified is a directory, or it does not exist and cannot be created, or cannot be appended to.
-    * @throws SecurityException		Access to filesystem is denied by a SecurityManager
-    */
-   public static void appendText(String fileAbsPath, String text)
-           throws IOException
-   {
-      appendText(fileAbsPath, text, null);
-   }
-
-   /**
-    * Appends some text to a file in the specified path and the appends Environment.NewLine. If the file does not exist, it is created.
-    *
-    * @throws NullPointerException	 An argument is null
-    * @throws IllegalArgumentException An argument is out of range
-    * @throws IOException			  An I/O error occurs
-    * @throws FileNotFoundException	The file specified is a directory, or it does not exist and cannot be created, or cannot be appended to.
-    * @throws SecurityException		Access to filesystem is denied by a SecurityManager
-    */
-   public static void appendTextLine(String fileAbsPath, String text)
-           throws IOException
-   {
-      appendText(fileAbsPath, text, CONSTANT.ENVIRONMENT_NEWLINE);
-   }
-
-   /**
-    * Appends some text to a file in the specified path. If the file does not exist, it is created.
-    * If the End-Of-Line terminator is not null, it is appended after the text (this could be e.g. Environment.NewLine)
-    *
-    * @throws NullPointerException	 An argument is null
-    * @throws IllegalArgumentException An argument is out of range
-    * @throws IOException			  An I/O error occurs
-    * @throws FileNotFoundException	The file specified is a directory, or it does not exist and cannot be created, or cannot be appended to.
-    * @throws SecurityException		Access to filesystem is denied by a SecurityManager
-    */
-   public static void appendText(String fileAbsPath, String text, String eolTerminator)
-           throws IOException
-   {
-      if (fileAbsPath == null)
-         throw new NullPointerException("fileAbsPath");
-
-      BufferedWriter bw = new BufferedWriter(new FileWriter(fileAbsPath, true));
-      bw.write(text);
-      if (eolTerminator != null)
-         bw.write(eolTerminator);
-      bw.flush();
-      bw.close();
-   }
-
-   /**
-    * Copies a file from source to destination while preserving the file's Last Modified date.
-    * Note: Creation date is not possible to obtain and set in a cross platform way in Java prior to 1.7.
-    *
-    * @throws NullPointerException  An argument is null
-    * @throws IOException                  An I/O error occurs
-    * @throws FileNotFoundException The file specified is a directory, it does not exist or cannot be read/created.
-    * @throws SecurityException  Access to filesystem is denied by a SecurityManager
-    */
-   public static void cloneFile(String originatingPath, String destinationPath)
-           throws IOException
-   {
-      copyFile(originatingPath, destinationPath);
-
-      File source = new File(originatingPath);
-      File dest = new File(destinationPath);
-     
-      if (!dest.setLastModified(source.lastModified()))
-         throw new IOException("Could not set last modified date/time.");
-   }
-  
-   /**
-    * Clones a file from source to destination, returning true if the operation was successful.
-    * The file is not copied if any exception occurs. No exception is thrown under any circumstance.
-    */
-   public static boolean tryCloneFile(String sourceAbsPath, String destAbsPath)
-   {
-      try {
-         cloneFile(sourceAbsPath, destAbsPath);
-         return true;
-      } catch (Throwable e) {
-         return false;
-      }
-   }
-   
-   /**
-    * Copies a file from source to destination
-    *
-    * @throws NullPointerException  An argument is null
-    * @throws IOException      An I/O error occurs
-    * @throws FileNotFoundException The file specified is a directory, it does not exist or cannot be read/created.
-    * @throws SecurityException  Access to filesystem is denied by a SecurityManager
-    */
-   public static void copyFile(String originatingPath, String destinationPath)
-           throws IOException
-   {
-      if (originatingPath == null)
-         throw new NullPointerException("originatingPath");
-      if (destinationPath == null)
-         throw new NullPointerException("destinationPath");
-
-      File source = new File(originatingPath);
-      File dest = new File(destinationPath);
-
-      BufferedInputStream fis = null;
-      BufferedOutputStream fos = null;
-
-      try {
-         fis = new BufferedInputStream(new FileInputStream(source));
-         fos = new BufferedOutputStream(new FileOutputStream(dest));
-
-         byte[] buf = new byte[64 * 1024];
-         int read = 0;
-         while ((read = fis.read(buf)) != -1)
-            fos.write(buf, 0, read);
-      } finally {
-         if (fis != null)
-            fis.close();
-         if (fos != null)
-            fos.close();
-      }
-   }
-  
-   /**
-    * Copies a file from source to destination, returning true if the operation was successful.
-    * The file is not copied if any exception occurs. No exception is thrown under any circumstance.
-    */
-   public static boolean tryCopyFile(String sourceAbsPath, String destAbsPath)
-   {
-      try {
-         copyFile(sourceAbsPath, destAbsPath);
-         return true;
-      } catch (Throwable e) {
-         return false;
-      }
-   }
-   
-   /**
-    * Deletes a file, if it exists.
-    *
-    * @throws NullPointerException  An argument is null
-    * @throws IOException                  An I/O error occurs
-    * @throws FileNotFoundException The file was a directory
-    * @throws SecurityException  Access to filesystem is denied by a SecurityManager
-    */
-   public static void deleteFile(String fileAbsPath)
-           throws IOException
-   {
-      if (fileAbsPath == null)
-         throw new NullPointerException("fileAbsPath");
-
-      File file = new File(fileAbsPath);
-      if (file.exists()) {
-         // check not dir
-         if (!file.isFile())
-            throw new FileNotFoundException("The specified path is not referring to a file: " + fileAbsPath);
-         // delete
-         if (!file.delete())
-            throw new IOException("Could not delete file: " + fileAbsPath);
-      }
-   }
-
-   /**
-    * Attempts to delete a file. The file is not deleted if any exception occurs.
-    * No exception is thrown under any circumstance.
-    */
-   public static boolean tryDeleteFile(String fileAbsPath)
-   {
-      try {
-         if (fileAbsPath == null)
-            throw new NullPointerException("fileAbsPath");
-
-         File file = new File(fileAbsPath);
-         if (file.exists())
-            return file.delete();
-
-         return true;
-      } catch (Throwable e) {
-         return false;
-      }
-   }
-
-   /**
-    * Moves a file from source to destination
-    *
-    * @throws NullPointerException  An argument is null
-    * @throws IOException      An I/O error occurs
-    * @throws FileNotFoundException The file specified is a directory, it does not exist or cannot be read/created.
-    * @throws SecurityException  Access to filesystem is denied by a SecurityManager
-    */
-   public static void moveFile(String originatingPath, String destinationPath)
-           throws IOException
-   {
-      if (originatingPath == null)
-         throw new NullPointerException("originatingPath");
-      if (destinationPath == null)
-         throw new NullPointerException("destinationPath");
-
-      File source = new File(originatingPath);     
-      File dest = new File(destinationPath);
-      source.renameTo(dest);
-   }
-  
-   /**
-    * Moves a file from source to destination, returning true if the operation was successful.
-    * The file is not moved if any exception occurs. No exception is thrown under any circumstance.
-    */
-   public static boolean tryMoveFile(String sourceAbsPath, String destAbsPath)
-   {
-      try {
-         moveFile(sourceAbsPath, destAbsPath);
-         return true;
-      } catch (Throwable e) {
-         return false;
-      }
-   }
-   
-   /**
-    * Returns the URL to a resource, by its class path e.g. /java/util/test.xml. 
-    * 
-    * @throws NullPointerException An argument is null
-    * @throws FileNotFoundException The resource specified was not found
-    */
-   public static URL getResourceUrl(String classpath)
-           throws FileNotFoundException
-   {
-      if (classpath == null)
-         throw new NullPointerException("classpath");
-
-      URL result = FileUtils.class.getResource(classpath);
-
-      if (result == null)
-         throw new FileNotFoundException("Resource not found in specified class path: " + classpath);
-
-      return result;
-   }
-
-   /**
-    * Returns the URL to a resource, by its package and name e.g. class path e.g. /java/util and test.xml
-    *
-    * @throws NullPointerException An argument is null
-    * @throws FileNotFoundException The resource specified was not found
-    */
-   public static URL getResourceUrl(Package pkg, String filename)
-           throws FileNotFoundException
-   {
-      if (pkg == null)
-         throw new NullPointerException("pkg");
-      if (filename == null)
-         throw new NullPointerException("filename");
-
-      // get the class's package
-      String myPackage = pkg.getName();
-
-      // convert package to class path
-      String myClasspath = CONSTANT.FORWARD_SLASH + myPackage.replace(CONSTANT.DOT, CONSTANT.FORWARD_SLASH);
-      if (!myClasspath.endsWith(CONSTANT.FORWARD_SLASH))
-         myClasspath += CONSTANT.FORWARD_SLASH;
-
-      // append filename to class path
-      String resourceClasspath = myClasspath + filename;
-
-      // load resource
-      return FileUtils.getResourceUrl(resourceClasspath);
-   }
-
-   /**
-    * Returns a tuple. The first argument is an open input stream to the specified resource, which has to be closed explicitly. The second
-    * argument is the length of the data in the input stream.
-    *
-    * @throws NullPointerException An argument is null
-    * @throws IOException An I/O exception occurred during loading of the resource
-    * @throws FileNotFoundException The resource specified was not found
-    */
-   private static Pair<InputStream, Long> getResourceStream(URL url)
-           throws FileNotFoundException, IOException
-   {
-      if (url == null)
-         throw new NullPointerException("url");
-
-      // Thanks to Marcin Lamparski, we don't need the following anymore
-      /* if file://
-      {
-      File file = new File(EscapingUtils.fromUrl(url.getFile()));
-      InputStream is = new FileInputStream(file);
-      
-      return new Pair<InputStream, Long>(is, file.length());
-      } else*/
-
-      URLConnection connection = url.openConnection();
-      int length = connection.getContentLength();
-
-      InputStream is = connection.getInputStream();
-      return new Pair<InputStream, Long>(is, (long) length);
-   }
-
-   /**
-    * Returns an input stream to the specified resource. Do not forget to close the stream when done.
-    *
-    * @throws IOException An I/O exception occurred during loading of the resource
-    */
-   public static InputStream getResourceStreamData(URL url)
-           throws IOException
-   {
-      if (url == null)
-         throw new NullPointerException("url");
-
-      return url.openStream();
-   }
-
-   /**
-    * Returns the text data of the specified URL. The conversion uses the UTF8 character set 
-    * 
-    * @throws NullPointerException An argument is null
-    * @throws IOException An I/O exception occurred during loading of the resource
-    * @throws FileNotFoundException The resource specified was not found
-    */
-   public static String getResourceTextData(URL url)
-           throws IOException
-   {
-      return new String(getResourceData(url), CONSTANT.UTF8);
-   }
-
-   /**
-    * Returns the text data of the specified URL. The conversion uses the specified character set, e.g. UTF8 
-    * 
-    * @throws NullPointerException An argument is null
-    * @throws IOException An I/O exception occurred during loading of the resource
-    * @throws FileNotFoundException The resource specified was not found
-    */
-   public static String getResourceTextData(URL url, Charset charset)
-           throws IOException
-   {
-      if (charset == null)
-         throw new NullPointerException("charset");
-
-      return new String(getResourceData(url), CONSTANT.UTF8);
-   }
-
-   /**
-    * Returns the data of the specified URL. 
-    * 
-    * @throws NullPointerException An argument is null
-    * @throws IOException An I/O exception occurred during loading of the resource
-    * @throws FileNotFoundException The resource specified was not found
-    */
-   public static byte[] getResourceData(URL url)
-           throws IOException
-   {
-      if (url == null)
-         throw new NullPointerException("url");
-
-      Pair<InputStream, Long> tuple = getResourceStream(url);
-
-      InputStream input = tuple.getFirst();
-      long length = tuple.getSecond();
-
-      byte[] result = StreamUtils.readFully(input, length);
-
-      // important not to forget to close the opened stream
-      input.close();
-
-      return result;
-   }
-
-   /**
-    * Reads the entire contents of a file to a string and returns it.
-    * This method should generally only be used for small files as it is quite inefficient to read everything in memory.
-    *
-    * @throws NullPointerException  An argument is null
-    * @throws IOException		   An I/O error occurs
-    * @throws FileNotFoundException The file was not found, or it was a directory
-    * @throws SecurityException	 Access to filesystem is denied by a SecurityManager
-    */
-   public static String readFileToEnd(String fileAbsPath)
-           throws IOException
-   {
-      if (fileAbsPath == null)
-         throw new NullPointerException("fileAbsPath");
-
-      File file = new File(fileAbsPath);
-
-      if (!file.exists())
-         throw new FileNotFoundException("The file was not found: " + fileAbsPath);
-      if (!file.isFile())
-         throw new FileNotFoundException("The specified path is not referring to a file: " + fileAbsPath);
-
-      BufferedInputStream stream = null;
-      try {
-         stream = new BufferedInputStream(new FileInputStream(file));
-         byte[] result = StreamUtils.readFully(stream, file.length());
-         return ConversionUtils.toString(result);
-      } finally {
-         if (stream != null)
-            stream.close();
-      }
-   }
-
-   /**
-    * Enumerates the contents of a file line by line (reads the entire contents of a file in memory to do so).
-    *
-    * @throws NullPointerException  An argument is null
-    * @throws IOException		   An I/O error occurs
-    * @throws FileNotFoundException The file was not found, or it was a directory
-    * @throws SecurityException	 Access to filesystem is denied by a SecurityManager
-    */
-   public static Iterable<String> readFilePerLine(String fileAbsPath)
-           throws IOException
-   {
-      List<String> result = new ArrayList<String>(100);
-
-      File file = new File(fileAbsPath);
-      if (!file.exists())
-         throw new FileNotFoundException("The file was not found: " + fileAbsPath);
-      if (!file.isFile())
-         throw new FileNotFoundException("The specified path is not referring to a file: " + fileAbsPath);
-
-      BufferedReader br = new BufferedReader(new FileReader(file));
-      String line;
-      while ((line = br.readLine()) != null)
-         result.add(line);
-
-      br.close();
-      return result;
-   }
-
-   /**
-    * Reads the entire contents of a file to a byte[] and returns it.
-    * This method should generally only be used for small files as it is quite inefficient to read everything in memory.
-    *
-    * @throws NullPointerException  An argument is null
-    * @throws IOException		   An I/O error occurs
-    * @throws FileNotFoundException The file was not found, or it was a directory
-    * @throws SecurityException	 Access to filesystem is denied by a SecurityManager
-    */
-   public static byte[] readFileInMemory(String fileAbsPath)
-           throws IOException
-   {
-      if (fileAbsPath == null)
-         throw new NullPointerException("fileAbsPath");
-
-      File file = new File(fileAbsPath);
-      if (!file.exists())
-         throw new FileNotFoundException("The file was not found: " + fileAbsPath);
-      if (!file.isFile())
-         throw new FileNotFoundException("The specified path is not referring to a file: " + fileAbsPath);
-
-      BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
-      byte[] result = StreamUtils.readFully(bis, file.length());
-      bis.close();
-      return result;
-   }
-
-   /**
-    * Enumerates the contents of a file line by line (reads the entire contents of a file in memory to do so).
-    *
-    * @throws NullPointerException  An argument is null
-    * @throws IOException		   An I/O error occurs
-    * @throws FileNotFoundException The file was not found, or it was a directory
-    * @throws SecurityException	 Access to filesystem is denied by a SecurityManager
-    */
-   public static Iterable<byte[]> readFilePerBlock(String fileAbsPath, int blockSize)
-           throws IOException
-   {
-      if (blockSize <= 0)
-         throw new IllegalArgumentException("blockSize");
-      List<byte[]> result = new ArrayList<byte[]>(100);
-
-      File file = new File(fileAbsPath);
-      if (!file.exists())
-         throw new FileNotFoundException("The file was not found: " + fileAbsPath);
-      if (!file.isFile())
-         throw new FileNotFoundException("The specified path is not referring to a file: " + fileAbsPath);
-
-      if (file.length() > Integer.MAX_VALUE)
-         throw new IOException("The file is too large, this method supports files of up to 2GB.");
-
-      BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
-
-      // read all blocks
-      int repeats = (int) (file.length() / blockSize);
-      int remainder = (int) (file.length() % blockSize);
-      for (int i = 0; i < repeats; i++)
-         result.add(StreamUtils.readFully(bis, blockSize));
-
-      // read remainder
-      if (remainder > 0)
-         result.add(StreamUtils.readFully(bis, remainder));
-
-      bis.close();
-      return result;
-   }
-
-   /**
-    * Touches a file, i.e. creates it if not there, otherwise updates its last write time.
-    *
-    * @throws NullPointerException  An argument is null
-    * @throws IOException		   An I/O error occurs
-    * @throws FileNotFoundException A directory was specified instead of a file
-    * @throws SecurityException	 Access to filesystem is denied by a SecurityManager
-    */
-   public static void touchFile(String fileAbsPath)
-           throws IOException
-   {
-      if (fileAbsPath == null)
-         throw new NullPointerException("fileAbsPath");
-
-      File file = new File(fileAbsPath);
-      if (file.exists()) {
-         if (!file.isFile())
-            throw new FileNotFoundException("The specified path is not referring to a file: " + fileAbsPath);
-
-         // set to current date/time (millis since 1/1/1970)
-         file.setLastModified(System.currentTimeMillis());
-      } else
-         if (!file.createNewFile())
-            throw new IOException("Could not touch file, because creation of new file failed.");
-   }
-
-   /**
-    * Touches a file, i.e. creates it if not there, otherwise updates its last write time.
-    * Returns true if succeeded. No exception is thrown under any circumstance.
-    */
-   public static boolean tryTouchFile(String fileAbsPath)
-   {
-      try {
-         touchFile(fileAbsPath);
-         return true;
-      } catch (Throwable e) {
-         return false;
-      }
-   }
-
-   // Directory related methods
-   /**
-    * Creates a directory if it does not already exist (if there are subdirectories there are created too).
-    *
-    * @throws NullPointerException An argument is null
-    * @throws IOException		  An I/O error occurs, or directory creation fails: please note that a partial path may have been created during the attempt.
-    * @throws SecurityException	Access to filesystem is denied by a SecurityManager
-    */
-   public static void createDirectory(String directoryAbsPath)
-           throws IOException
-   {
-      if (directoryAbsPath == null)
-         throw new NullPointerException("directoryAbsPath");
-
-      File file = new File(directoryAbsPath);
-      if (!file.exists())
-         if (!file.mkdirs())
-            throw new IOException("Directory creation failure: " + directoryAbsPath);	// sub-directories may have been created!
-   }
-
-   /**
-    * Attempts to create a directory (if there are subdirectories there are created too).
-    * Returns true if succeeded or directory already exists. No exception is thrown under any circumstance.
-    */
-   public static boolean tryCreateDirectory(String directoryAbsPath)
-   {
-      try {
-         createDirectory(directoryAbsPath);
-         return true;
-      } catch (Throwable e) {
-         return false;
-      }
-   }
-
-   /**
-    * Deletes an empty directory, if it exists. (if it has contents this will not succeed).
-    *
-    * @throws NullPointerException  An argument is null
-    * @throws IOException		   An I/O error occurs, or the directory could not be deleted
-    * @throws FileNotFoundException The specified path is not a directory
-    * @throws SecurityException	 Access to filesystem is denied by a SecurityManager
-    */
-   public static void deleteDirectory(String directoryAbsPath)
-           throws IOException
-   {
-      if (directoryAbsPath == null)
-         throw new NullPointerException("directoryAbsPath");
-
-      File file = new File(directoryAbsPath);
-      if (file.exists()) {
-         if (!file.isDirectory())
-            throw new FileNotFoundException("The specified path is not referring to a directory: " + directoryAbsPath);
-
-         if (!file.delete())
-            throw new IOException("The directory could not be deleted, because it is not empty.");
-      }
-   }
-
-   /**
-    * Attempts to delete an empty directory (if there are contents this will not succeed).
-    * Returns true if succeeded. No exception is thrown under any circumstance.
-    */
-   public static boolean tryDeleteDirectory(String directoryAbsPath)
-   {
-      try {
-         deleteDirectory(directoryAbsPath);
-         return true;
-      } catch (Throwable e) {
-         return false;
-      }
-   }
-
-   /**
-    * Deletes a directory recursively (if there are contents they will be deleted).
-    *
-    * @throws NullPointerException  An argument is null
-    * @throws IOException		   An I/O error occurs, or the directory could not be deleted
-    * @throws FileNotFoundException The specified path is not a directory
-    * @throws SecurityException	 Access to filesystem is denied by a SecurityManager
-    */
-   public static void deleteDirectoryRecursive(String directoryAbsPath)
-           throws IOException
-   {
-      if (directoryAbsPath == null)
-         throw new NullPointerException("directoryAbsPath");
-
-      File file = new File(directoryAbsPath);
-      if (file.exists()) {
-         if (!file.isDirectory())
-            throw new FileNotFoundException("The specified path is not referring to a directory: " + directoryAbsPath);
-
-         File[] files = file.listFiles();
-         for (int i = 0; i < files.length; i++)
-            if (files[i].isDirectory())
-               deleteDirectoryRecursive(files[i].getAbsolutePath());
-            else
-               if (!files[i].delete())
-                  throw new IOException("Could not delete path: " + files[i].getAbsolutePath());
-         if (!file.delete())
-            throw new IOException("Could not delete path: " + file.getAbsolutePath());
-
-      }
-   }
-
-   /**
-    * Attempts to delete a directory (if there are contents they will be deleted).
-    * Returns true if succeeded. No exception is thrown under any circumstance.
-    */
-   public static boolean tryDeleteDirectoryRecursive(String directoryAbsPath)
-   {
-      try {
-         deleteDirectoryRecursive(directoryAbsPath);
-         return true;
-      } catch (Throwable e) {
-         return false;
-      }
-   }
-
-   /**
-    * Touches a directory, i.e. creates it if not there, otherwise updates its last write time.
-    *
-    * @throws NullPointerException  An argument is null
-    * @throws IOException		   An I/O error occurs
-    * @throws FileNotFoundException A file was specified instead of a directory
-    * @throws SecurityException	 Access to filesystem is denied by a SecurityManager
-    */
-   public static void touchDirectory(String folderAbsPath)
-           throws IOException
-   {
-      if (folderAbsPath == null)
-         throw new NullPointerException("folderAbsPath");
-
-      File file = new File(folderAbsPath);
-      if (file.exists()) {
-         if (!file.isDirectory())
-            throw new FileNotFoundException("The specified entry was a file, not a directory: " + folderAbsPath);
-
-         // set to current date/time (millis since 1/1/1970)
-         file.setLastModified(System.currentTimeMillis());
-      } else
-         if (!file.mkdirs())
-            throw new IOException("Could not touch directory, because creation failed.");
-   }
-
-   /**
-    * Touches a directory, i.e. creates it if not there, otherwise updates its last write time.
-    * Returns true if succeeded. No exception is thrown under any circumstance.
-    */
-   public static boolean tryTouchDirectory(String dirAbsPath)
-   {
-      try {
-         touchDirectory(dirAbsPath);
-         return true;
-      } catch (Throwable e) {
-         return false;
-      }
-   }
-
-   // FileSystemInfo related methods
-   private static boolean matchesAnyAttribute(File file, Set<FileAttribute> fileAttributes)
-           throws FileNotFoundException
-   {
-      if (!file.exists())
-         throw new FileNotFoundException("The specified path is not an existing file or folder: " + file.getAbsolutePath());
-
-      if (fileAttributes.contains(FileAttribute.Hidden) && file.isHidden())
-         return true;
-      if (fileAttributes.contains(FileAttribute.File) && file.isFile())
-         return true;
-      if (fileAttributes.contains(FileAttribute.Directory) && file.isDirectory())
-         return true;
-      if (fileAttributes.contains(FileAttribute.Readable) && file.canRead())
-         return true;
-      if (fileAttributes.contains(FileAttribute.Writeable) && file.canWrite())
-         return true;
-      if (fileAttributes.contains(FileAttribute.Executable) && file.canExecute())
-         return true;
-
+  private FileUtils()
+  {
+  }
+
+  /**
+   * Appends some binary data to a file in the specified path. If the file does not exist, it is created.
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IllegalArgumentException An argument is out of range
+   * @throws IOException An I/O error occurs
+   * @throws FileNotFoundException The file specified is a directory, or it does not exist and cannot be created, or cannot be appended to.
+   * @throws SecurityException Access to filesystem is denied by a SecurityManager
+   */
+  public static void appendData(String fileAbsPath, byte[] data, int offset, int count)
+      throws IOException
+  {
+    if (fileAbsPath == null)
+      throw new NullPointerException("fileAbsPath");
+    if (data == null)
+      throw new NullPointerException("data");
+    if (offset > data.length)
+      throw new IllegalArgumentException("offset=" + offset + " dataLen=" + data.length);
+    if (count < 0 || count > data.length)
+      throw new IllegalArgumentException("count=" + count + " dataLen=" + data.length);
+    if (offset + count > data.length || offset + count < 0)
+      throw new IllegalArgumentException("offset=" + offset + " count=" + count + " dataLen=" + data.length);
+
+    BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(fileAbsPath, true));
+    bos.write(data, offset, count);
+    bos.flush();
+    bos.close();
+  }
+
+  /**
+   * Appends some text to a file in the specified path. If the file does not exist, it is created. No EOL terminator is appended, e.g.
+   * Environment.NewLine.
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IllegalArgumentException An argument is out of range
+   * @throws IOException An I/O error occurs
+   * @throws FileNotFoundException The file specified is a directory, or it does not exist and cannot be created, or cannot be appended to.
+   * @throws SecurityException Access to filesystem is denied by a SecurityManager
+   */
+  public static void appendText(String fileAbsPath, String text)
+      throws IOException
+  {
+    appendText(fileAbsPath, text, null);
+  }
+
+  /**
+   * Appends some text to a file in the specified path and the appends Environment.NewLine. If the file does not exist, it is created.
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IllegalArgumentException An argument is out of range
+   * @throws IOException An I/O error occurs
+   * @throws FileNotFoundException The file specified is a directory, or it does not exist and cannot be created, or cannot be appended to.
+   * @throws SecurityException Access to filesystem is denied by a SecurityManager
+   */
+  public static void appendTextLine(String fileAbsPath, String text)
+      throws IOException
+  {
+    appendText(fileAbsPath, text, CONSTANT.ENVIRONMENT_NEWLINE);
+  }
+
+  /**
+   * Appends some text to a file in the specified path. If the file does not exist, it is created. If the End-Of-Line terminator is not
+   * null, it is appended after the text (this could be e.g. Environment.NewLine)
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IllegalArgumentException An argument is out of range
+   * @throws IOException An I/O error occurs
+   * @throws FileNotFoundException The file specified is a directory, or it does not exist and cannot be created, or cannot be appended to.
+   * @throws SecurityException Access to filesystem is denied by a SecurityManager
+   */
+  public static void appendText(String fileAbsPath, String text, String eolTerminator)
+      throws IOException
+  {
+    if (fileAbsPath == null)
+      throw new NullPointerException("fileAbsPath");
+
+    BufferedWriter bw = new BufferedWriter(new FileWriter(fileAbsPath, true));
+    bw.write(text);
+    if (eolTerminator != null)
+      bw.write(eolTerminator);
+    bw.flush();
+    bw.close();
+  }
+
+  /**
+   * Copies a file from source to destination while preserving the file's Last Modified date. Note: Creation date is not possible to obtain
+   * and set in a cross platform way in Java prior to 1.7.
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IOException An I/O error occurs
+   * @throws FileNotFoundException The file specified is a directory, it does not exist or cannot be read/created.
+   * @throws SecurityException Access to filesystem is denied by a SecurityManager
+   */
+  public static void cloneFile(String originatingPath, String destinationPath)
+      throws IOException
+  {
+    copyFile(originatingPath, destinationPath);
+
+    File source = new File(originatingPath);
+    File dest = new File(destinationPath);
+
+    if (!dest.setLastModified(source.lastModified()))
+      throw new IOException("Could not set last modified date/time.");
+  }
+
+  /**
+   * Clones a file from source to destination, returning true if the operation was successful. The file is not copied if any exception
+   * occurs. No exception is thrown under any circumstance.
+   */
+  public static boolean tryCloneFile(String sourceAbsPath, String destAbsPath)
+  {
+    try
+    {
+      cloneFile(sourceAbsPath, destAbsPath);
+      return true;
+    }
+    catch(Throwable e)
+    {
       return false;
-   }
+    }
+  }
 
-   /**
-    * Filters out files/directories which have the specified attributes.
-    *
-    * @throws NullPointerException  An argument is null
-    * @throws IOException		   An I/O error occurs
-    * @throws FileNotFoundException A file was specified instead of a directory
-    * @throws SecurityException	 Access to filesystem is denied by a SecurityManager
-    */
-   public static File[] filterOut(File[] files, Set<FileAttribute> fileAttributes)
-           throws IOException
-   {
-      if (files == null)
-         throw new NullPointerException("files");
-      if (fileAttributes == null)
-         throw new NullPointerException("fileAttributes");
+  /**
+   * Copies a file from source to destination
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IOException An I/O error occurs
+   * @throws FileNotFoundException The file specified is a directory, it does not exist or cannot be read/created.
+   * @throws SecurityException Access to filesystem is denied by a SecurityManager
+   */
+  public static void copyFile(String originatingPath, String destinationPath)
+      throws IOException
+  {
+    if (originatingPath == null)
+      throw new NullPointerException("originatingPath");
+    if (destinationPath == null)
+      throw new NullPointerException("destinationPath");
 
-      ReifiedList<File> result = new ReifiedArrayList<File>(64, File.class);
-      for (File fi : files)
-         if (!matchesAnyAttribute(fi, fileAttributes))
-            result.add(fi);
+    File source = new File(originatingPath);
+    File dest = new File(destinationPath);
 
-      return result.toArray();
-   }
+    BufferedInputStream fis = null;
+    BufferedOutputStream fos = null;
 
-   /**
-    * Filters out files/directories which do not have the specified attributes.
-    *
-    * @throws NullPointerException  An argument is null
-    * @throws IOException		   An I/O error occurs
-    * @throws FileNotFoundException A file was specified instead of a directory
-    * @throws SecurityException	 Access to filesystem is denied by a SecurityManager
-    */
-   public static File[] filterIn(File[] files, Set<FileAttribute> fileAttributes)
-           throws IOException
-   {
-      if (files == null)
-         throw new NullPointerException("files");
-      if (fileAttributes == null)
-         throw new NullPointerException("fileAttributes");
+    try
+    {
+      fis = new BufferedInputStream(new FileInputStream(source));
+      fos = new BufferedOutputStream(new FileOutputStream(dest));
 
-      ReifiedList<File> result = new ReifiedArrayList<File>(64, File.class);
-      for (File fi : files)
-         if (matchesAnyAttribute(fi, fileAttributes))
-            result.add(fi);
+      byte[] buf = new byte[64 * 1024];
+      int read = 0;
+      while ((read = fis.read(buf)) != -1)
+        fos.write(buf, 0, read);
+    }
+    finally
+    {
+      if (fis != null)
+        fis.close();
+      if (fos != null)
+        fos.close();
+    }
+  }
 
-      return result.toArray();
-   }
+  /**
+   * Copies a file from source to destination, returning true if the operation was successful. The file is not copied if any exception
+   * occurs. No exception is thrown under any circumstance.
+   */
+  public static boolean tryCopyFile(String sourceAbsPath, String destAbsPath)
+  {
+    try
+    {
+      copyFile(sourceAbsPath, destAbsPath);
+      return true;
+    }
+    catch(Throwable e)
+    {
+      return false;
+    }
+  }
 
-   // Shortcuts
-   /**
-    * On Win32/Linux, creates a shortcut to a file or folder (use overloaded version for linking to an application).
-    * On OSX, creates a symlink to a file or folder.
-    *
-    * @param shortcutAbsPath	   The destination filename of the shortcut. This will be overwritten if already exists.
-    * @param linkedResourceAbsPath The path to the file or folder to link to.
-    *
-    * @throws NullPointerException An argument is null
-    */
-   public static void createApplicationShortcut(String shortcutAbsPath, String linkedResourceAbsPath)
-           throws IOException
-   {
-      createApplicationShortcut(shortcutAbsPath, linkedResourceAbsPath, null);
-   }
+  /**
+   * Deletes a file, if it exists.
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IOException An I/O error occurs
+   * @throws FileNotFoundException The file was a directory
+   * @throws SecurityException Access to filesystem is denied by a SecurityManager
+   */
+  public static void deleteFile(String fileAbsPath)
+      throws IOException
+  {
+    if (fileAbsPath == null)
+      throw new NullPointerException("fileAbsPath");
 
-   /**
-    * On Win32/Linux, creates a shortcut to a file, folder or application (if an application working dir is specified).
-    * On OSX, creates a symlink to the file/folder/app. Note that if the linked resource is an app, you cannot specify
-    * an application working directory and the application must know where it has been installed to access any resource
-    * files it needs. Furthermore, launching symlinks from OSX Finder launches a console first, so overall not a great UX.
-    * A ".url" file is created in Windows, an extension-less [Desktop Entry] text file on Linux or a symlink on OSX.
-    *
-    * @param shortcutAbsPath			 The destination filename of the shortcut. This will be overwritten if already exists.
-    * @param linkedResourceAbsPath	   The path to the file or folder to link to.
-    * @param applicationWorkingDirectory The working directory of the application. Use null for non-applications: i.e. files or for folders. This is ignored on OSX, as symlinks are used.
-    *
-    * @throws NullPointerException	 An argument is null
-    * @throws IllegalArgumentException The linked resource does not exist
-    * @throws IOException			  An I/O error occurs
-    */
-   public static void createApplicationShortcut(String shortcutAbsPath, String linkedResourceAbsPath, String applicationWorkingDirectory)
-           throws IOException
-   {
-      if (shortcutAbsPath == null)
-         throw new NullPointerException("shortcutAbsPath");
-      if (linkedResourceAbsPath == null)
-         throw new NullPointerException("linkedResourceAbsPath");
+    File file = new File(fileAbsPath);
+    if (file.exists())
+    {
+      // check not dir
+      if (!file.isFile())
+        throw new FileNotFoundException("The specified path is not referring to a file: " + fileAbsPath);
+      // delete
+      if (!file.delete())
+        throw new IOException("Could not delete file: " + fileAbsPath);
+    }
+  }
 
-      File linkedResourceFile = new File(linkedResourceAbsPath);
-      if (!linkedResourceFile.exists())
-         throw new IllegalArgumentException("The linked resource does not exist: " + linkedResourceAbsPath);
+  /**
+   * Attempts to delete a file. The file is not deleted if any exception occurs. No exception is thrown under any circumstance.
+   */
+  public static boolean tryDeleteFile(String fileAbsPath)
+  {
+    try
+    {
+      if (fileAbsPath == null)
+        throw new NullPointerException("fileAbsPath");
 
-      // Windows OS
-      if (OsUtils.isWindows()) {
-         // ensure correct extension is used
-         if (!StringUtils.endsWith(shortcutAbsPath, ".url", StringComparison.OrdinalIgnoreCase)) {
-            if (!StringUtils.endsWith(shortcutAbsPath, CONSTANT.DOT, StringComparison.Ordinal))
-               shortcutAbsPath += CONSTANT.DOT;
-            shortcutAbsPath += "url";
-         }
+      File file = new File(fileAbsPath);
+      if (file.exists())
+        return file.delete();
 
-         // remove old shortcut if it exists
-         tryDeleteFile(shortcutAbsPath);
+      return true;
+    }
+    catch(Throwable e)
+    {
+      return false;
+    }
+  }
 
-         // windows OS
-         BufferedWriter bw = new BufferedWriter(new FileWriter(shortcutAbsPath, false));
+  /**
+   * Returns the URL to a resource, by its class path e.g. /java/util/test.xml.
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws FileNotFoundException The resource specified was not found
+   */
+  public static URL getResourceUrl(String classpath)
+      throws FileNotFoundException
+  {
+    if (classpath == null)
+      throw new NullPointerException("classpath");
 
-         bw.write("[InternetShortcut]");
-         bw.newLine();
+    URL result = FileUtils.class.getResource(classpath);
 
-         // path to file/folder
-         bw.write("URL=file:*" + linkedResourceAbsPath);
-         bw.newLine();
-         // working directory is required, whether specified or not
-         if (applicationWorkingDirectory != null) {
-            bw.write("WorkingDirectory=" + applicationWorkingDirectory);
-            bw.newLine();
-         } else {
-            File lrf = new File(linkedResourceAbsPath);
-            if (lrf.exists()) {
-               // for files, get their parent directory
-               bw.write("WorkingDirectory=" + lrf.getParent());
-               bw.newLine();
-            } else {
-               // for directory, use the same directory
-               bw.write("WorkingDirectory=" + linkedResourceAbsPath);
-               bw.newLine();
-            }
-         }
-         // icon stuff
-         bw.write("IconIndex=0");
-         bw.newLine();
-         /**  note that iconfile could also be "%systemroot%\\SYSTEM\\url.dll" */
-         bw.write("IconFile=" + linkedResourceAbsPath);
-         bw.newLine();
+    if (result == null)
+      throw new FileNotFoundException("Resource not found in specified class path: " + classpath);
 
-         bw.flush();
-         bw.close();
-      } else
-         // MacOS / Unix
-         if (OsUtils.isOSX() || OsUtils.isBsd()) {
-            // delete symlink if it exists
-            Process p1 = Runtime.getRuntime().exec(new String[]{"rm", "\"" + shortcutAbsPath + "\""});
-            BufferedReader br = new BufferedReader(new InputStreamReader(p1.getInputStream()));
-            String line = null;
-            while ((line = br.readLine()) != null) {
-            }
-            try {
-               p1.waitFor();
-            } catch (InterruptedException e) {
-            }
+    return result;
+  }
 
-            Process p2 = Runtime.getRuntime().exec(new String[]{"ln", "-s", "\"" + linkedResourceAbsPath + "\"", "\"" + shortcutAbsPath + "\""});
-            br = new BufferedReader(new InputStreamReader(p2.getInputStream()));
+  /**
+   * Returns the URL to a resource, by its package and name e.g. class path e.g. /java/util and test.xml
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws FileNotFoundException The resource specified was not found
+   */
+  public static URL getResourceUrl(Package pkg, String filename)
+      throws FileNotFoundException
+  {
+    if (pkg == null)
+      throw new NullPointerException("pkg");
+    if (filename == null)
+      throw new NullPointerException("filename");
 
-            while ((line = br.readLine()) != null)
-               // this step should not fail, if it does, throw exception
-               throw new IOException("Failed to create symlink: " + line);
-            try {
-               p2.waitFor();
-            } catch (InterruptedException e) {
-            }
+    // get the class's package
+    String myPackage = pkg.getName();
 
-         } else {
-            // Linux OS
+    // convert package to class path
+    String myClasspath = CONSTANT.FORWARD_SLASH + myPackage.replace(CONSTANT.DOT, CONSTANT.FORWARD_SLASH);
+    if (!myClasspath.endsWith(CONSTANT.FORWARD_SLASH))
+      myClasspath += CONSTANT.FORWARD_SLASH;
 
-            // remove old shortcut if it exists
-            tryDeleteFile(shortcutAbsPath);
+    // append filename to class path
+    String resourceClasspath = myClasspath + filename;
 
-            BufferedWriter bw = new BufferedWriter(new FileWriter(shortcutAbsPath, false));
-            bw.write("[Desktop Entry]");
-            bw.newLine();
+    // load resource
+    return FileUtils.getResourceUrl(resourceClasspath);
+  }
 
-            // icon type to use depends on whether the shortcut link is a file or folder
-            if (linkedResourceFile.isFile()) {
-               bw.write("Icon=file");
-               bw.newLine();
-            } else
-               if (linkedResourceFile.isDirectory()) {
-                  bw.write("Icon=folder");
-                  bw.newLine();
-               }
-            // for applications the type must be Application, we determine that from whether an application working directory was given
-            if (applicationWorkingDirectory == null) {
-               // files and folders
-               bw.write("Type=Link");
-               bw.newLine();
-               // path to file/folder
-               bw.write("URL[$e]=file://" + linkedResourceAbsPath);
-               bw.newLine();
-            } else {
-               // application executables
-               bw.write("Type=Application");
-               bw.newLine();
-               // specify working directory if shortcut to application
-               bw.write("Path=" + applicationWorkingDirectory);
-               bw.newLine();
-               // executable and arguments
-               bw.write("Exec=" + linkedResourceAbsPath);
-               bw.newLine();
-            }
+  /**
+   * Returns a tuple. The first argument is an open input stream to the specified resource, which has to be closed explicitly. The second
+   * argument is the length of the data in the input stream.
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IOException An I/O exception occurred during loading of the resource
+   * @throws FileNotFoundException The resource specified was not found
+   */
+  private static Pair<InputStream, Long> getResourceStream(URL url)
+      throws FileNotFoundException, IOException
+  {
+    if (url == null)
+      throw new NullPointerException("url");
 
-            bw.flush();
-            bw.close();
-         }
-   }
+    // Thanks to Marcin Lamparski, we don't need the following anymore
+    /*
+     * if file:// { File file = new File(EscapingUtils.fromUrl(url.getFile())); InputStream is = new FileInputStream(file);
+     * 
+     * return new Pair<InputStream, Long>(is, file.length()); } else
+     */
 
-   /**
-    * Creates a URL shortcut. The shortcut will have the .url extension.
-    * Ensure that the URL starts with a protocol e.g. http://...
-    *
-    * @throws NullPointerException An argument is null
-    * @throws IOException		  An I/O error occurs
-    */
-   public static void createInternetShortcut(String shortcutAbsPath, String url)
-           throws IOException
-   {
-      if (shortcutAbsPath == null)
-         throw new NullPointerException("shortcutAbsPath");
-      if (url == null)
-         throw new NullPointerException("url");
+    URLConnection connection = url.openConnection();
+    int length = connection.getContentLength();
 
+    InputStream is = connection.getInputStream();
+    return new Pair<InputStream, Long>(is, (long) length);
+  }
+
+  /**
+   * Returns an input stream to the specified resource. Do not forget to close the stream when done.
+   * 
+   * @throws IOException An I/O exception occurred during loading of the resource
+   */
+  public static InputStream getResourceStreamData(URL url)
+      throws IOException
+  {
+    if (url == null)
+      throw new NullPointerException("url");
+
+    return url.openStream();
+  }
+
+  /**
+   * Returns the text data of the specified URL. The conversion uses the UTF8 character set
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IOException An I/O exception occurred during loading of the resource
+   * @throws FileNotFoundException The resource specified was not found
+   */
+  public static String getResourceTextData(URL url)
+      throws IOException
+  {
+    return new String(getResourceData(url), CONSTANT.UTF8);
+  }
+
+  /**
+   * Returns the text data of the specified URL. The conversion uses the specified character set, e.g. UTF8
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IOException An I/O exception occurred during loading of the resource
+   * @throws FileNotFoundException The resource specified was not found
+   */
+  public static String getResourceTextData(URL url, Charset charset)
+      throws IOException
+  {
+    if (charset == null)
+      throw new NullPointerException("charset");
+
+    return new String(getResourceData(url), CONSTANT.UTF8);
+  }
+
+  /**
+   * Returns the data of the specified URL.
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IOException An I/O exception occurred during loading of the resource
+   * @throws FileNotFoundException The resource specified was not found
+   */
+  public static byte[] getResourceData(URL url)
+      throws IOException
+  {
+    if (url == null)
+      throw new NullPointerException("url");
+
+    Pair<InputStream, Long> tuple = getResourceStream(url);
+
+    InputStream input = tuple.getFirst();
+    long length = tuple.getSecond();
+
+    byte[] result = StreamUtils.readFully(input, length);
+
+    // important not to forget to close the opened stream
+    input.close();
+
+    return result;
+  }
+
+  /**
+   * Moves a file from source to destination
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IOException An I/O error occurs
+   * @throws FileNotFoundException The file specified is a directory, it does not exist or cannot be read/created.
+   * @throws SecurityException Access to filesystem is denied by a SecurityManager
+   */
+  public static void moveFile(String originatingPath, String destinationPath)
+      throws IOException
+  {
+    if (originatingPath == null)
+      throw new NullPointerException("originatingPath");
+    if (destinationPath == null)
+      throw new NullPointerException("destinationPath");
+
+    File source = new File(originatingPath);
+    File dest = new File(destinationPath);
+    source.renameTo(dest);
+  }
+
+  /**
+   * Moves a file from source to destination, returning true if the operation was successful. The file is not moved if any exception occurs.
+   * No exception is thrown under any circumstance.
+   */
+  public static boolean tryMoveFile(String sourceAbsPath, String destAbsPath)
+  {
+    try
+    {
+      moveFile(sourceAbsPath, destAbsPath);
+      return true;
+    }
+    catch(Throwable e)
+    {
+      return false;
+    }
+  }
+
+  /**
+   * Reads the entire contents of a file to a string and returns it. This method should generally only be used for small files as it is
+   * quite inefficient to read everything in memory.
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IOException An I/O error occurs
+   * @throws FileNotFoundException The file was not found, or it was a directory
+   * @throws SecurityException Access to filesystem is denied by a SecurityManager
+   */
+  public static String readFileToEnd(String fileAbsPath)
+      throws IOException
+  {
+    if (fileAbsPath == null)
+      throw new NullPointerException("fileAbsPath");
+
+    File file = new File(fileAbsPath);
+
+    if (!file.exists())
+      throw new FileNotFoundException("The file was not found: " + fileAbsPath);
+    if (!file.isFile())
+      throw new FileNotFoundException("The specified path is not referring to a file: " + fileAbsPath);
+
+    BufferedInputStream stream = null;
+    try
+    {
+      stream = new BufferedInputStream(new FileInputStream(file));
+      byte[] result = StreamUtils.readFully(stream, file.length());
+      return ConversionUtils.toString(result);
+    }
+    finally
+    {
+      if (stream != null)
+        stream.close();
+    }
+  }
+
+  /**
+   * Enumerates the contents of a file line by line (reads the entire contents of a file in memory to do so).
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IOException An I/O error occurs
+   * @throws FileNotFoundException The file was not found, or it was a directory
+   * @throws SecurityException Access to filesystem is denied by a SecurityManager
+   */
+  public static Iterable<String> readFilePerLine(String fileAbsPath)
+      throws IOException
+  {
+    List<String> result = new ArrayList<String>(100);
+
+    File file = new File(fileAbsPath);
+    if (!file.exists())
+      throw new FileNotFoundException("The file was not found: " + fileAbsPath);
+    if (!file.isFile())
+      throw new FileNotFoundException("The specified path is not referring to a file: " + fileAbsPath);
+
+    BufferedReader br = new BufferedReader(new FileReader(file));
+    String line;
+    while ((line = br.readLine()) != null)
+      result.add(line);
+
+    br.close();
+    return result;
+  }
+
+  /**
+   * Reads the entire contents of a file to a byte[] and returns it. This method should generally only be used for small files as it is
+   * quite inefficient to read everything in memory.
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IOException An I/O error occurs
+   * @throws FileNotFoundException The file was not found, or it was a directory
+   * @throws SecurityException Access to filesystem is denied by a SecurityManager
+   */
+  public static byte[] readFileInMemory(String fileAbsPath)
+      throws IOException
+  {
+    if (fileAbsPath == null)
+      throw new NullPointerException("fileAbsPath");
+
+    File file = new File(fileAbsPath);
+    if (!file.exists())
+      throw new FileNotFoundException("The file was not found: " + fileAbsPath);
+    if (!file.isFile())
+      throw new FileNotFoundException("The specified path is not referring to a file: " + fileAbsPath);
+
+    BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
+    byte[] result = StreamUtils.readFully(bis, file.length());
+    bis.close();
+    return result;
+  }
+
+  /**
+   * Enumerates the contents of a file line by line (reads the entire contents of a file in memory to do so).
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IOException An I/O error occurs
+   * @throws FileNotFoundException The file was not found, or it was a directory
+   * @throws SecurityException Access to filesystem is denied by a SecurityManager
+   */
+  public static Iterable<byte[]> readFilePerBlock(String fileAbsPath, int blockSize)
+      throws IOException
+  {
+    if (blockSize <= 0)
+      throw new IllegalArgumentException("blockSize");
+    List<byte[]> result = new ArrayList<byte[]>(100);
+
+    File file = new File(fileAbsPath);
+    if (!file.exists())
+      throw new FileNotFoundException("The file was not found: " + fileAbsPath);
+    if (!file.isFile())
+      throw new FileNotFoundException("The specified path is not referring to a file: " + fileAbsPath);
+
+    if (file.length() > Integer.MAX_VALUE)
+      throw new IOException("The file is too large, this method supports files of up to 2GB.");
+
+    BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
+
+    // read all blocks
+    int repeats = (int) (file.length() / blockSize);
+    int remainder = (int) (file.length() % blockSize);
+    for (int i = 0; i < repeats; i++)
+      result.add(StreamUtils.readFully(bis, blockSize));
+
+    // read remainder
+    if (remainder > 0)
+      result.add(StreamUtils.readFully(bis, remainder));
+
+    bis.close();
+    return result;
+  }
+
+  /**
+   * Touches a file, i.e. creates it if not there, otherwise updates its last write time.
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IOException An I/O error occurs
+   * @throws FileNotFoundException A directory was specified instead of a file
+   * @throws SecurityException Access to filesystem is denied by a SecurityManager
+   */
+  public static void touchFile(String fileAbsPath)
+      throws IOException
+  {
+    if (fileAbsPath == null)
+      throw new NullPointerException("fileAbsPath");
+
+    File file = new File(fileAbsPath);
+    if (file.exists())
+    {
+      if (!file.isFile())
+        throw new FileNotFoundException("The specified path is not referring to a file: " + fileAbsPath);
+
+      // set to current date/time (millis since 1/1/1970)
+      file.setLastModified(System.currentTimeMillis());
+    } else if (!file.createNewFile())
+      throw new IOException("Could not touch file, because creation of new file failed.");
+  }
+
+  /**
+   * Touches a file, i.e. creates it if not there, otherwise updates its last write time. Returns true if succeeded. No exception is thrown
+   * under any circumstance.
+   */
+  public static boolean tryTouchFile(String fileAbsPath)
+  {
+    try
+    {
+      touchFile(fileAbsPath);
+      return true;
+    }
+    catch(Throwable e)
+    {
+      return false;
+    }
+  }
+
+  // Directory related methods
+  /**
+   * Creates a directory if it does not already exist (if there are subdirectories there are created too).
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IOException An I/O error occurs, or directory creation fails: please note that a partial path may have been created during the
+   *           attempt.
+   * @throws SecurityException Access to filesystem is denied by a SecurityManager
+   */
+  public static void createDirectory(String directoryAbsPath)
+      throws IOException
+  {
+    if (directoryAbsPath == null)
+      throw new NullPointerException("directoryAbsPath");
+
+    File file = new File(directoryAbsPath);
+    if (!file.exists())
+      if (!file.mkdirs())
+        throw new IOException("Directory creation failure: " + directoryAbsPath); // sub-directories may have been created!
+  }
+
+  /**
+   * Attempts to create a directory (if there are subdirectories there are created too). Returns true if succeeded or directory already
+   * exists. No exception is thrown under any circumstance.
+   */
+  public static boolean tryCreateDirectory(String directoryAbsPath)
+  {
+    try
+    {
+      createDirectory(directoryAbsPath);
+      return true;
+    }
+    catch(Throwable e)
+    {
+      return false;
+    }
+  }
+
+  /**
+   * Deletes an empty directory, if it exists. (if it has contents this will not succeed).
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IOException An I/O error occurs, or the directory could not be deleted
+   * @throws FileNotFoundException The specified path is not a directory
+   * @throws SecurityException Access to filesystem is denied by a SecurityManager
+   */
+  public static void deleteDirectory(String directoryAbsPath)
+      throws IOException
+  {
+    if (directoryAbsPath == null)
+      throw new NullPointerException("directoryAbsPath");
+
+    File file = new File(directoryAbsPath);
+    if (file.exists())
+    {
+      if (!file.isDirectory())
+        throw new FileNotFoundException("The specified path is not referring to a directory: " + directoryAbsPath);
+
+      if (!file.delete())
+        throw new IOException("The directory could not be deleted, because it is not empty.");
+    }
+  }
+
+  /**
+   * Attempts to delete an empty directory (if there are contents this will not succeed). Returns true if succeeded. No exception is thrown
+   * under any circumstance.
+   */
+  public static boolean tryDeleteDirectory(String directoryAbsPath)
+  {
+    try
+    {
+      deleteDirectory(directoryAbsPath);
+      return true;
+    }
+    catch(Throwable e)
+    {
+      return false;
+    }
+  }
+
+  /**
+   * Deletes a directory recursively (if there are contents they will be deleted).
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IOException An I/O error occurs, or the directory could not be deleted
+   * @throws FileNotFoundException The specified path is not a directory
+   * @throws SecurityException Access to filesystem is denied by a SecurityManager
+   */
+  public static void deleteDirectoryRecursive(String directoryAbsPath)
+      throws IOException
+  {
+    if (directoryAbsPath == null)
+      throw new NullPointerException("directoryAbsPath");
+
+    File file = new File(directoryAbsPath);
+    if (file.exists())
+    {
+      if (!file.isDirectory())
+        throw new FileNotFoundException("The specified path is not referring to a directory: " + directoryAbsPath);
+
+      File[] files = file.listFiles();
+      for (int i = 0; i < files.length; i++)
+        if (files[i].isDirectory())
+          deleteDirectoryRecursive(files[i].getAbsolutePath());
+        else if (!files[i].delete())
+          throw new IOException("Could not delete path: " + files[i].getAbsolutePath());
+      if (!file.delete())
+        throw new IOException("Could not delete path: " + file.getAbsolutePath());
+
+    }
+  }
+
+  /**
+   * Attempts to delete a directory (if there are contents they will be deleted). Returns true if succeeded. No exception is thrown under
+   * any circumstance.
+   */
+  public static boolean tryDeleteDirectoryRecursive(String directoryAbsPath)
+  {
+    try
+    {
+      deleteDirectoryRecursive(directoryAbsPath);
+      return true;
+    }
+    catch(Throwable e)
+    {
+      return false;
+    }
+  }
+
+  /**
+   * Touches a directory, i.e. creates it if not there, otherwise updates its last write time.
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IOException An I/O error occurs
+   * @throws FileNotFoundException A file was specified instead of a directory
+   * @throws SecurityException Access to filesystem is denied by a SecurityManager
+   */
+  public static void touchDirectory(String folderAbsPath)
+      throws IOException
+  {
+    if (folderAbsPath == null)
+      throw new NullPointerException("folderAbsPath");
+
+    File file = new File(folderAbsPath);
+    if (file.exists())
+    {
+      if (!file.isDirectory())
+        throw new FileNotFoundException("The specified entry was a file, not a directory: " + folderAbsPath);
+
+      // set to current date/time (millis since 1/1/1970)
+      file.setLastModified(System.currentTimeMillis());
+    } else if (!file.mkdirs())
+      throw new IOException("Could not touch directory, because creation failed.");
+  }
+
+  /**
+   * Touches a directory, i.e. creates it if not there, otherwise updates its last write time. Returns true if succeeded. No exception is
+   * thrown under any circumstance.
+   */
+  public static boolean tryTouchDirectory(String dirAbsPath)
+  {
+    try
+    {
+      touchDirectory(dirAbsPath);
+      return true;
+    }
+    catch(Throwable e)
+    {
+      return false;
+    }
+  }
+
+  // FileSystemInfo related methods
+  private static boolean matchesAnyAttribute(File file, Set<FileAttribute> fileAttributes)
+      throws FileNotFoundException
+  {
+    if (!file.exists())
+      throw new FileNotFoundException("The specified path is not an existing file or folder: " + file.getAbsolutePath());
+
+    if (fileAttributes.contains(FileAttribute.Hidden) && file.isHidden())
+      return true;
+    if (fileAttributes.contains(FileAttribute.File) && file.isFile())
+      return true;
+    if (fileAttributes.contains(FileAttribute.Directory) && file.isDirectory())
+      return true;
+    if (fileAttributes.contains(FileAttribute.Readable) && file.canRead())
+      return true;
+    if (fileAttributes.contains(FileAttribute.Writeable) && file.canWrite())
+      return true;
+    if (fileAttributes.contains(FileAttribute.Executable) && file.canExecute())
+      return true;
+
+    return false;
+  }
+
+  /**
+   * Filters out files/directories which have the specified attributes.
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IOException An I/O error occurs
+   * @throws FileNotFoundException A file was specified instead of a directory
+   * @throws SecurityException Access to filesystem is denied by a SecurityManager
+   */
+  public static File[] filterOut(File[] files, Set<FileAttribute> fileAttributes)
+      throws IOException
+  {
+    if (files == null)
+      throw new NullPointerException("files");
+    if (fileAttributes == null)
+      throw new NullPointerException("fileAttributes");
+
+    ReifiedList<File> result = new ReifiedArrayList<File>(64, File.class);
+    for (File fi : files)
+      if (!matchesAnyAttribute(fi, fileAttributes))
+        result.add(fi);
+
+    return result.toArray();
+  }
+
+  /**
+   * Filters out files/directories which do not have the specified attributes.
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IOException An I/O error occurs
+   * @throws FileNotFoundException A file was specified instead of a directory
+   * @throws SecurityException Access to filesystem is denied by a SecurityManager
+   */
+  public static File[] filterIn(File[] files, Set<FileAttribute> fileAttributes)
+      throws IOException
+  {
+    if (files == null)
+      throw new NullPointerException("files");
+    if (fileAttributes == null)
+      throw new NullPointerException("fileAttributes");
+
+    ReifiedList<File> result = new ReifiedArrayList<File>(64, File.class);
+    for (File fi : files)
+      if (matchesAnyAttribute(fi, fileAttributes))
+        result.add(fi);
+
+    return result.toArray();
+  }
+
+  // Shortcuts
+  /**
+   * On Win32/Linux, creates a shortcut to a file or folder (use overloaded version for linking to an application). On OSX, creates a
+   * symlink to a file or folder.
+   * 
+   * @param shortcutAbsPath The destination filename of the shortcut. This will be overwritten if already exists.
+   * @param linkedResourceAbsPath The path to the file or folder to link to.
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  public static void createApplicationShortcut(String shortcutAbsPath, String linkedResourceAbsPath)
+      throws IOException
+  {
+    createApplicationShortcut(shortcutAbsPath, linkedResourceAbsPath, null);
+  }
+
+  /**
+   * On Win32/Linux, creates a shortcut to a file, folder or application (if an application working dir is specified). On OSX, creates a
+   * symlink to the file/folder/app. Note that if the linked resource is an app, you cannot specify an application working directory and the
+   * application must know where it has been installed to access any resource files it needs. Furthermore, launching symlinks from OSX
+   * Finder launches a console first, so overall not a great UX. A ".url" file is created in Windows, an extension-less [Desktop Entry] text
+   * file on Linux or a symlink on OSX.
+   * 
+   * @param shortcutAbsPath The destination filename of the shortcut. This will be overwritten if already exists.
+   * @param linkedResourceAbsPath The path to the file or folder to link to.
+   * @param applicationWorkingDirectory The working directory of the application. Use null for non-applications: i.e. files or for folders.
+   *          This is ignored on OSX, as symlinks are used.
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IllegalArgumentException The linked resource does not exist
+   * @throws IOException An I/O error occurs
+   */
+  public static void createApplicationShortcut(String shortcutAbsPath, String linkedResourceAbsPath, String applicationWorkingDirectory)
+      throws IOException
+  {
+    if (shortcutAbsPath == null)
+      throw new NullPointerException("shortcutAbsPath");
+    if (linkedResourceAbsPath == null)
+      throw new NullPointerException("linkedResourceAbsPath");
+
+    File linkedResourceFile = new File(linkedResourceAbsPath);
+    if (!linkedResourceFile.exists())
+      throw new IllegalArgumentException("The linked resource does not exist: " + linkedResourceAbsPath);
+
+    // Windows OS
+    if (OsUtils.isWindows())
+    {
       // ensure correct extension is used
-      if (!StringUtils.endsWith(shortcutAbsPath, ".url", StringComparison.OrdinalIgnoreCase)) {
-         if (!StringUtils.endsWith(shortcutAbsPath, CONSTANT.DOT, StringComparison.Ordinal))
-            shortcutAbsPath += CONSTANT.DOT;
-         shortcutAbsPath += "url";
+      if (!StringUtils.endsWith(shortcutAbsPath, ".url", StringComparison.OrdinalIgnoreCase))
+      {
+        if (!StringUtils.endsWith(shortcutAbsPath, CONSTANT.DOT, StringComparison.Ordinal))
+          shortcutAbsPath += CONSTANT.DOT;
+        shortcutAbsPath += "url";
       }
 
-      // delete any existing file
+      // remove old shortcut if it exists
       tryDeleteFile(shortcutAbsPath);
 
+      // windows OS
       BufferedWriter bw = new BufferedWriter(new FileWriter(shortcutAbsPath, false));
 
       bw.write("[InternetShortcut]");
       bw.newLine();
 
       // path to file/folder
-      bw.write("URL=" + url);
+      bw.write("URL=file:*" + linkedResourceAbsPath);
+      bw.newLine();
+      // working directory is required, whether specified or not
+      if (applicationWorkingDirectory != null)
+      {
+        bw.write("WorkingDirectory=" + applicationWorkingDirectory);
+        bw.newLine();
+      } else
+      {
+        File lrf = new File(linkedResourceAbsPath);
+        if (lrf.exists())
+        {
+          // for files, get their parent directory
+          bw.write("WorkingDirectory=" + lrf.getParent());
+          bw.newLine();
+        } else
+        {
+          // for directory, use the same directory
+          bw.write("WorkingDirectory=" + linkedResourceAbsPath);
+          bw.newLine();
+        }
+      }
+      // icon stuff
+      bw.write("IconIndex=0");
+      bw.newLine();
+      /** note that iconfile could also be "%systemroot%\\SYSTEM\\url.dll" */
+      bw.write("IconFile=" + linkedResourceAbsPath);
       bw.newLine();
 
       bw.flush();
       bw.close();
-   }
+    } else
+    // MacOS / Unix
+    if (OsUtils.isOSX() || OsUtils.isBsd())
+    {
+      // delete symlink if it exists
+      Process p1 = Runtime.getRuntime().exec(new String[] {"rm", "\"" + shortcutAbsPath + "\""});
+      BufferedReader br = new BufferedReader(new InputStreamReader(p1.getInputStream()));
+      String line = null;
+      while ((line = br.readLine()) != null)
+      {}
+      try
+      {
+        p1.waitFor();
+      }
+      catch(InterruptedException e)
+      {}
 
-   // File-system access rights
-   /**
-    * Tests access rights on a folder.
-    * Throws exception if not enough rights to perform basic file operations.
-    *
-    * @throws NullPointerException An argument is null
-    */
-   public static void performCreateReadWriteDeleteAccess(String folderName)
-           throws IOException
-   {
-      if (folderName == null)
-         throw new NullPointerException("folderName");
+      Process p2 = Runtime.getRuntime().exec(new String[] {"ln", "-s", "\"" + linkedResourceAbsPath + "\"", "\"" + shortcutAbsPath + "\""});
+      br = new BufferedReader(new InputStreamReader(p2.getInputStream()));
 
-      // check source is readable/writable
-      File folderPath = new File(folderName);
-      File randomFilename = new File(folderPath, UUID.randomUUID() + ".crwd");
+      while ((line = br.readLine()) != null)
+        // this step should not fail, if it does, throw exception
+        throw new IOException("Failed to create symlink: " + line);
+      try
+      {
+        p2.waitFor();
+      }
+      catch(InterruptedException e)
+      {}
 
-      if (!randomFilename.createNewFile())
-         throw new IOException("Could not create file: " + randomFilename.getAbsolutePath());
-      if (!randomFilename.delete())
-         throw new IOException("Could not delete file: " + randomFilename.getAbsolutePath());
+    } else
+    {
+      // Linux OS
 
-      try {
-         FileOutputStream fs = new FileOutputStream(randomFilename);
-         fs.write(100);
-         fs.flush();
-         fs.close();
-      } catch (Throwable e) {
-         try {
-            randomFilename.delete();
-         } catch (Throwable e2) {
-            // ignore
-         }
-         throw new IOException("Could not write to file: " + randomFilename.getAbsolutePath());
+      // remove old shortcut if it exists
+      tryDeleteFile(shortcutAbsPath);
+
+      BufferedWriter bw = new BufferedWriter(new FileWriter(shortcutAbsPath, false));
+      bw.write("[Desktop Entry]");
+      bw.newLine();
+
+      // icon type to use depends on whether the shortcut link is a file or folder
+      if (linkedResourceFile.isFile())
+      {
+        bw.write("Icon=file");
+        bw.newLine();
+      } else if (linkedResourceFile.isDirectory())
+      {
+        bw.write("Icon=folder");
+        bw.newLine();
+      }
+      // for applications the type must be Application, we determine that from whether an application working directory was given
+      if (applicationWorkingDirectory == null)
+      {
+        // files and folders
+        bw.write("Type=Link");
+        bw.newLine();
+        // path to file/folder
+        bw.write("URL[$e]=file://" + linkedResourceAbsPath);
+        bw.newLine();
+      } else
+      {
+        // application executables
+        bw.write("Type=Application");
+        bw.newLine();
+        // specify working directory if shortcut to application
+        bw.write("Path=" + applicationWorkingDirectory);
+        bw.newLine();
+        // executable and arguments
+        bw.write("Exec=" + linkedResourceAbsPath);
+        bw.newLine();
       }
 
-      try {
-         FileInputStream fis = new FileInputStream(randomFilename);
-         fis.read();
-         fis.close();
-      } catch (Throwable e) {
-         try {
-            randomFilename.delete();
-         } catch (Throwable e2) {
-            // ignore
-         }
-         throw new IOException("Could not read from file: " + randomFilename.getAbsolutePath());
+      bw.flush();
+      bw.close();
+    }
+  }
+
+  /**
+   * Creates a URL shortcut. The shortcut will have the .url extension. Ensure that the URL starts with a protocol e.g. http://...
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IOException An I/O error occurs
+   */
+  public static void createInternetShortcut(String shortcutAbsPath, String url)
+      throws IOException
+  {
+    if (shortcutAbsPath == null)
+      throw new NullPointerException("shortcutAbsPath");
+    if (url == null)
+      throw new NullPointerException("url");
+
+    // ensure correct extension is used
+    if (!StringUtils.endsWith(shortcutAbsPath, ".url", StringComparison.OrdinalIgnoreCase))
+    {
+      if (!StringUtils.endsWith(shortcutAbsPath, CONSTANT.DOT, StringComparison.Ordinal))
+        shortcutAbsPath += CONSTANT.DOT;
+      shortcutAbsPath += "url";
+    }
+
+    // delete any existing file
+    tryDeleteFile(shortcutAbsPath);
+
+    BufferedWriter bw = new BufferedWriter(new FileWriter(shortcutAbsPath, false));
+
+    bw.write("[InternetShortcut]");
+    bw.newLine();
+
+    // path to file/folder
+    bw.write("URL=" + url);
+    bw.newLine();
+
+    bw.flush();
+    bw.close();
+  }
+
+  // File-system access rights
+  /**
+   * Tests access rights on a folder. Throws exception if not enough rights to perform basic file operations.
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  public static void performCreateReadWriteDeleteAccess(String folderName)
+      throws IOException
+  {
+    if (folderName == null)
+      throw new NullPointerException("folderName");
+
+    // check source is readable/writable
+    File folderPath = new File(folderName);
+    File randomFilename = new File(folderPath, UUID.randomUUID() + ".crwd");
+
+    if (!randomFilename.createNewFile())
+      throw new IOException("Could not create file: " + randomFilename.getAbsolutePath());
+    if (!randomFilename.delete())
+      throw new IOException("Could not delete file: " + randomFilename.getAbsolutePath());
+
+    try
+    {
+      FileOutputStream fs = new FileOutputStream(randomFilename);
+      fs.write(100);
+      fs.flush();
+      fs.close();
+    }
+    catch(Throwable e)
+    {
+      try
+      {
+        randomFilename.delete();
       }
-
-      if (!randomFilename.delete())
-         throw new IOException("Could not delete file: " + randomFilename.getAbsolutePath());
-   }
-
-   /**
-    * Tests access rights on a folder and returns true if these succeed, otherwise returns false.
-    * No exceptions are thrown under any circumstance.
-    */
-   public static boolean tryPerformCreateReadWriteDeleteAccess(String folderName)
-   {
-      try {
-         performCreateReadWriteDeleteAccess(folderName);
-         return true;
-      } catch (Throwable e) {
-         return false;
+      catch(Throwable e2)
+      {
+        // ignore
       }
-   }
+      throw new IOException("Could not write to file: " + randomFilename.getAbsolutePath());
+    }
 
-   // Scanning
-   /**
-    * Scans a directory path for files and folders, using the specified configuration.
-    *
-    * @throws NullPointerException	 An argument is null
-    * @throws IllegalArgumentException Unrecognized hide, sort or fail mode. Also occurs when fail mode is SkipAndCollect and collectedScanErrors is null.
-    * @throws IOException			  An I/O error occurs and the scan fail mode is immediate
-    * @throws Throwable				An error occurs and the scan fail mode is immediate
-    */
-   public static List<String> scanPath(String path, ScanInclusionMode inclusionMode, ScanHiddenMode hiddenMode, ScanDepthMode depthMode, ScanSortMode sortMode, ScanFailMode failMode)
-           throws Throwable
-   {
-      if (path == null)
-         throw new NullPointerException("path");
-
-      return scanPath(path, inclusionMode, hiddenMode, depthMode, sortMode, failMode, null);
-   }
-
-   /**
-    * Scans a directory path for files and folders, using the specified configuration.
-    * Allows for collecting caught exceptions (if SkipAndCollection fail mode is selected).
-    *
-    * @throws NullPointerException	 An argument is null
-    * @throws IllegalArgumentException Unrecognized hide, sort or fail mode. Also occurs when fail mode is SkipAndCollect and collectedScanErrors is null.
-    * @throws IOException			  An I/O error occurs and the scan fail mode is immediate
-    * @throws Throwable				An error occurs and the scan fail mode is immediate
-    */
-   public static List<String> scanPath(String path, ScanInclusionMode inclusionMode, ScanHiddenMode hiddenMode, ScanDepthMode depthMode, ScanSortMode sortMode, ScanFailMode failMode, List<ScanErrorEntry> collectedScanErrors)
-       throws Throwable
-   {
-      if (path == null)
-         throw new NullPointerException("path");
-
-      if (failMode == ScanFailMode.SkipAndCollect)
-         if (collectedScanErrors == null)
-            throw new IllegalArgumentException("Cannot use " + ScanFailMode.SkipAndCollect + " mode without a specified container for accumulating errors.");
-
-      File dir = new File(path);
-      if (!dir.exists())
-         throw new IOException("The directory cannot be scanned as it does not exist: " + path);
-      if (!dir.isDirectory())
-         throw new IOException("The path cannot be scanned as it is not a directory: " + path);
-
-      // get full path
-      path = dir.getAbsolutePath();
-
-      switch (depthMode) {
-         case Shallow:
-            return scanPathBreadthFirst(path, (inclusionMode == ScanInclusionMode.Files) || (inclusionMode == ScanInclusionMode.All), (inclusionMode == ScanInclusionMode.Directories) || (inclusionMode == ScanInclusionMode.All), hiddenMode, sortMode, failMode, collectedScanErrors, false);
-
-         case BreadthFirst:
-            return scanPathBreadthFirst(path, (inclusionMode == ScanInclusionMode.Files) || (inclusionMode == ScanInclusionMode.All), (inclusionMode == ScanInclusionMode.Directories) || (inclusionMode == ScanInclusionMode.All), hiddenMode, sortMode, failMode, collectedScanErrors, true);
-
-         case DepthFirst:
-            return scanPathDepthFirst(path, (inclusionMode == ScanInclusionMode.Files) || (inclusionMode == ScanInclusionMode.All), (inclusionMode == ScanInclusionMode.Directories) || (inclusionMode == ScanInclusionMode.All), hiddenMode, sortMode, failMode, collectedScanErrors);
-
-         default:
-            throw new IllegalArgumentException("Unknown depth scan mode: " + depthMode);
+    try
+    {
+      FileInputStream fis = new FileInputStream(randomFilename);
+      fis.read();
+      fis.close();
+    }
+    catch(Throwable e)
+    {
+      try
+      {
+        randomFilename.delete();
       }
-   }
-
-   /**
-    * Performs breadth-first filesystem path scanning
-    *
-    * @throws NullPointerException	 An argument is null
-    * @throws IllegalArgumentException Unrecognized hide, sort or fail mode.
-    * @throws IOException			  An I/O error occurs and the scan fail mode is immediate
-    * @throws Throwable				Some other error occurs and the scan fail mode is immediate
-    */
-   private static List<String> scanPathBreadthFirst(String path, boolean includeFiles, boolean includeDirectories, ScanHiddenMode hiddenMode, ScanSortMode sortMode, ScanFailMode failMode, List<ScanErrorEntry> collectedScanErrors, boolean deepScan)
-           throws Throwable
-   {
-      List<String> result = new ArrayList<String>(64);
-
-      // maintain a queue of scanned directories
-      LinkedList<String> directoryQueue = new LinkedList<String>();
-      directoryQueue.addLast(path);
-
-      // check if we need to add self
-      if (includeDirectories)
-         result.addAll(Linq.toList(Linq.select(hideScanned(new File[]{new File(path)}, hiddenMode, failMode, collectedScanErrors), getAbsPath())));
-
-      // While there are directories to process
-      while (directoryQueue.size() > 0) {
-         String currDirName = directoryQueue.removeFirst();
-
-         try {
-            File currDir = new File(currDirName);
-            if (currDir.exists() && currDir.isDirectory()) {
-               // check if we need to scan for directories at all
-               if (includeDirectories || deepScan) {
-                  // get folders
-                  File[] dis = filterIn(currDir.listFiles(), new HashSet<FileAttribute>(Arrays.asList(new FileAttribute[]{FileAttribute.Directory})));
-                  dis = hideScanned(dis, hiddenMode, failMode, collectedScanErrors);
-
-                  List<String> dirDirs = new ArrayList<String>(64);
-                  for (File di : dis)
-                     dirDirs.add(di.getAbsolutePath());
-
-                  // sort
-                  dirDirs = sortScanned(dirDirs, sortMode);
-
-                  // check if we need to include directories in results
-                  if (includeDirectories)
-                     result.addAll(dirDirs);
-
-                  // next directories to process
-                  if (deepScan)
-                     for (String dirDir : dirDirs)
-                        directoryQueue.addLast(dirDir);
-               }
-
-               // check if we need to include files in results
-               if (includeFiles) {
-                  // get files
-                  File[] fis = filterIn(currDir.listFiles(), new HashSet<FileAttribute>(Arrays.asList(new FileAttribute[]{FileAttribute.File})));
-                  fis = hideScanned(fis, hiddenMode, failMode, collectedScanErrors);
-
-                  List<String> dirFiles = new ArrayList<String>(64);
-                  for (File fi : fis)
-                     dirFiles.add(fi.getAbsolutePath());
-
-                  // sort
-                  dirFiles = sortScanned(dirFiles, sortMode);
-
-                  // add to result
-                  result.addAll(dirFiles);
-               }
-            }
-         } catch (Throwable e) {
-            switch (failMode) {
-               case Never:
-                  continue;
-               case Immediate:
-                  throw e;
-               case SkipAndCollect:
-                  collectedScanErrors.add(new ScanErrorEntry(currDirName, e));
-                  break;
-               default:
-                  throw new IllegalArgumentException("Unknown fail mode: " + failMode, e);
-            }
-         }
+      catch(Throwable e2)
+      {
+        // ignore
       }
+      throw new IOException("Could not read from file: " + randomFilename.getAbsolutePath());
+    }
 
-      return result;
-   }
-   
-   @Function
-   private static String getAbsPath(final File arg)
-   {
-      return arg.getAbsolutePath();
-   }
+    if (!randomFilename.delete())
+      throw new IOException("Could not delete file: " + randomFilename.getAbsolutePath());
+  }
 
-   /**
-    * Performs depth-first filesystem path scanning
-    *
-    * @throws NullPointerException	 An argument is null
-    * @throws IllegalArgumentException Unrecognized hide, sort or fail mode.
-    * @throws IOException			  An I/O error occurs and the scan fail mode is immediate
-    * @throws Throwable				Some other error occurs and the scan fail mode is immediate
-    */
-   private static List<String> scanPathDepthFirst(String path, boolean includeFiles, boolean includeDirectories, ScanHiddenMode hiddenMode, ScanSortMode sortMode, ScanFailMode failMode, List<ScanErrorEntry> collectedScanErrors)
-           throws Throwable
-   {
-      if (path == null)
-         throw new NullPointerException("path");
+  /**
+   * Tests access rights on a folder and returns true if these succeed, otherwise returns false. No exceptions are thrown under any
+   * circumstance.
+   */
+  public static boolean tryPerformCreateReadWriteDeleteAccess(String folderName)
+  {
+    try
+    {
+      performCreateReadWriteDeleteAccess(folderName);
+      return true;
+    }
+    catch(Throwable e)
+    {
+      return false;
+    }
+  }
 
-      List<String> result = new ArrayList<String>(64);
+  // Scanning
+  /**
+   * Scans a directory path for files and folders, using the specified configuration.
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IllegalArgumentException Unrecognized hide, sort or fail mode. Also occurs when fail mode is SkipAndCollect and
+   *           collectedScanErrors is null.
+   * @throws IOException An I/O error occurs and the scan fail mode is immediate
+   * @throws Throwable An error occurs and the scan fail mode is immediate
+   */
+  public static List<String> scanPath(String path, ScanInclusionMode inclusionMode, ScanHiddenMode hiddenMode, ScanDepthMode depthMode,
+                                      ScanSortMode sortMode, ScanFailMode failMode)
+      throws Throwable
+  {
+    if (path == null)
+      throw new NullPointerException("path");
 
-      // maintain a stack of scanned files/directories
-      LinkedList<String> fsEntryStack = new LinkedList<String>();
-      fsEntryStack.addFirst(path);
+    return scanPath(path, inclusionMode, hiddenMode, depthMode, sortMode, failMode, null);
+  }
 
-      // While there are directories to process
-      while (fsEntryStack.size() > 0) {
-         String fsEntryName = fsEntryStack.removeFirst();
-         try {
-            File currDir = new File(fsEntryName);
-            if (currDir.exists() && currDir.isDirectory()) {
-               // files to process
-               if (includeFiles) {
-                  // get files
-                  File[] fis = filterIn(currDir.listFiles(), new HashSet<FileAttribute>(Arrays.asList(new FileAttribute[]{FileAttribute.File})));
-                  fis = hideScanned(fis, hiddenMode, failMode, collectedScanErrors);
+  /**
+   * Scans a directory path for files and folders, using the specified configuration. Allows for collecting caught exceptions (if
+   * SkipAndCollection fail mode is selected).
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IllegalArgumentException Unrecognized hide, sort or fail mode. Also occurs when fail mode is SkipAndCollect and
+   *           collectedScanErrors is null.
+   * @throws IOException An I/O error occurs and the scan fail mode is immediate
+   * @throws Throwable An error occurs and the scan fail mode is immediate
+   */
+  public static List<String> scanPath(String path, ScanInclusionMode inclusionMode, ScanHiddenMode hiddenMode, ScanDepthMode depthMode,
+                                      ScanSortMode sortMode, ScanFailMode failMode, List<ScanErrorEntry> collectedScanErrors)
+      throws Throwable
+  {
+    if (path == null)
+      throw new NullPointerException("path");
 
-                  List<String> dirFiles = new ArrayList<String>(64);
-                  for (File fi : fis)
-                     dirFiles.add(fi.getAbsolutePath());
+    if (failMode == ScanFailMode.SkipAndCollect)
+      if (collectedScanErrors == null)
+        throw new IllegalArgumentException("Cannot use " + ScanFailMode.SkipAndCollect
+            + " mode without a specified container for accumulating errors.");
 
-                  // sort
-                  dirFiles = sortScanned(dirFiles, sortMode);
+    File dir = new File(path);
+    if (!dir.exists())
+      throw new IOException("The directory cannot be scanned as it does not exist: " + path);
+    if (!dir.isDirectory())
+      throw new IOException("The path cannot be scanned as it is not a directory: " + path);
 
-                  // next files to process
-                  for (int i = dirFiles.size() - 1; i >= 0; i--)
-                     fsEntryStack.addFirst(dirFiles.get(i));
-               }
+    // get full path
+    path = dir.getAbsolutePath();
 
-               // check if we need to include directories in results
-               if (includeDirectories)
-                  result.addAll(Linq.toList(Linq.select(hideScanned(new File[]{currDir}, hiddenMode, failMode, collectedScanErrors), getAbsPath())));
-               
-               File[] dis = filterIn(currDir.listFiles(), new HashSet<FileAttribute>(Arrays.asList(new FileAttribute[]{FileAttribute.Directory})));
-               dis = hideScanned(dis, hiddenMode, failMode, collectedScanErrors);
+    switch(depthMode)
+    {
+      case Shallow:
+        return scanPathBreadthFirst(path, (inclusionMode == ScanInclusionMode.Files) || (inclusionMode == ScanInclusionMode.All),
+            (inclusionMode == ScanInclusionMode.Directories) || (inclusionMode == ScanInclusionMode.All), hiddenMode, sortMode, failMode,
+            collectedScanErrors, false);
 
-               List<String> dirDirs = new ArrayList<String>(64);
-               for (File dirDir : dis)
-                  dirDirs.add(dirDir.getAbsolutePath());
+      case BreadthFirst:
+        return scanPathBreadthFirst(path, (inclusionMode == ScanInclusionMode.Files) || (inclusionMode == ScanInclusionMode.All),
+            (inclusionMode == ScanInclusionMode.Directories) || (inclusionMode == ScanInclusionMode.All), hiddenMode, sortMode, failMode,
+            collectedScanErrors, true);
 
-               // sort
-               dirDirs = sortScanned(dirDirs, sortMode);
+      case DepthFirst:
+        return scanPathDepthFirst(path, (inclusionMode == ScanInclusionMode.Files) || (inclusionMode == ScanInclusionMode.All),
+            (inclusionMode == ScanInclusionMode.Directories) || (inclusionMode == ScanInclusionMode.All), hiddenMode, sortMode, failMode,
+            collectedScanErrors);
 
-               // next directories to process
-               for (int i = dirDirs.size() - 1; i >= 0; i--)
-                  fsEntryStack.addFirst(dirDirs.get(i));
-            } else
-               if (currDir.exists() && currDir.isFile()) {
-                  File currFile = currDir;
+      default:
+        throw new IllegalArgumentException("Unknown depth scan mode: " + depthMode);
+    }
+  }
 
-                  // check if we need to include files in results
-                  if (includeFiles)
-                     result.addAll(Linq.toList(Linq.select(hideScanned(new File[]{currFile}, hiddenMode, failMode, collectedScanErrors), getAbsPath())));
-               }
-         } catch (Throwable e) {
-            switch (failMode) {
-               case Never:
-                  continue;
-               case Immediate:
-                  throw e;
-               case SkipAndCollect:
-                  collectedScanErrors.add(new ScanErrorEntry(fsEntryName, e));
-                  break;
-               default:
-                  throw new IllegalArgumentException("Unknown fail mode: " + failMode, e);
-            }
-         }
-      }
+  /**
+   * Performs breadth-first filesystem path scanning
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IllegalArgumentException Unrecognized hide, sort or fail mode.
+   * @throws IOException An I/O error occurs and the scan fail mode is immediate
+   * @throws Throwable Some other error occurs and the scan fail mode is immediate
+   */
+  private static List<String> scanPathBreadthFirst(String path, boolean includeFiles, boolean includeDirectories,
+                                                   ScanHiddenMode hiddenMode, ScanSortMode sortMode, ScanFailMode failMode,
+                                                   List<ScanErrorEntry> collectedScanErrors, boolean deepScan)
+      throws Throwable
+  {
+    List<String> result = new ArrayList<String>(64);
 
-      return result;
-   }
+    // maintain a queue of scanned directories
+    LinkedList<String> directoryQueue = new LinkedList<String>();
+    directoryQueue.addLast(path);
 
-   /**
-    * Sorts a list using the specified sort mode
-    *
-    * @throws NullPointerException	 An argument is null
-    * @throws IllegalArgumentException The sort mode is not recognised
-    */
-   private static List<String> sortScanned(List<String> names, ScanSortMode sortMode)
-   {
-      if (names == null)
-         throw new NullPointerException("names");
+    // check if we need to add self
+    if (includeDirectories)
+      result.addAll(Linq.toList(Linq.select(hideScanned(new File[] {new File(path)}, hiddenMode, failMode, collectedScanErrors),
+          getAbsPath())));
 
-      switch (sortMode) {
-         case None:
-            return names;
-         case Ascending:
-            Collections.sort(names);
-            return names;
-         case Descending:
-            Collections.sort(names);
-            Collections.reverse(names);
-            return names;
-         default:
-            throw new IllegalArgumentException("Unrecognized sort mode: " + sortMode);
-      }
-   }
+    // While there are directories to process
+    while (directoryQueue.size() > 0)
+    {
+      String currDirName = directoryQueue.removeFirst();
 
-   /**
-    * Applies the relevant hiding mode, e.g. returning only hidden files, only non-hidden files, or all files.
-    *
-    * @throws NullPointerException An argument is null
-    * @throws Throwable			An error occurs during file attribute checking
-    */
-   private static File[] hideScanned(File[] fis, ScanHiddenMode hiddenMode, ScanFailMode failMode, List<ScanErrorEntry> collectedScanErrors)
-       throws Throwable
-   {
-      if (fis == null)
-         throw new NullPointerException("fis");
+      try
+      {
+        File currDir = new File(currDirName);
+        if (currDir.exists() && currDir.isDirectory())
+        {
+          // check if we need to scan for directories at all
+          if (includeDirectories || deepScan)
+          {
+            // get folders
+            File[] dis = filterIn(currDir.listFiles(),
+                new HashSet<FileAttribute>(Arrays.asList(new FileAttribute[] {FileAttribute.Directory})));
+            dis = hideScanned(dis, hiddenMode, failMode, collectedScanErrors);
 
-      ReifiedList<File> result = new ReifiedArrayList<File>(fis.length, File.class);
-      switch (hiddenMode) {
-         case All:
-            return fis;
-         case NormalOnly:
-         case HiddenOnly:
+            List<String> dirDirs = new ArrayList<String>(64);
+            for (File di : dis)
+              dirDirs.add(di.getAbsolutePath());
+
+            // sort
+            dirDirs = sortScanned(dirDirs, sortMode);
+
+            // check if we need to include directories in results
+            if (includeDirectories)
+              result.addAll(dirDirs);
+
+            // next directories to process
+            if (deepScan)
+              for (String dirDir : dirDirs)
+                directoryQueue.addLast(dirDir);
+          }
+
+          // check if we need to include files in results
+          if (includeFiles)
+          {
+            // get files
+            File[] fis = filterIn(currDir.listFiles(), new HashSet<FileAttribute>(Arrays.asList(new FileAttribute[] {FileAttribute.File})));
+            fis = hideScanned(fis, hiddenMode, failMode, collectedScanErrors);
+
+            List<String> dirFiles = new ArrayList<String>(64);
             for (File fi : fis)
-               try {
-                  // do not include hidden
-                  if (hiddenMode == ScanHiddenMode.NormalOnly) {
-                     if (!fi.isHidden())
-                        result.add(fi);
-                  } // only include hidden
-                  else
-                     if (fi.isHidden())
-                        result.add(fi);
-               } catch (Throwable e) {
-                  switch (failMode) {
-                     case Never:
-                        continue;
-                     case Immediate:
-                        throw e;
-                     case SkipAndCollect:
-                        collectedScanErrors.add(new ScanErrorEntry(fi.getAbsolutePath(), e));
-                        break;
-                     default:
-                        throw new IllegalArgumentException("Unrecognized fail mode: " + failMode);
-                  }
-               }
-            return result.toArray();
-         default:
-            throw new IllegalArgumentException("Unrecognized hide mode: " + hiddenMode);
+              dirFiles.add(fi.getAbsolutePath());
+
+            // sort
+            dirFiles = sortScanned(dirFiles, sortMode);
+
+            // add to result
+            result.addAll(dirFiles);
+          }
+        }
       }
-   }
+      catch(Throwable e)
+      {
+        switch(failMode)
+        {
+          case Never:
+            continue;
+          case Immediate:
+            throw e;
+          case SkipAndCollect:
+            collectedScanErrors.add(new ScanErrorEntry(currDirName, e));
+            break;
+          default:
+            throw new IllegalArgumentException("Unknown fail mode: " + failMode, e);
+        }
+      }
+    }
+
+    return result;
+  }
+
+  @Function
+  private static String getAbsPath(final File arg)
+  {
+    return arg.getAbsolutePath();
+  }
+
+  /**
+   * Performs depth-first filesystem path scanning
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IllegalArgumentException Unrecognized hide, sort or fail mode.
+   * @throws IOException An I/O error occurs and the scan fail mode is immediate
+   * @throws Throwable Some other error occurs and the scan fail mode is immediate
+   */
+  private static List<String> scanPathDepthFirst(String path, boolean includeFiles, boolean includeDirectories, ScanHiddenMode hiddenMode,
+                                                 ScanSortMode sortMode, ScanFailMode failMode, List<ScanErrorEntry> collectedScanErrors)
+      throws Throwable
+  {
+    if (path == null)
+      throw new NullPointerException("path");
+
+    List<String> result = new ArrayList<String>(64);
+
+    // maintain a stack of scanned files/directories
+    LinkedList<String> fsEntryStack = new LinkedList<String>();
+    fsEntryStack.addFirst(path);
+
+    // While there are directories to process
+    while (fsEntryStack.size() > 0)
+    {
+      String fsEntryName = fsEntryStack.removeFirst();
+      try
+      {
+        File currDir = new File(fsEntryName);
+        if (currDir.exists() && currDir.isDirectory())
+        {
+          // files to process
+          if (includeFiles)
+          {
+            // get files
+            File[] fis = filterIn(currDir.listFiles(), new HashSet<FileAttribute>(Arrays.asList(new FileAttribute[] {FileAttribute.File})));
+            fis = hideScanned(fis, hiddenMode, failMode, collectedScanErrors);
+
+            List<String> dirFiles = new ArrayList<String>(64);
+            for (File fi : fis)
+              dirFiles.add(fi.getAbsolutePath());
+
+            // sort
+            dirFiles = sortScanned(dirFiles, sortMode);
+
+            // next files to process
+            for (int i = dirFiles.size() - 1; i >= 0; i--)
+              fsEntryStack.addFirst(dirFiles.get(i));
+          }
+
+          // check if we need to include directories in results
+          if (includeDirectories)
+            result.addAll(Linq.toList(Linq.select(hideScanned(new File[] {currDir}, hiddenMode, failMode, collectedScanErrors),
+                getAbsPath())));
+
+          File[] dis = filterIn(currDir.listFiles(),
+              new HashSet<FileAttribute>(Arrays.asList(new FileAttribute[] {FileAttribute.Directory})));
+          dis = hideScanned(dis, hiddenMode, failMode, collectedScanErrors);
+
+          List<String> dirDirs = new ArrayList<String>(64);
+          for (File dirDir : dis)
+            dirDirs.add(dirDir.getAbsolutePath());
+
+          // sort
+          dirDirs = sortScanned(dirDirs, sortMode);
+
+          // next directories to process
+          for (int i = dirDirs.size() - 1; i >= 0; i--)
+            fsEntryStack.addFirst(dirDirs.get(i));
+        } else if (currDir.exists() && currDir.isFile())
+        {
+          File currFile = currDir;
+
+          // check if we need to include files in results
+          if (includeFiles)
+            result.addAll(Linq.toList(Linq.select(hideScanned(new File[] {currFile}, hiddenMode, failMode, collectedScanErrors),
+                getAbsPath())));
+        }
+      }
+      catch(Throwable e)
+      {
+        switch(failMode)
+        {
+          case Never:
+            continue;
+          case Immediate:
+            throw e;
+          case SkipAndCollect:
+            collectedScanErrors.add(new ScanErrorEntry(fsEntryName, e));
+            break;
+          default:
+            throw new IllegalArgumentException("Unknown fail mode: " + failMode, e);
+        }
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Sorts a list using the specified sort mode
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IllegalArgumentException The sort mode is not recognised
+   */
+  private static List<String> sortScanned(List<String> names, ScanSortMode sortMode)
+  {
+    if (names == null)
+      throw new NullPointerException("names");
+
+    switch(sortMode)
+    {
+      case None:
+        return names;
+      case Ascending:
+        Collections.sort(names);
+        return names;
+      case Descending:
+        Collections.sort(names);
+        Collections.reverse(names);
+        return names;
+      default:
+        throw new IllegalArgumentException("Unrecognized sort mode: " + sortMode);
+    }
+  }
+
+  /**
+   * Applies the relevant hiding mode, e.g. returning only hidden files, only non-hidden files, or all files.
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws Throwable An error occurs during file attribute checking
+   */
+  private static File[] hideScanned(File[] fis, ScanHiddenMode hiddenMode, ScanFailMode failMode, List<ScanErrorEntry> collectedScanErrors)
+      throws Throwable
+  {
+    if (fis == null)
+      throw new NullPointerException("fis");
+
+    ReifiedList<File> result = new ReifiedArrayList<File>(fis.length, File.class);
+    switch(hiddenMode)
+    {
+      case All:
+        return fis;
+      case NormalOnly:
+      case HiddenOnly:
+        for (File fi : fis)
+          try
+          {
+            // do not include hidden
+            if (hiddenMode == ScanHiddenMode.NormalOnly)
+            {
+              if (!fi.isHidden())
+                result.add(fi);
+            } // only include hidden
+            else if (fi.isHidden())
+              result.add(fi);
+          }
+          catch(Throwable e)
+          {
+            switch(failMode)
+            {
+              case Never:
+                continue;
+              case Immediate:
+                throw e;
+              case SkipAndCollect:
+                collectedScanErrors.add(new ScanErrorEntry(fi.getAbsolutePath(), e));
+                break;
+              default:
+                throw new IllegalArgumentException("Unrecognized fail mode: " + failMode);
+            }
+          }
+        return result.toArray();
+      default:
+        throw new IllegalArgumentException("Unrecognized hide mode: " + hiddenMode);
+    }
+  }
 }

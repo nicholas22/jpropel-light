@@ -14,10 +14,10 @@ propel.core.collections.stacks
 propel.core.collections.volatiles
 propel.core.common
 propel.core.counters
-propel.core.extension
 propel.core.functional.predicates
 propel.core.functional.projections
 propel.core.functional.tuples
 propel.core.model
+propel.core.transactional
 propel.core.userTypes
 propel.core.utils
