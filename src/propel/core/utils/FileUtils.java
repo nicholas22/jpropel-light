@@ -57,6 +57,21 @@ public final class FileUtils
   private FileUtils()
   {
   }
+  
+  /**
+   * Appends some binary data to a file. If the file does not exist, it is created.
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IllegalArgumentException An argument is out of range
+   * @throws IOException An I/O error occurs
+   * @throws FileNotFoundException The file specified is a directory, or it does not exist and cannot be created, or cannot be appended to.
+   * @throws SecurityException Access to filesystem is denied by a SecurityManager
+   */
+  public static void appendData(File file, byte[] data, int offset, int count) 
+      throws IOException
+  {
+    appendData(file.getAbsolutePath(), data, offset, count);
+  }
 
   /**
    * Appends some binary data to a file in the specified path. If the file does not exist, it is created.
@@ -88,6 +103,22 @@ public final class FileUtils
   }
 
   /**
+   * Appends some text to a file. If the file does not exist, it is created. No EOL terminator is appended, e.g.
+   * Environment.NewLine.
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IllegalArgumentException An argument is out of range
+   * @throws IOException An I/O error occurs
+   * @throws FileNotFoundException The file specified is a directory, or it does not exist and cannot be created, or cannot be appended to.
+   * @throws SecurityException Access to filesystem is denied by a SecurityManager
+   */
+  public static void appendText(File file, String text)
+      throws IOException
+  {
+    appendText(file.getAbsolutePath(), text);
+  }
+  
+  /**
    * Appends some text to a file in the specified path. If the file does not exist, it is created. No EOL terminator is appended, e.g.
    * Environment.NewLine.
    * 
@@ -104,7 +135,22 @@ public final class FileUtils
   }
 
   /**
-   * Appends some text to a file in the specified path and the appends Environment.NewLine. If the file does not exist, it is created.
+   * Appends some text to a file and then appends Environment.NewLine. If the file does not exist, it is created.
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IllegalArgumentException An argument is out of range
+   * @throws IOException An I/O error occurs
+   * @throws FileNotFoundException The file specified is a directory, or it does not exist and cannot be created, or cannot be appended to.
+   * @throws SecurityException Access to filesystem is denied by a SecurityManager
+   */
+  public static void appendTextLine(File file, String text)
+      throws IOException
+  {
+    appendTextLine(file.getAbsolutePath(), text);
+  }
+  
+  /**
+   * Appends some text to a file in the specified path and then appends Environment.NewLine. If the file does not exist, it is created.
    * 
    * @throws NullPointerException An argument is null
    * @throws IllegalArgumentException An argument is out of range
@@ -118,6 +164,22 @@ public final class FileUtils
     appendText(fileAbsPath, text, CONSTANT.ENVIRONMENT_NEWLINE);
   }
 
+  /**
+   * Appends some text to a file in the specified path. If the file does not exist, it is created. If the End-Of-Line terminator is not
+   * null, it is appended after the text (this could be e.g. Environment.NewLine)
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IllegalArgumentException An argument is out of range
+   * @throws IOException An I/O error occurs
+   * @throws FileNotFoundException The file specified is a directory, or it does not exist and cannot be created, or cannot be appended to.
+   * @throws SecurityException Access to filesystem is denied by a SecurityManager
+   */
+  public static void appendText(File file, String text, String eolTerminator)
+      throws IOException
+  {
+    appendText(file.getAbsolutePath(), text, eolTerminator);
+  }
+  
   /**
    * Appends some text to a file in the specified path. If the file does not exist, it is created. If the End-Of-Line terminator is not
    * null, it is appended after the text (this could be e.g. Environment.NewLine)
@@ -151,6 +213,21 @@ public final class FileUtils
    * @throws FileNotFoundException The file specified is a directory, it does not exist or cannot be read/created.
    * @throws SecurityException Access to filesystem is denied by a SecurityManager
    */
+  public static void cloneFile(File originatingFile, String destinationPath)
+      throws IOException
+  {
+    cloneFile(originatingFile.getAbsolutePath(), destinationPath);
+  }
+  
+  /**
+   * Copies a file from source to destination while preserving the file's Last Modified date. Note: Creation date is not possible to obtain
+   * and set in a cross platform way in Java prior to 1.7.
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IOException An I/O error occurs
+   * @throws FileNotFoundException The file specified is a directory, it does not exist or cannot be read/created.
+   * @throws SecurityException Access to filesystem is denied by a SecurityManager
+   */
   public static void cloneFile(String originatingPath, String destinationPath)
       throws IOException
   {
@@ -163,6 +240,15 @@ public final class FileUtils
       throw new IOException("Could not set last modified date/time.");
   }
 
+  /**
+   * Clones a file from source to destination, returning true if the operation was successful. The file is not copied if any exception
+   * occurs. No exception is thrown under any circumstance.
+   */
+  public static boolean tryCloneFile(File sourceFile, String destAbsPath)
+  {
+    return tryCloneFile(sourceFile.getAbsolutePath(), destAbsPath);
+  }
+  
   /**
    * Clones a file from source to destination, returning true if the operation was successful. The file is not copied if any exception
    * occurs. No exception is thrown under any circumstance.
@@ -180,6 +266,20 @@ public final class FileUtils
     }
   }
 
+  /**
+   * Copies a file from source to destination
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IOException An I/O error occurs
+   * @throws FileNotFoundException The file specified is a directory, it does not exist or cannot be read/created.
+   * @throws SecurityException Access to filesystem is denied by a SecurityManager
+   */
+  public static void copyFile(File originatingFile, String destinationPath)
+      throws IOException
+  {
+    copyFile(originatingFile.getAbsolutePath(), destinationPath);
+  }
+  
   /**
    * Copies a file from source to destination
    * 
@@ -225,6 +325,15 @@ public final class FileUtils
    * Copies a file from source to destination, returning true if the operation was successful. The file is not copied if any exception
    * occurs. No exception is thrown under any circumstance.
    */
+  public static boolean tryCopyFile(File sourceFile, String destAbsPath)
+  {
+    return tryCopyFile(sourceFile, destAbsPath);
+  }
+  
+  /**
+   * Copies a file from source to destination, returning true if the operation was successful. The file is not copied if any exception
+   * occurs. No exception is thrown under any circumstance.
+   */
   public static boolean tryCopyFile(String sourceAbsPath, String destAbsPath)
   {
     try
@@ -238,6 +347,20 @@ public final class FileUtils
     }
   }
 
+  /**
+   * Deletes a file, if it exists.
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IOException An I/O error occurs
+   * @throws FileNotFoundException The file was a directory
+   * @throws SecurityException Access to filesystem is denied by a SecurityManager
+   */
+  public static void deleteFile(File file)
+      throws IOException
+  {
+    deleteFile(file.getAbsolutePath());
+  }
+  
   /**
    * Deletes a file, if it exists.
    * 
@@ -267,6 +390,14 @@ public final class FileUtils
   /**
    * Attempts to delete a file. The file is not deleted if any exception occurs. No exception is thrown under any circumstance.
    */
+  public static boolean tryDeleteFile(File file)
+  {
+    return tryDeleteFile(file.getAbsolutePath());
+  }
+  
+  /**
+   * Attempts to delete a file. The file is not deleted if any exception occurs. No exception is thrown under any circumstance.
+   */
   public static boolean tryDeleteFile(String fileAbsPath)
   {
     try
@@ -285,7 +416,7 @@ public final class FileUtils
       return false;
     }
   }
-
+  
   /**
    * Returns the URL to a resource, by its class path e.g. /java/util/test.xml.
    * 
@@ -440,6 +571,20 @@ public final class FileUtils
    * @throws FileNotFoundException The file specified is a directory, it does not exist or cannot be read/created.
    * @throws SecurityException Access to filesystem is denied by a SecurityManager
    */
+  public static void moveFile(File originatingFile, String destinationPath)
+      throws IOException
+  {
+    moveFile(originatingFile.getAbsolutePath(), destinationPath);
+  }
+  
+  /**
+   * Moves a file from source to destination
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IOException An I/O error occurs
+   * @throws FileNotFoundException The file specified is a directory, it does not exist or cannot be read/created.
+   * @throws SecurityException Access to filesystem is denied by a SecurityManager
+   */
   public static void moveFile(String originatingPath, String destinationPath)
       throws IOException
   {
@@ -457,6 +602,15 @@ public final class FileUtils
    * Moves a file from source to destination, returning true if the operation was successful. The file is not moved if any exception occurs.
    * No exception is thrown under any circumstance.
    */
+  public static boolean tryMoveFile(File sourceFile, String destAbsPath)
+  {
+    return tryMoveFile(sourceFile.getAbsolutePath(), destAbsPath);
+  }
+  
+  /**
+   * Moves a file from source to destination, returning true if the operation was successful. The file is not moved if any exception occurs.
+   * No exception is thrown under any circumstance.
+   */
   public static boolean tryMoveFile(String sourceAbsPath, String destAbsPath)
   {
     try
@@ -470,6 +624,21 @@ public final class FileUtils
     }
   }
 
+  /**
+   * Reads the entire contents of a file to a string and returns it. This method should generally only be used for small files as it is
+   * quite inefficient to read everything in memory.
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IOException An I/O error occurs
+   * @throws FileNotFoundException The file was not found, or it was a directory
+   * @throws SecurityException Access to filesystem is denied by a SecurityManager
+   */
+  public static String readFileToEnd(File file)
+      throws IOException
+  {
+    return readFileToEnd(file.getAbsolutePath());
+  }
+  
   /**
    * Reads the entire contents of a file to a string and returns it. This method should generally only be used for small files as it is
    * quite inefficient to read everything in memory.
@@ -504,6 +673,20 @@ public final class FileUtils
       if (stream != null)
         stream.close();
     }
+  }
+  
+  /**
+   * Enumerates the contents of a file line by line (reads the entire contents of a file in memory to do so).
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IOException An I/O error occurs
+   * @throws FileNotFoundException The file was not found, or it was a directory
+   * @throws SecurityException Access to filesystem is denied by a SecurityManager
+   */
+  public static Iterable<String> readFilePerLine(File file)
+      throws IOException
+  {
+    return readFilePerLine(file.getAbsolutePath());
   }
 
   /**
@@ -543,6 +726,21 @@ public final class FileUtils
    * @throws FileNotFoundException The file was not found, or it was a directory
    * @throws SecurityException Access to filesystem is denied by a SecurityManager
    */
+  public static byte[] readFileInMemory(File file)
+      throws IOException
+  {
+    return readFileInMemory(file.getAbsolutePath());
+  }
+  
+  /**
+   * Reads the entire contents of a file to a byte[] and returns it. This method should generally only be used for small files as it is
+   * quite inefficient to read everything in memory.
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IOException An I/O error occurs
+   * @throws FileNotFoundException The file was not found, or it was a directory
+   * @throws SecurityException Access to filesystem is denied by a SecurityManager
+   */
   public static byte[] readFileInMemory(String fileAbsPath)
       throws IOException
   {
@@ -561,6 +759,20 @@ public final class FileUtils
     return result;
   }
 
+  /**
+   * Enumerates the contents of a file line by line (reads the entire contents of a file in memory to do so).
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IOException An I/O error occurs
+   * @throws FileNotFoundException The file was not found, or it was a directory
+   * @throws SecurityException Access to filesystem is denied by a SecurityManager
+   */
+  public static Iterable<byte[]> readFilePerBlock(File file, int blockSize)
+      throws IOException
+  {
+    return readFilePerBlock(file.getAbsolutePath(), blockSize);
+  }
+  
   /**
    * Enumerates the contents of a file line by line (reads the entire contents of a file in memory to do so).
    * 
@@ -609,6 +821,20 @@ public final class FileUtils
    * @throws FileNotFoundException A directory was specified instead of a file
    * @throws SecurityException Access to filesystem is denied by a SecurityManager
    */
+  public static void touchFile(File file)
+      throws IOException
+  {
+    touchFile(file.getAbsolutePath());
+  }
+  
+  /**
+   * Touches a file, i.e. creates it if not there, otherwise updates its last write time.
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IOException An I/O error occurs
+   * @throws FileNotFoundException A directory was specified instead of a file
+   * @throws SecurityException Access to filesystem is denied by a SecurityManager
+   */
   public static void touchFile(String fileAbsPath)
       throws IOException
   {
@@ -631,6 +857,15 @@ public final class FileUtils
    * Touches a file, i.e. creates it if not there, otherwise updates its last write time. Returns true if succeeded. No exception is thrown
    * under any circumstance.
    */
+  public static boolean tryTouchFile(File file)
+  {
+    return tryTouchFile(file.getAbsolutePath());
+  }
+  
+  /**
+   * Touches a file, i.e. creates it if not there, otherwise updates its last write time. Returns true if succeeded. No exception is thrown
+   * under any circumstance.
+   */
   public static boolean tryTouchFile(String fileAbsPath)
   {
     try
@@ -644,7 +879,7 @@ public final class FileUtils
     }
   }
 
-  // Directory related methods
+  // Directory related methods  
   /**
    * Creates a directory if it does not already exist (if there are subdirectories there are created too).
    * 

@@ -8,6 +8,7 @@ propel.core.collections.maps
 propel.core.collections.maps.avl
 propel.core.collections.maps.bi
 propel.core.collections.maps.combinational
+propel.core.collections.maps.multi
 propel.core.collections.queues
 propel.core.collections.sets
 propel.core.collections.stacks
