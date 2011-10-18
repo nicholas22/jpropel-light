@@ -263,11 +263,12 @@ Most methods in FileUtils will now accept a File object as first argument, facil
 
 
 ####1.0.2: New features, upgrades, etc.
-
-####Lots of new statically importable predicates and projections:
+Lots of new statically importable predicates and projections:
 
     import static propel.core.functional.predicates.Predicates.*;
     import static propel.core.functional.projections.Projections.*;
+
+examples: instanceOf(), appendToFile(), copyFile, moveFile(), etc.
 
 ####Matcher allowing for fewer if-then-else statements (beta!)
 
@@ -282,13 +283,13 @@ Most methods in FileUtils will now accept a File object as first argument, facil
     matcher.setDefaultAction(throwDetailed(new Exception("An unrecognised person type was given: ")));
 
 ####Functional transaction manager
-Accepts functions as actions and rollback actions.
+A transaction manager which accepts functions as actions and rollback actions.
 
     // we will transactionally replace a file, i.e. revert changes if something fails
     ITransactionManager tm = new TransactionManager();
 
-    String originalPath = "C:\\source\file"
-    String destinationPath = "C:\\destination\file";
+    String originalPath = "/source/file"
+    String destinationPath = "/destination/file";
     String tempPath = destinationPath + CONSTANT.DOT + RandomUtils.getPseudoAlphanumericText(16);
 
     // action is to move the file to a temporary location, upon failure move it back
@@ -306,8 +307,7 @@ Accepts functions as actions and rollback actions.
 
 
 
-####1.0.1 
-####Added println() predicate
+####1.0.1: Added println() predicate
 
     new String[] { "hello", "world" }.all(println());
 
