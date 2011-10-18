@@ -238,33 +238,34 @@ You may visit the [lombok](http://projectlombok.org/slideshow.html) project webs
 
 ##Changelog
 
-1.0.3
-- MapMultimap data structure (map of maps)
+####1.0.3
+####MapMultimap data structure
+A map of maps
 
-    val map = new MapMultimap<String, String, Integer>() {};
-    map.put("Male", "Nick", 18);
-    map.put("Male", "John", 25);
-    map.put("Female", "Jo", 20);
+     val map = new MapMultimap<String, String, Integer>() {};
+     map.put("Male", "Nick", 18);
+     map.put("Male", "John", 25);
+     map.put("Female", "Jo", 20);
 
-    // get map of all males
-    Map<String, Integer> males = map.get("Male");
+     // get map of all males
+     Map<String, Integer> males = map.get("Male");
 
-    // check if anyone is 23 years old
-    boolean notTrue = map.getValue(23);
+     // check if anyone is 23 years old
+     boolean notTrue = map.getValue(23);
 
-- FileUtils have improved extension method support, as most methods
-  will now accept a File object:
+####FileUtils improved extension method support
+Most methods will now accept a File object as first argument, facilitating extension method use:
 
-    // line-oriented file input
-    String[] lines = new File("myFile.txt").readFileToEnd().split("\r\n");
+     // line-oriented file input
+     String[] lines = new File("myFile.txt").readFileToEnd().split("\r\n");
 
-1.0.2
-- Lots of new statically importable predicates and projections:
+####1.0.2
+####Lots of new statically importable predicates and projections:
 
     import static propel.core.functional.predicates.Predicates.*;
     import static propel.core.functional.projections.Projections.*;
 
-- Matcher allowing for fewer if-then-else statements (beta!)
+####Matcher allowing for fewer if-then-else statements (beta!)
 
     val matcher = new Matcher<Object, Person>();
 
@@ -276,7 +277,8 @@ You may visit the [lombok](http://projectlombok.org/slideshow.html) project webs
     // this is the default action, will match if nothing else matches
     matcher.setDefaultAction(throwDetailed(new Exception("An unrecognised person type was given: ")));
 
-- Functional transaction manager, accepting functions as actions and rollback actions.
+####Functional transaction manager
+Accepts functions as actions and rollback actions.
 
     // we will transactionally replace a file, i.e. revert changes if something fails
     ITransactionManager tm = new TransactionManager();
@@ -298,10 +300,10 @@ You may visit the [lombok](http://projectlombok.org/slideshow.html) project webs
     // perform operations, upon failure this will execute all rollback actions, before re-throwing
     tm.commitWithRollback();
 
-1.0.1
-- `println()` predicate
+####1.0.1 
+####Added println() predicate
 
     new String[] { "hello", "world" }.all(println());
 
-1.0.0
-- Lightweight version forked from [JPropel](https://github.com/nicholas22/jpropel)
+####1.0.0: Creation
+Lightweight version forked from [JPropel](https://github.com/nicholas22/jpropel)
