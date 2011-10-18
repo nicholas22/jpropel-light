@@ -238,16 +238,70 @@ You may visit the [lombok](http://projectlombok.org/slideshow.html) project webs
 
 ##Changelog
 
+1.0.3
+- MapMultimap data structure (map of maps)
+
+    val map = new MapMultimap<String, String, Integer>() {};
+    map.put("Male", "Nick", 18);
+    map.put("Male", "John", 25);
+    map.put("Female", "Jo", 20);
+
+    // get map of all males
+    Map<String, Integer> males = map.get("Male");
+
+    // check if anyone is 23 years old
+    boolean notTrue = map.getValue(23);
+
+- FileUtils have improved extension method support, as most methods
+  will now accept a File object:
+
+    // line-oriented file input
+    String[] lines = new File("myFile.txt").readFileToEnd().split("\r\n");
+
 1.0.2
-Lots of new statically importable predicates and projections:
+- Lots of new statically importable predicates and projections:
 
     import static propel.core.functional.predicates.Predicates.*;
     import static propel.core.functional.projections.Projections.*;
 
-(beta) Matcher allowing for fewer if-then-else statements
+- Matcher allowing for fewer if-then-else statements (beta!)
+
+    val matcher = new Matcher<Object, Person>();
+
+    // wire-up appropriate matching conditions to handlers
+    matcher.addAction(instanceOf(SalesPerson.class), salesHandler);
+    matcher.addAction(instanceOf(MarketingPerson.class), marketingHandler);
+    matcher.addAction(instanceOf(AdminPerson.class), adminHandler);
+
+    // this is the default action, will match if nothing else matches
+    matcher.setDefaultAction(throwDetailed(new Exception("An unrecognised person type was given: ")));
+
+- Functional transaction manager, accepting functions as actions and rollback actions.
+
+    // we will transactionally replace a file, i.e. revert changes if something fails
+    ITransactionManager tm = new TransactionManager();
+
+    String originalPath = "C:\\source\file"
+    String destinationPath = "C:\\destination\file";
+    String tempPath = destinationPath + CONSTANT.DOT + RandomUtils.getPseudoAlphanumericText(16);
+
+    // action is to move the file to a temporary location, upon failure move it back
+    if (new File(originalPath).exists())
+      tm.add(moveFile(originalPath, tempPath), moveFile(tempPath, originalPath));
+
+    // action is to append file contents, upon failure delete this new file
+    tm.add(appendToFile(originalPath, xmlData), deleteFile(originalPath));
+
+    // action is to delete temporary file, this is last action hence no need for recovery counter-action
+    tm.add(deleteFile(tempPath));
+
+    // perform operations, upon failure this will execute all rollback actions, before re-throwing
+    tm.commitWithRollback();
 
 1.0.1
-`println()` predicate
+- `println()` predicate
+
+    new String[] { "hello", "world" }.all(println());
 
 1.0.0
-Lightweight version forked from [JPropel](https://github.com/nicholas22/jpropel)
+- Lightweight version forked from [JPropel](https://github.com/nicholas22/jpropel)
