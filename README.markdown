@@ -238,9 +238,10 @@ You may visit the [lombok](http://projectlombok.org/slideshow.html) project webs
 
 ##Changelog
 
-####1.0.3
+####1.0.3: Minor improvements
+
 ####MapMultimap data structure
-A map of maps
+Another type-aware collection, this is a "map of maps".
 
      val map = new MapMultimap<String, String, Integer>() {};
      map.put("Male", "Nick", 18);
@@ -253,13 +254,16 @@ A map of maps
      // check if anyone is 23 years old
      boolean notTrue = map.getValue(23);
 
-####FileUtils improved extension method support
-Most methods will now accept a File object as first argument, facilitating extension method use:
+####Improved extension method support for java.io.File
+Most methods in FileUtils will now accept a File object as first argument, facilitating extension method use:
 
      // line-oriented file input
      String[] lines = new File("myFile.txt").readFileToEnd().split("\r\n");
 
-####1.0.2
+
+
+####1.0.2: New features, upgrades, etc.
+
 ####Lots of new statically importable predicates and projections:
 
     import static propel.core.functional.predicates.Predicates.*;
@@ -300,10 +304,14 @@ Accepts functions as actions and rollback actions.
     // perform operations, upon failure this will execute all rollback actions, before re-throwing
     tm.commitWithRollback();
 
+
+
 ####1.0.1 
 ####Added println() predicate
 
     new String[] { "hello", "world" }.all(println());
+
+
 
 ####1.0.0: Creation
 Lightweight version forked from [JPropel](https://github.com/nicholas22/jpropel)
