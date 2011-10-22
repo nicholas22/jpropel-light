@@ -238,6 +238,11 @@ You may visit the [lombok](http://projectlombok.org/slideshow.html) project webs
 
 ##Changelog
 
+####1.0.4: Function1<?, Boolean> became Predicate1<?>
+A breaking change that uses the @Predicate annotation instead of @Function. Annotated methods return Predicate1<?> instead of Function1<?, Boolean>
+
+
+
 ####1.0.3: Minor improvements
 
 ####MapMultimap data structure
