@@ -31,6 +31,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import lombok.Predicates.Predicate1;
 import lombok.Functions.Function1;
 import lombok.Functions.Function2;
 import lombok.Validate;
@@ -150,7 +151,7 @@ public final class Linq
    * @throws NullPointerException When an argument is null.
    */
   @Validate
-  public static <T> boolean all(@NotNull final Iterable<T> values, @NotNull final Function1<? super T, Boolean> predicate)
+  public static <T> boolean all(@NotNull final Iterable<T> values, @NotNull final Predicate1<? super T> predicate)
   {
     for (T val : values)
       if (!predicate.apply(val))
@@ -165,7 +166,7 @@ public final class Linq
    * @throws NullPointerException When an argument is null.
    */
   @Validate
-  public static <T> boolean all(@NotNull T[] values, @NotNull final Function1<? super T, Boolean> predicate)
+  public static <T> boolean all(@NotNull T[] values, @NotNull final Predicate1<? super T> predicate)
   {
     for (int i = 0; i < values.length; i++)
       if (!predicate.apply(values[i]))
@@ -180,7 +181,7 @@ public final class Linq
    * @throws NullPointerException An argument is null.
    */
   @Validate
-  public static <T> boolean any(@NotNull final Iterable<T> values, @NotNull final Function1<? super T, Boolean> predicate)
+  public static <T> boolean any(@NotNull final Iterable<T> values, @NotNull final Predicate1<? super T> predicate)
   {
     for (T val : values)
       if (predicate.apply(val))
@@ -195,7 +196,7 @@ public final class Linq
    * @throws NullPointerException An argument is null.
    */
   @Validate
-  public static <T> boolean any(@NotNull final T[] values, @NotNull final Function1<? super T, Boolean> predicate)
+  public static <T> boolean any(@NotNull final T[] values, @NotNull final Predicate1<? super T> predicate)
   {
     int count = values.length;
     for (int i = 0; i < count; i++)
@@ -633,7 +634,7 @@ public final class Linq
    * @throws NullPointerException When an argument is null.
    */
   @Validate
-  public static <T> int countWhere(@NotNull final Iterable<? extends T> values, @NotNull final Function1<? super T, Boolean> predicate)
+  public static <T> int countWhere(@NotNull final Iterable<? extends T> values, @NotNull final Predicate1<? super T> predicate)
   {
     int counter = 0;
     for (T item : values)
@@ -651,7 +652,7 @@ public final class Linq
    * @throws NullPointerException When an argument is null.
    */
   @Validate
-  public static <T> int countWhere(@NotNull final T[] values, @NotNull final Function1<? super T, Boolean> predicate)
+  public static <T> int countWhere(@NotNull final T[] values, @NotNull final Predicate1<? super T> predicate)
   {
     int counter = 0;
     for (T item : values)
@@ -946,7 +947,7 @@ public final class Linq
    * @throws NoSuchElementException There is no match to the given predicate.
    */
   @Validate
-  public static <T> T first(@NotNull final Iterable<T> values, Function1<? super T, Boolean> predicate)
+  public static <T> T first(@NotNull final Iterable<T> values, Predicate1<? super T> predicate)
   {
     for (T element : values)
       if (predicate.apply(element))
@@ -962,7 +963,7 @@ public final class Linq
    * @throws NoSuchElementException There is no match to the given predicate.
    */
   @Validate
-  public static <T> T first(@NotNull final T[] values, @NotNull final Function1<? super T, Boolean> predicate)
+  public static <T> T first(@NotNull final T[] values, @NotNull final Predicate1<? super T> predicate)
   {
     int count = values.length;
     for (int i = 0; i < count; i++)
@@ -996,7 +997,7 @@ public final class Linq
    * @throws NullPointerException When an argument is null.
    */
   @Validate
-  public static <T> T firstOrDefault(@NotNull final Iterable<T> values, @NotNull final Function1<? super T, Boolean> predicate)
+  public static <T> T firstOrDefault(@NotNull final Iterable<T> values, @NotNull final Predicate1<? super T> predicate)
   {
     for (T element : values)
       if (predicate.apply(element))
@@ -1026,7 +1027,7 @@ public final class Linq
    * @throws NullPointerException When an argument is null.
    */
   @Validate
-  public static <T> T firstOrDefault(@NotNull final T[] values, Function1<? super T, Boolean> predicate)
+  public static <T> T firstOrDefault(@NotNull final T[] values, Predicate1<? super T> predicate)
   {
     int count = values.length;
     for (int i = 0; i < count; i++)
@@ -1314,7 +1315,7 @@ public final class Linq
    * @throws NoSuchElementException There is no match to the given predicate
    */
   @Validate
-  public static <T> T last(@NotNull final Iterable<T> values, @NotNull final Function1<? super T, Boolean> predicate)
+  public static <T> T last(@NotNull final Iterable<T> values, @NotNull final Predicate1<? super T> predicate)
   {
     T result = null;
     boolean found = false;
@@ -1339,7 +1340,7 @@ public final class Linq
    * @throws NoSuchElementException There is no match to the given predicate
    */
   @Validate
-  public static <T> T last(@NotNull final T[] values, @NotNull final Function1<? super T, Boolean> predicate)
+  public static <T> T last(@NotNull final T[] values, @NotNull final Predicate1<? super T> predicate)
   {
     T result = null;
     boolean found = false;
@@ -1397,7 +1398,7 @@ public final class Linq
    * @throws NullPointerException When an argument is null.
    */
   @Validate
-  public static <T> T lastOrDefault(@NotNull final Iterable<T> values, @NotNull final Function1<? super T, Boolean> predicate)
+  public static <T> T lastOrDefault(@NotNull final Iterable<T> values, @NotNull final Predicate1<? super T> predicate)
   {
     T result = null;
 
@@ -1414,7 +1415,7 @@ public final class Linq
    * @throws NullPointerException When an argument is null.
    */
   @Validate
-  public static <T> T lastOrDefault(@NotNull final T[] values, @NotNull final Function1<? super T, Boolean> predicate)
+  public static <T> T lastOrDefault(@NotNull final T[] values, @NotNull final Predicate1<? super T> predicate)
   {
     T result = null;
 
@@ -1565,7 +1566,7 @@ public final class Linq
       catch(ClassCastException e)
       {}
 
-      yield(temp);
+      yield(temp); 
     }
   }
 
@@ -1918,7 +1919,7 @@ public final class Linq
    * @throws NullPointerException The predicate or step function argument is null.
    */
   @Validate
-  public static <T> Iterable<T> range(@NotNull final T start, @NotNull final Function1<? super T, Boolean> predicate,
+  public static <T> Iterable<T> range(@NotNull final T start, @NotNull final Predicate1<? super T> predicate,
                                       @NotNull final Function1<T, T> stepFunction)
   {
     T current = start;
@@ -2215,7 +2216,7 @@ public final class Linq
    * @throws NullPointerException When an argument is null
    */
   @Validate
-  public static <T> Iterable<T> skipWhile(@NotNull final Iterable<T> values, @NotNull final Function1<? super T, Boolean> predicate)
+  public static <T> Iterable<T> skipWhile(@NotNull final Iterable<T> values, @NotNull final Predicate1<? super T> predicate)
   {
     boolean skipping = true;
 
@@ -2239,7 +2240,7 @@ public final class Linq
    * @throws NullPointerException When an argument is null
    */
   @Validate
-  public static <T> T[] skipWhile(@NotNull final T[] values, @NotNull final Function1<? super T, Boolean> predicate)
+  public static <T> T[] skipWhile(@NotNull final T[] values, @NotNull final Predicate1<? super T> predicate)
   {
     List<T> result = new ArrayList<T>(DEFAULT_LIST_SIZE);
     boolean skipping = true;
@@ -2459,7 +2460,7 @@ public final class Linq
    * @throws NullPointerException An argument is null.
    */
   @Validate
-  public static <T> Iterable<T> takeWhile(@NotNull final Iterable<T> values, @NotNull final Function1<? super T, Boolean> predicate)
+  public static <T> Iterable<T> takeWhile(@NotNull final Iterable<T> values, @NotNull final Predicate1<? super T> predicate)
   {
     for (T item : values)
       if (predicate.apply(item))
@@ -2474,7 +2475,7 @@ public final class Linq
    * @throws NullPointerException An argument is null.
    */
   @Validate
-  public static <T> T[] takeWhile(@NotNull final T[] values, @NotNull final Function1<? super T, Boolean> predicate)
+  public static <T> T[] takeWhile(@NotNull final T[] values, @NotNull final Predicate1<? super T> predicate)
   {
     List<T> result = new ArrayList<T>(DEFAULT_LIST_SIZE);
 
@@ -2719,7 +2720,7 @@ public final class Linq
    * @throws NullPointerException When an argument is null
    */
   @Validate
-  public static <T> Iterable<T> where(@NotNull final Iterable<T> values, @NotNull final Function1<? super T, Boolean> predicate)
+  public static <T> Iterable<T> where(@NotNull final Iterable<T> values, @NotNull final Predicate1<? super T> predicate)
   {
     for (T element : values)
       if (predicate.apply(element))
@@ -2733,7 +2734,7 @@ public final class Linq
    * @throws NullPointerException When an argument is null
    */
   @Validate
-  public static <T> T[] where(@NotNull final T[] values, @NotNull final Function1<? super T, Boolean> predicate)
+  public static <T> T[] where(@NotNull final T[] values, @NotNull final Predicate1<? super T> predicate)
   {
     List<T> result = new ArrayList<T>(DEFAULT_LIST_SIZE);
 
@@ -3287,10 +3288,10 @@ public final class Linq
   }
 
   @SuppressWarnings("rawtypes")
-  private static <T> Function1<List, Boolean> elementsExist()
+  private static <T> Predicate1<List> elementsExist()
   {
-    return new Function1<List, Boolean>() {
-      public Boolean apply(List list)
+    return new Predicate1<List>() {
+      public boolean evaluate(List list)
       {
         return list.size() > 0;
       }

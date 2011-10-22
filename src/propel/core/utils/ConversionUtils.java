@@ -18,7 +18,7 @@
 // /////////////////////////////////////////////////////////
 package propel.core.utils;
 
-import lombok.Function;
+import lombok.Predicate;
 import propel.core.collections.maps.avl.AvlHashtable;
 import propel.core.common.CONSTANT;
 import propel.core.userTypes.*;
@@ -1467,8 +1467,8 @@ public final class ConversionUtils
     return values.get(key) + suffix;
   }
 
-  @Function
-  private static Boolean keyGreaterThan(Double key, final double _totalMinutes)
+  @Predicate
+  private static boolean keyGreaterThan(Double key, final double _totalMinutes)
   {
     return _totalMinutes < key;
   }

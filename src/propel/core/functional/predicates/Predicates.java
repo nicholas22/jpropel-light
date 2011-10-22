@@ -18,7 +18,7 @@
 // /////////////////////////////////////////////////////////
 package propel.core.functional.predicates;
 
-import lombok.Function;
+import lombok.Predicate;
 import propel.core.utils.StringComparison;
 import propel.core.utils.StringUtils;
 import propel.core.utils.ReflectionUtils;
@@ -31,8 +31,8 @@ public final class Predicates
   /**
    * Predicate returning true when the function argument is equal to a value
    */
-  @Function
-  public static <T> Boolean equal(T element, T _value)
+  @Predicate
+  public static <T> boolean equal(T element, T _value)
   {
     if (element == null)
     {
@@ -52,8 +52,8 @@ public final class Predicates
   /**
    * Predicate returning true when the function argument is not equal to a value
    */
-  @Function
-  public static <T> Boolean notEqual(T element, T _value)
+  @Predicate
+  public static <T> boolean notEqual(T element, T _value)
   {
     if (element == null)
     {
@@ -75,8 +75,8 @@ public final class Predicates
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Function
-  public static <T extends Comparable<T>> Boolean greaterThan(T element, T _value)
+  @Predicate
+  public static <T extends Comparable<T>> boolean greaterThan(T element, T _value)
   {
     return element.compareTo(_value) > 0;
   }
@@ -86,8 +86,8 @@ public final class Predicates
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Function
-  public static <T extends Comparable<T>> Boolean lessThan(T element, T _value)
+  @Predicate
+  public static <T extends Comparable<T>> boolean lessThan(T element, T _value)
   {
     return element.compareTo(_value) < 0;
   }
@@ -97,8 +97,8 @@ public final class Predicates
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Function
-  public static <T extends Comparable<T>> Boolean greaterThanOrEqual(T element, T _value)
+  @Predicate
+  public static <T extends Comparable<T>> boolean greaterThanOrEqual(T element, T _value)
   {
     return element.compareTo(_value) >= 0;
   }
@@ -108,8 +108,8 @@ public final class Predicates
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Function
-  public static <T extends Comparable<T>> Boolean lessThanOrEqual(T element, T _value)
+  @Predicate
+  public static <T extends Comparable<T>> boolean lessThanOrEqual(T element, T _value)
   {
     return element.compareTo(_value) <= 0;
   }
@@ -117,8 +117,8 @@ public final class Predicates
   /**
    * Predicate returning true when the function argument is null
    */
-  @Function
-  public static <T> Boolean isNull(T element)
+  @Predicate
+  public static <T> boolean isNull(T element)
   {
     return element == null;
   }
@@ -126,8 +126,8 @@ public final class Predicates
   /**
    * Predicate returning true when the function argument is not null
    */
-  @Function
-  public static <T> Boolean isNotNull(T element)
+  @Predicate
+  public static <T> boolean isNotNull(T element)
   {
     return element != null;
   }
@@ -137,8 +137,8 @@ public final class Predicates
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Function
-  public static Boolean isEmpty(String element)
+  @Predicate
+  public static boolean isEmpty(String element)
   {
     return element.isEmpty();
   }
@@ -148,8 +148,8 @@ public final class Predicates
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Function
-  public static Boolean isNotEmpty(String element)
+  @Predicate
+  public static boolean isNotEmpty(String element)
   {
     return !element.isEmpty();
   }
@@ -159,8 +159,8 @@ public final class Predicates
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Function
-  public static Boolean isNullOrEmpty(String element)
+  @Predicate
+  public static boolean isNullOrEmpty(String element)
   {
     return StringUtils.isNullOrEmpty(element);
   }
@@ -170,8 +170,8 @@ public final class Predicates
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Function
-  public static Boolean isNotNullOrEmpty(String element)
+  @Predicate
+  public static boolean isNotNullOrEmpty(String element)
   {
     return !StringUtils.isNullOrEmpty(element);
   }
@@ -181,8 +181,8 @@ public final class Predicates
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Function
-  public static Boolean isNullOrBlank(String element)
+  @Predicate
+  public static boolean isNullOrBlank(String element)
   {
     return StringUtils.isNullOrBlank(element);
   }
@@ -192,8 +192,8 @@ public final class Predicates
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Function
-  public static Boolean isNotNullOrBlank(String element)
+  @Predicate
+  public static boolean isNotNullOrBlank(String element)
   {
     return !StringUtils.isNullOrBlank(element);
   }
@@ -203,8 +203,8 @@ public final class Predicates
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Function
-  public static Boolean startsWith(String element, String _prefix)
+  @Predicate
+  public static boolean startsWith(String element, String _prefix)
   {
     return StringUtils.startsWith(element, _prefix, StringComparison.Ordinal);
   }
@@ -214,8 +214,8 @@ public final class Predicates
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Function
-  public static Boolean startsWith(String element, String _prefix, StringComparison _comparison)
+  @Predicate
+  public static boolean startsWith(String element, String _prefix, StringComparison _comparison)
   {
     return StringUtils.startsWith(element, _prefix, _comparison);
   }
@@ -225,8 +225,8 @@ public final class Predicates
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Function
-  public static Boolean endsWith(String element, String _suffix)
+  @Predicate
+  public static boolean endsWith(String element, String _suffix)
   {
     return StringUtils.endsWith(element, _suffix, StringComparison.Ordinal);
   }
@@ -236,8 +236,8 @@ public final class Predicates
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Function
-  public static Boolean endsWith(String element, String _suffix, StringComparison _comparison)
+  @Predicate
+  public static boolean endsWith(String element, String _suffix, StringComparison _comparison)
   {
     return StringUtils.endsWith(element, _suffix, _comparison);
   }
@@ -247,8 +247,8 @@ public final class Predicates
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Function
-  public static Boolean contains(String element, String _part)
+  @Predicate
+  public static boolean contains(String element, String _part)
   {
     return StringUtils.contains(element, _part, StringComparison.Ordinal);
   }
@@ -258,8 +258,8 @@ public final class Predicates
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Function
-  public static Boolean contains(String element, String _part, StringComparison _comparison)
+  @Predicate
+  public static boolean contains(String element, String _part, StringComparison _comparison)
   {
     return StringUtils.contains(element, _part, _comparison);
   }
@@ -269,8 +269,8 @@ public final class Predicates
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Function
-  public static Boolean isEqual(String element, String _other)
+  @Predicate
+  public static boolean isEqual(String element, String _other)
   {
     return StringUtils.equal(element, _other, StringComparison.Ordinal);
   }
@@ -280,8 +280,8 @@ public final class Predicates
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Function
-  public static Boolean isEqual(String element, String _other, StringComparison _comparison)
+  @Predicate
+  public static boolean isEqual(String element, String _other, StringComparison _comparison)
   {
     return StringUtils.equal(element, _other, _comparison);
   }
@@ -291,8 +291,8 @@ public final class Predicates
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Function
-  public static <T> Boolean println(T element)
+  @Predicate
+  public static <T> boolean println(T element)
   {
     System.out.println(element);
     return true;
@@ -304,7 +304,7 @@ public final class Predicates
    * @throws NullPointerException When an argument is null
    * @throws IllegalArgumentException When a non-class (e.g. interface) was provided
    */
-  @Function
+  @Predicate
   public static <T> boolean isExtending(T obj, Class<?> _class)
   {
     return ReflectionUtils.isExtending(obj.getClass(), _class);
@@ -316,7 +316,7 @@ public final class Predicates
    * @throws NullPointerException When an argument is null
    * @throws IllegalArgumentException When a non-interface (e.g. class) was provided
    */
-  @Function
+  @Predicate
   public static <T> boolean isImplementing(T obj, Class<?> _class)
   {
     return ReflectionUtils.isImplementing(obj.getClass(), _class);
@@ -327,7 +327,7 @@ public final class Predicates
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Function
+  @Predicate
   public static <T> boolean instanceOf(T obj, Class<?> _class)
   {
     return ReflectionUtils.instanceOf(obj.getClass(), _class);

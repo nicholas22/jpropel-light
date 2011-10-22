@@ -21,6 +21,7 @@ package propel.core.utils;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Functions.Function1;
+import lombok.Predicates.Predicate1;
 import propel.core.functional.tuples.Pair;
 
 /**
@@ -28,7 +29,7 @@ import propel.core.functional.tuples.Pair;
  */
 public class Matcher<T, TResult>
 {
-  private List<Pair<Function1<T, Boolean>, Function1<T, ?>>> cases;
+  private List<Pair<Predicate1<T>, Function1<T, ?>>> cases;
   private Function1<T, ?> defaultFunc;
 
   /**
@@ -36,7 +37,7 @@ public class Matcher<T, TResult>
    */
   public Matcher()
   {
-    cases = new ArrayList<Pair<Function1<T, Boolean>, Function1<T, ?>>>();
+    cases = new ArrayList<Pair<Predicate1<T>, Function1<T, ?>>>();
   }
 
   /**
@@ -45,14 +46,14 @@ public class Matcher<T, TResult>
    * 
    * @throws NullPointerException An argument is null
    */
-  public void addFunction(final Function1<T, Boolean> predicate, final Function1<T, TResult> func)
+  public void addFunction(final Predicate1<T> predicate, final Function1<T, TResult> func)
   {
     if (predicate == null)
       throw new NullPointerException("predicate");
     if (func == null)
       throw new NullPointerException("func");
 
-    cases.add(new Pair<Function1<T, Boolean>, Function1<T, ?>>(predicate, func));
+    cases.add(new Pair<Predicate1<T>, Function1<T, ?>>(predicate, func));
   }
 
   /**
@@ -62,12 +63,12 @@ public class Matcher<T, TResult>
    * 
    * @throws NullPointerException An argument is null
    */
-  public void addFunction(final Function1<T, Boolean> predicate)
+  public void addFunction(final Predicate1<T> predicate)
   {
     if (predicate == null)
       throw new NullPointerException("predicate");
 
-    cases.add(new Pair<Function1<T, Boolean>, Function1<T, ?>>(predicate, new Function1<T, TResult>() {
+    cases.add(new Pair<Predicate1<T>, Function1<T, ?>>(predicate, new Function1<T, TResult>() {
       @SuppressWarnings("unchecked")
       public TResult apply(T arg)
       {
@@ -82,29 +83,15 @@ public class Matcher<T, TResult>
    * 
    * @throws NullPointerException An argument is null
    */
-  public void addAction(final Function1<T, Boolean> predicate, final Function1<T, Void> func)
+  public void addAction(final Predicate1<T> predicate, final Function1<T, Void> func)
   {
     if (predicate == null)
       throw new NullPointerException("predicate");
     if (func == null)
       throw new NullPointerException("func");
 
-    cases.add(new Pair<Function1<T, Boolean>, Function1<T, ?>>(predicate, func));
+    cases.add(new Pair<Predicate1<T>, Function1<T, ?>>(predicate, func));
   }
-
-  /**
-   * Adds a predicate and a function. If the predicate is true for the element being matched by match(), the an identity function (F(x)=>x)
-   * with TResult cast to T will execute and its result will be returned by the match() method, effectively matching and returning the
-   * argument.
-   * 
-   * @throws NullPointerException An argument is null
-   */
-  /*
-   * public void addAction(final Function1<Object, Boolean> predicate) { if (predicate == null) throw new NullPointerException("predicate");
-   * 
-   * cases.add(new Pair<Function1<Object, Boolean>, Function1<T, ?>>(predicate, new Function1<T, Void>() { public Void apply(T arg) { return
-   * null; } })); }
-   */
 
   /**
    * Sets the action that generates a default result, if there are no matches. Since this is an action, null is returned, but there is a

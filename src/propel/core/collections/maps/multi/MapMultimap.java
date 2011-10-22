@@ -1,3 +1,21 @@
+// /////////////////////////////////////////////////////////
+// This file is part of Propel.
+//
+// Propel is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Propel is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with Propel. If not, see <http://www.gnu.org/licenses/>.
+// /////////////////////////////////////////////////////////
+// Authored by: Nikolaos Tountas -> salam.kaser-at-gmail.com
+// /////////////////////////////////////////////////////////
 package propel.core.collections.maps.multi;
 
 import java.util.ArrayList;
@@ -11,6 +29,7 @@ import lombok.Validate.NotNull;
 import propel.core.functional.tuples.Triple;
 import propel.core.utils.Linq;
 import propel.core.utils.SuperTypeToken;
+import static lombok.Yield.yield;
 
 /**
  * A type-aware implementation of a Map of Maps. The MapMultimap has a key, subkeys (i.e. key values) and value (subkey values). This map
@@ -138,7 +157,7 @@ public class MapMultimap<T extends Comparable<? super T>, K extends Comparable<?
   }
 
   /**
-   * Returns all values held under a key's sub-keys.
+   * Returns all values held under a key's sub-keys. If no such key is found, an empty iterable is returned.
    * 
    * @throws NullPointerException An argument is null
    */
@@ -148,7 +167,7 @@ public class MapMultimap<T extends Comparable<? super T>, K extends Comparable<?
     if (map.containsKey(key))
       return map.get(key).values();
 
-    return null;
+    return new ArrayList<V>();
   }
 
   /**
@@ -167,19 +186,16 @@ public class MapMultimap<T extends Comparable<? super T>, K extends Comparable<?
   }
 
   /**
-   * Returns all values under a key's sub-key. If no such sub-key is found, null is returned.
+   * Returns all values under a key's sub-key. If no such sub-key is found, an empty iterable is returned.
    * 
    * @throws NullPointerException An argument is null
    */
   @Validate
   public Iterable<V> getValuesBySubkey(@NotNull final K subkey)
   {
-    List<V> result = new ArrayList<V>();
     for (Map<K, V> m : map.values())
       if (m.containsKey(subkey))
-        result.add(m.get(subkey));
-
-    return result;
+        yield(m.get(subkey));
   }
 
   /**
@@ -273,36 +289,29 @@ public class MapMultimap<T extends Comparable<? super T>, K extends Comparable<?
   }
 
   /**
-   * Returns all sub-keys, or an empty array if no sub-keys exist
+   * Returns all sub-keys, or an empty iterable if no sub-keys exist
    */
   public Iterable<K> subkeys()
   {
-    List<K> result = new ArrayList<K>();
-
     for (Map<K, V> m : map.values())
       for (K subkey : m.keySet())
-        result.add(subkey);
-
-    return result;
+        yield(subkey);
   }
 
   /**
-   * Returns all values, or an empty array if no values exist
+   * Returns all values, or an empty iterable if no values exist
    */
   public Iterable<V> values()
   {
-    List<V> result = new ArrayList<V>();
     for (T key : map.keySet())
     {
       Map<K, V> subMap = map.get(key);
       for (K subkey : subMap.keySet())
       {
         V value = subMap.get(subkey);
-        result.add(value);
+        yield(value);
       }
     }
-
-    return result;
   }
 
   /**
