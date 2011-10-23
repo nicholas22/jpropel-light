@@ -27,7 +27,7 @@ import propel.core.TryResult;
 import propel.core.collections.lists.ReifiedArrayList;
 import propel.core.collections.lists.ReifiedList;
 import propel.core.common.CONSTANT;
-import propel.core.functional.predicates.Predicates;
+import propel.core.functional.predicates.Strings;
 import propel.core.userTypes.*;
 import java.math.BigDecimal;
 import java.net.Inet4Address;
@@ -3119,7 +3119,7 @@ public final class StringUtils
       case None:
         return result.toArray();
       case RemoveEmptyEntries:
-        return Linq.where(result.toArray(), Predicates.isNotNullOrEmpty());
+        return Linq.where(result.toArray(), Strings.isNotNullOrEmpty());
       default:
         throw new IllegalArgumentException("stringSplitOptions has an unexpected value: " + options.toString());
     }
@@ -3165,7 +3165,7 @@ public final class StringUtils
       throw new NullPointerException("delimiters");
 
     // ignore null and empty delimiters
-    delimiters = Linq.where(delimiters, Predicates.isNotNullOrEmpty());
+    delimiters = Linq.where(delimiters, Strings.isNotNullOrEmpty());
 
     // case where there are no delimiters
     ReifiedList<String> result = new ReifiedArrayList<String>(String.class);
@@ -3200,7 +3200,7 @@ public final class StringUtils
       case None:
         return result.toArray();
       case RemoveEmptyEntries:
-        return Linq.toArray(Linq.where(result, Predicates.isNotNullOrEmpty()), String.class);
+        return Linq.toArray(Linq.where(result, Strings.isNotNullOrEmpty()), String.class);
       default:
         throw new IllegalArgumentException("Unrecognized string split option: " + options);
     }

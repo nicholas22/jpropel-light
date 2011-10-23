@@ -21,115 +21,14 @@ package propel.core.functional.predicates;
 import lombok.Predicate;
 import propel.core.utils.StringComparison;
 import propel.core.utils.StringUtils;
-import propel.core.utils.ReflectionUtils;
 
 /**
  * Some common, re-usable predicates
  */
-public final class Predicates
+public final class Strings
 {
-  /**
-   * Predicate returning true when the function argument is equal to a value
-   */
-  @Predicate
-  public static <T> boolean equal(T element, T _value)
+  private Strings()
   {
-    if (element == null)
-    {
-      if (_value == null)
-        return true;
-      else
-        return false;
-    } else
-    {
-      if (_value == null)
-        return false;
-      else
-        return element.equals(_value);
-    }
-  }
-
-  /**
-   * Predicate returning true when the function argument is not equal to a value
-   */
-  @Predicate
-  public static <T> boolean notEqual(T element, T _value)
-  {
-    if (element == null)
-    {
-      if (_value == null)
-        return false;
-      else
-        return true;
-    } else
-    {
-      if (_value == null)
-        return true;
-      else
-        return !element.equals(_value);
-    }
-  }
-
-  /**
-   * Predicate returning true when the function argument is greater than a value
-   * 
-   * @throws NullPointerException When an argument is null
-   */
-  @Predicate
-  public static <T extends Comparable<T>> boolean greaterThan(T element, T _value)
-  {
-    return element.compareTo(_value) > 0;
-  }
-
-  /**
-   * Predicate returning true when the function argument is less than a value
-   * 
-   * @throws NullPointerException When an argument is null
-   */
-  @Predicate
-  public static <T extends Comparable<T>> boolean lessThan(T element, T _value)
-  {
-    return element.compareTo(_value) < 0;
-  }
-
-  /**
-   * Predicate returning true when the function argument is greater than or equal to a value
-   * 
-   * @throws NullPointerException When an argument is null
-   */
-  @Predicate
-  public static <T extends Comparable<T>> boolean greaterThanOrEqual(T element, T _value)
-  {
-    return element.compareTo(_value) >= 0;
-  }
-
-  /**
-   * Predicate returning true when the function argument is less than or equal to a value
-   * 
-   * @throws NullPointerException When an argument is null
-   */
-  @Predicate
-  public static <T extends Comparable<T>> boolean lessThanOrEqual(T element, T _value)
-  {
-    return element.compareTo(_value) <= 0;
-  }
-
-  /**
-   * Predicate returning true when the function argument is null
-   */
-  @Predicate
-  public static <T> boolean isNull(T element)
-  {
-    return element == null;
-  }
-
-  /**
-   * Predicate returning true when the function argument is not null
-   */
-  @Predicate
-  public static <T> boolean isNotNull(T element)
-  {
-    return element != null;
   }
 
   /**
@@ -141,17 +40,6 @@ public final class Predicates
   public static boolean isEmpty(String element)
   {
     return element.isEmpty();
-  }
-
-  /**
-   * Predicate returning true when the function argument is not empty
-   * 
-   * @throws NullPointerException When an argument is null
-   */
-  @Predicate
-  public static boolean isNotEmpty(String element)
-  {
-    return !element.isEmpty();
   }
 
   /**
@@ -292,48 +180,9 @@ public final class Predicates
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static <T> boolean println(T element)
+  public static boolean println(String element)
   {
     System.out.println(element);
     return true;
-  }
-
-  /**
-   * Predicate that returns true if the function argument is a subclass of the class specified
-   * 
-   * @throws NullPointerException When an argument is null
-   * @throws IllegalArgumentException When a non-class (e.g. interface) was provided
-   */
-  @Predicate
-  public static <T> boolean isExtending(T obj, Class<?> _class)
-  {
-    return ReflectionUtils.isExtending(obj.getClass(), _class);
-  }
-
-  /**
-   * Predicate that returns true if the function argument is an instance of the interface specified
-   * 
-   * @throws NullPointerException When an argument is null
-   * @throws IllegalArgumentException When a non-interface (e.g. class) was provided
-   */
-  @Predicate
-  public static <T> boolean isImplementing(T obj, Class<?> _class)
-  {
-    return ReflectionUtils.isImplementing(obj.getClass(), _class);
-  }
-
-  /**
-   * Predicate that returns true if the function argument is an instance of the class specified
-   * 
-   * @throws NullPointerException When an argument is null
-   */
-  @Predicate
-  public static <T> boolean instanceOf(T obj, Class<?> _class)
-  {
-    return ReflectionUtils.instanceOf(obj.getClass(), _class);
-  }
-
-  private Predicates()
-  {
   }
 }

@@ -238,6 +238,11 @@ You may visit the [lombok](http://projectlombok.org/slideshow.html) project webs
 
 ##Changelog
 
+####1.0.5: Predicates split up Objects, Strings, Arrays and Iterables classes
+A breaking change for the modularization of predicates
+
+
+
 ####1.0.4: Function1<?, Boolean> became Predicate1<?>
 A breaking change that uses the @Predicate annotation instead of @Function. Annotated methods return Predicate1<?> instead of Function1<?, Boolean>
 
