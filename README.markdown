@@ -238,6 +238,10 @@ You may visit the [lombok](http://projectlombok.org/slideshow.html) project webs
 
 ##Changelog
 
+####1.0.6: SharedMapMultimap 
+Thread-safe version of MapMultimap
+
+
 ####1.0.5: Predicates split up Objects, Strings, Arrays and Iterables classes
 A breaking change for the modularization of predicates
 
