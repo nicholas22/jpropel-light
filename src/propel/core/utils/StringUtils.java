@@ -872,6 +872,84 @@ public final class StringUtils
   }
 
   /**
+   * Performs a cropStart and cropEnd, returning the result
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  public static String crop(String value, char except)
+  {
+    return cropStart(cropEnd(value, except), except);
+  }
+
+  /**
+   * Performs a cropStart and cropEnd, returning the result
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  public static String crop(String value, char[] except)
+  {
+    return cropStart(cropEnd(value, except), except);
+  }
+
+  /**
+   * Strips all characters from the start of the given string, until the except character is encountered
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  public static String cropStart(String value, char except)
+  {
+    return cropStart(value, new char[] {except});
+  }
+
+  /**
+   * Strips all characters from the start of the given string, until a character is encountered which exists in the given exception array
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  public static String cropStart(String value, char[] except)
+  {
+    if (value == null)
+      throw new NullPointerException("value");
+    if (except == null)
+      throw new NullPointerException("except");
+
+    int startIndex = 0;
+    while (startIndex <= value.length() - 1 && !contains(except, value.charAt(startIndex)))
+      startIndex++;
+
+    return value.substring(startIndex);
+  }
+
+  /**
+   * Strips all characters from the end of the given string, until the except character is encountered
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  public static String cropEnd(String value, char except)
+  {
+    return cropEnd(value, new char[] {except});
+  }
+
+  /**
+   * Strips all characters from the end of the given string, until a character is encountered which exists in the given exception array
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  public static String cropEnd(String value, char[] except)
+  {
+    if (value == null)
+      throw new NullPointerException("value");
+    if (except == null)
+      throw new NullPointerException("except");
+
+    int endIndex = value.length() - 1;
+    while (endIndex > 0 && !contains(except, value.charAt(endIndex)))
+      endIndex--;
+
+    return value.substring(0, endIndex + 1);
+  }
+
+  /**
    * Returns CR, LF or CRLF, depending on the frequency of line separators found in the given text data.
    * 
    * @throws NullPointerException An argument is null.
