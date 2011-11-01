@@ -239,7 +239,10 @@ You may visit the [lombok](http://projectlombok.org/slideshow.html) project webs
 ##Changelog
 
 ####1.0.6: SharedMapMultimap 
-Thread-safe version of MapMultimap
+Thread-safe version of MapMultimap (SharedMapMultimap).
+Linq.single() ensuring a single element exist in an iterable/array.
+StringUtils.crop() is a trim-like function where you specify which characters to leave in, rather than trim.
+
 
 
 ####1.0.5: Predicates split up Objects, Strings, Arrays and Iterables classes
