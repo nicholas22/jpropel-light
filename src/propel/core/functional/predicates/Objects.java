@@ -18,6 +18,7 @@
 // /////////////////////////////////////////////////////////
 package propel.core.functional.predicates;
 
+import propel.core.utils.Linq;
 import propel.core.utils.StringUtils;
 import propel.core.utils.StringComparison;
 import propel.core.utils.ReflectionUtils;
@@ -178,6 +179,24 @@ public final class Objects
   public static <T> boolean endsWith(T element, String _suffix, StringComparison _comparison)
   {
     return StringUtils.endsWith(element.toString(), _suffix, _comparison);
+  }
+
+  /**
+   * Predicate returning true if an element is contained in the function argument (Array)
+   */
+  @Predicate
+  public static <T> boolean containedIn(T element, T[] _elements)
+  {
+    return Linq.contains(_elements, element);
+  }
+
+  /**
+   * Predicate returning true if an element is contained in the function argument (Iterable)
+   */
+  @Predicate
+  public static <T> boolean containedBy(T element, Iterable<T> _elements)
+  {
+    return Linq.contains(_elements, element);
   }
 
   /**

@@ -863,7 +863,7 @@ public final class CONSTANT
     FIVE.charAt(0), SIX.charAt(0), SEVEN.charAt(0), EIGHT.charAt(0), NINE.charAt(0), A.charAt(0), B.charAt(0), C.charAt(0), D.charAt(0),
     E.charAt(0), F.charAt(0), a.charAt(0), b.charAt(0), c.charAt(0), d.charAt(0), e.charAt(0), f.charAt(0)};
   /**
-   * For a 62-based numbering schemes
+   * For 62-based numbering schemes
    */
   public static final char[] ALPHANUMERIC_DIGITS = {ZERO.charAt(0), ONE.charAt(0), TWO.charAt(0), THREE.charAt(0), FOUR.charAt(0),
     FIVE.charAt(0), SIX.charAt(0), SEVEN.charAt(0), EIGHT.charAt(0), NINE.charAt(0), A.charAt(0), B.charAt(0), C.charAt(0), D.charAt(0),
@@ -872,6 +872,32 @@ public final class CONSTANT
     Y.charAt(0), Z.charAt(0), a.charAt(0), b.charAt(0), c.charAt(0), d.charAt(0), e.charAt(0), f.charAt(0), g.charAt(0), h.charAt(0),
     i.charAt(0), j.charAt(0), k.charAt(0), l.charAt(0), m.charAt(0), n.charAt(0), o.charAt(0), p.charAt(0), q.charAt(0), r.charAt(0),
     s.charAt(0), t.charAt(0), u.charAt(0), v.charAt(0), w.charAt(0), x.charAt(0), y.charAt(0), z.charAt(0)};
+  /**
+   * Number 0..9
+   */
+  public static final char[] NUMBERS = {ZERO.charAt(0), ONE.charAt(0), TWO.charAt(0), THREE.charAt(0), FOUR.charAt(0), FIVE.charAt(0),
+    SIX.charAt(0), SEVEN.charAt(0), EIGHT.charAt(0), NINE.charAt(0)};
+  /**
+   * English alphabet (lowercase)
+   */
+  public static final char[] ALPHABET_LOWERCASE = {a.charAt(0), b.charAt(0), c.charAt(0), d.charAt(0), e.charAt(0), f.charAt(0),
+    g.charAt(0), h.charAt(0), i.charAt(0), j.charAt(0), k.charAt(0), l.charAt(0), m.charAt(0), n.charAt(0), o.charAt(0), p.charAt(0),
+    q.charAt(0), r.charAt(0), s.charAt(0), t.charAt(0), u.charAt(0), v.charAt(0), w.charAt(0), x.charAt(0), y.charAt(0), z.charAt(0)};
+  /**
+   * English alphabet (uppercase)
+   */
+  public static final char[] ALPHABET_UPPERCASE = {A.charAt(0), B.charAt(0), C.charAt(0), D.charAt(0), E.charAt(0), F.charAt(0),
+    G.charAt(0), H.charAt(0), I.charAt(0), J.charAt(0), K.charAt(0), L.charAt(0), M.charAt(0), N.charAt(0), O.charAt(0), P.charAt(0),
+    Q.charAt(0), R.charAt(0), S.charAt(0), T.charAt(0), U.charAt(0), V.charAt(0), W.charAt(0), X.charAt(0), Y.charAt(0), Z.charAt(0)};
+  /**
+   * English alphabet (uppercase and lowercase)
+   */
+  public static final char[] ALPHABET = {A.charAt(0), B.charAt(0), C.charAt(0), D.charAt(0), E.charAt(0), F.charAt(0), G.charAt(0),
+    H.charAt(0), I.charAt(0), J.charAt(0), K.charAt(0), L.charAt(0), M.charAt(0), N.charAt(0), O.charAt(0), P.charAt(0), Q.charAt(0),
+    R.charAt(0), S.charAt(0), T.charAt(0), U.charAt(0), V.charAt(0), W.charAt(0), X.charAt(0), Y.charAt(0), Z.charAt(0), a.charAt(0),
+    b.charAt(0), c.charAt(0), d.charAt(0), e.charAt(0), f.charAt(0), g.charAt(0), h.charAt(0), i.charAt(0), j.charAt(0), k.charAt(0),
+    l.charAt(0), m.charAt(0), n.charAt(0), o.charAt(0), p.charAt(0), q.charAt(0), r.charAt(0), s.charAt(0), t.charAt(0), u.charAt(0),
+    v.charAt(0), w.charAt(0), x.charAt(0), y.charAt(0), z.charAt(0)};
   /**
    * The allowed digits in a base64 String. It includes (as the last character) the '=' pad character, hence they are 65.
    */

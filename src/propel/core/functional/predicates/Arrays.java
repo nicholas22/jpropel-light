@@ -19,14 +19,45 @@
 package propel.core.functional.predicates;
 
 import lombok.Predicate;
+import propel.core.utils.Linq;
 
 /**
  * Some common, re-usable predicates
  */
 public final class Arrays
 {
-  private Arrays()
+
+  /**
+   * Predicate returning true when the function argument contains an item
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static <T> boolean contains(T[] element, T _item)
   {
+    return Linq.contains(element, _item);
+  }
+
+  /**
+   * Predicate returning true when the function argument contains all items
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static <T> boolean containsAll(T[] element, T[] _items)
+  {
+    return Linq.containsAll(element, _items);
+  }
+
+  /**
+   * Predicate returning true when the function argument contains any of the given items
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static <T> boolean containsAny(T[] element, T[] _items)
+  {
+    return Linq.containsAny(element, _items);
   }
 
   /**
@@ -91,5 +122,9 @@ public final class Arrays
       else
         return !java.util.Arrays.equals(element, _value);
     }
+  }
+
+  private Arrays()
+  {
   }
 }

@@ -238,6 +238,11 @@ You may visit the [lombok](http://projectlombok.org/slideshow.html) project webs
 
 ##Changelog
 
+####1.0.7: InvokeOneArg, InvokeNoArg
+Functional invocation is now cleaner, by using static imports on methods of these two classes.
+
+
+
 ####1.0.6: SharedMapMultimap 
 Thread-safe version of MapMultimap (SharedMapMultimap).
 Linq.single() ensuring a single element exist in an iterable/array.

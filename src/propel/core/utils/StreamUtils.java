@@ -18,11 +18,16 @@
 // /////////////////////////////////////////////////////////
 package propel.core.utils;
 
-import propel.core.common.CONSTANT;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.CharArrayWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Reader;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import propel.core.common.CONSTANT;
 
 /**
  * Provides utility functionality for Stream-related classes

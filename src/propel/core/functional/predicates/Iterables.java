@@ -27,8 +27,37 @@ import java.util.NoSuchElementException;
  */
 public final class Iterables
 {
-  private Iterables()
+  /**
+   * Predicate returning true when the function argument contains an item
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static <T> boolean contains(Iterable<T> element, T _item)
   {
+    return Linq.contains(element, _item);
+  }
+
+  /**
+   * Predicate returning true when the function argument contains all items
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static <T> boolean containsAll(Iterable<T> element, Iterable<T> _items)
+  {
+    return Linq.containsAll(element, _items);
+  }
+
+  /**
+   * Predicate returning true when the function argument contains any of the given items
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static <T> boolean containsAny(Iterable<T> element, Iterable<T> _items)
+  {
+    return Linq.containsAny(element, _items);
   }
 
   /**
@@ -101,5 +130,9 @@ public final class Iterables
       else
         return !Linq.sequenceEqual(element, _value);
     }
+  }
+
+  private Iterables()
+  {
   }
 }

@@ -29,6 +29,7 @@ import lombok.Validate.NotNull;
 import propel.core.functional.tuples.Triple;
 import propel.core.utils.Linq;
 import propel.core.utils.SuperTypeToken;
+import propel.core.utils.SuperTypeTokenException;
 import static lombok.Yield.yield;
 
 /**
@@ -43,6 +44,11 @@ public class MapMultimap<T extends Comparable<? super T>, K extends Comparable<?
   private final Class<?> subKeyType;
   private final Class<?> valueType;
 
+  /**
+   * Default constructor
+   * 
+   * @throws SuperTypeTokenException When called without using anonymous class semantics.
+   */
   public MapMultimap()
   {
     keyType = SuperTypeToken.getClazz(this.getClass(), 0);
@@ -52,6 +58,11 @@ public class MapMultimap<T extends Comparable<? super T>, K extends Comparable<?
     map = new TreeMap<T, Map<K, V>>();
   }
 
+  /**
+   * Constructor initializes with generic type parameters.
+   * 
+   * @throws NullPointerException When the generic type parameter is null.
+   */
   @Validate
   public MapMultimap(@NotNull final Class<?> keyType, @NotNull final Class<?> subKeyType, @NotNull final Class<?> valueType)
   {
@@ -69,6 +80,17 @@ public class MapMultimap<T extends Comparable<? super T>, K extends Comparable<?
   public int size()
   {
     return Linq.count(values());
+  }
+  
+  /**
+   * Returns the size of a sub-map
+   */
+  @Validate
+  public int size(@NotNull final String key) {
+    if(map.containsKey(key))
+      return map.get(key).size();
+    
+    return 0;
   }
 
   /**
