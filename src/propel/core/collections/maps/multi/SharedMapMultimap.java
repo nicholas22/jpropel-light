@@ -240,7 +240,10 @@ public class SharedMapMultimap<T extends Comparable<? super T>, K extends Compar
   @Validate
   public V put(@NotNull final T key, @NotNull final K subKey, V value)
   {
-    ConcurrentNavigableMap<K, V> m = map.putIfAbsent(key, new ConcurrentSkipListMap<K, V>());
+    ConcurrentSkipListMap<K, V> newer = new ConcurrentSkipListMap<K, V>();
+    ConcurrentNavigableMap<K, V> m = map.putIfAbsent(key, newer);
+    if(m==null)
+      m = newer;
     return m.put(subKey, value);
   }
 
