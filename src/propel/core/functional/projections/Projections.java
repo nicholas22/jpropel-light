@@ -46,6 +46,17 @@ public final class Projections
   }
 
   /**
+   * Calls toString() on function arguments, using a specified value when null is encountered
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  @Function
+  public static String toStringifySafe(Object object, String _nullReplacementValue)
+  {
+    return object != null ? object.toString() : _nullReplacementValue;
+  }
+  
+  /**
    * Calls toString() on function arguments
    * 
    * @throws NullPointerException An argument is null
@@ -331,41 +342,6 @@ public final class Projections
           throw e.getCause();
         }
         return null;
-      }
-    };
-  }
-
-  /**
-   * Returns a no-argument function which invokes the method name specified on the given object.
-   * 
-   * @throws NullPointerException An argument is null
-   * @throws IllegalArgumentException There is no method found having the specified method name on the given object, or more than one
-   *           methods have the specified name
-   */
-  @Validate
-  public static <T> Function0<T> invokeFunctionWithNoArgsOn(@NotNull final Object obj, @NotNull final String methodName)
-  {
-    return new Function0<T>() {
-
-      private final Method method;
-
-      // initialiser block
-      {
-        method = getSingleMethodIfExists(obj, methodName);
-      }
-
-      @SneakyThrows
-      public T apply()
-      {
-        try
-        {
-          return (T) method.invoke(obj, null);
-        }
-        catch(InvocationTargetException e)
-        {
-          // get rid of wrapper exception
-          throw e.getCause();
-        }
       }
     };
   }

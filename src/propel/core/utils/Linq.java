@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -2151,36 +2152,36 @@ public final class Linq
       return true;
     }
   }
-
+  
   /**
-   * Throws an exception if the given Iterable does not have a single element (e.g. none, 2, 3, etc.) If a single element exists, this is
-   * returned.
+   * Throws an exception if the given Iterable does not have a single element (e.g. none, 2, 3, etc.)
+   * If a single element exists, this is returned.
    * 
    * @throws NullPointerException When the values argument is null
    * @throws IllegalArgumentException When count is out of range.
    */
   @Validate
-  public static <T> T single(@NotNull final T[] values)
+  public static <T> T single(@NotNull final T[] values) 
   {
-    if (values.length != 1)
+    if(values.length != 1)
       throw new IllegalArgumentException("The given array should contain a single element");
-
+    
     return values[0];
   }
-
+  
   /**
-   * Throws an exception if the given Iterable does not have a single element (e.g. none, 2, 3, etc.) If a single element exists, this is
-   * returned.
+   * Throws an exception if the given Iterable does not have a single element (e.g. none, 2, 3, etc.)
+   * If a single element exists, this is returned.
    * 
    * @throws NullPointerException When the values argument is null
    * @throws IllegalArgumentException When count is out of range.
    */
   @Validate
-  public static <T> T single(@NotNull final Iterable<T> values)
+  public static <T> T single(@NotNull final Iterable<T> values) 
   {
-    if (firstOrDefault(values) == null)
+    if(firstOrDefault(values)==null)
       throw new IllegalArgumentException("The given iterable should contain a single element");
-
+    
     return first(values);
   }
 
@@ -2525,6 +2526,21 @@ public final class Linq
   }
 
   /**
+   * Converts an enumeration to an array.
+   * 
+   * @throws NullPointerException An argument is null.
+   */
+  @Validate
+  public static <T> T[] toArray(@NotNull final Enumeration<T> enumeration, @NotNull final Class<?> componentType)
+  {
+    ReifiedList<T> result = new ReifiedArrayList<T>(componentType); 
+    while(enumeration.hasMoreElements())
+      result.add(enumeration.nextElement());
+    
+    return result.toArray();
+  }
+  
+  /**
    * Converts a list to an array.
    * 
    * @throws NullPointerException An argument is null.
@@ -2625,7 +2641,37 @@ public final class Linq
   }
 
   /**
-   * Converts an Iterable to an array
+   * Converts an enumeration to a list
+   * 
+   * @throws NullPointerException An argument is null.
+   */
+  @Validate
+  public static <T> List<T> toList(@NotNull final Enumeration<? extends T> enumeration)
+  {
+    List<T> result = new ArrayList<T>(); 
+    while(enumeration.hasMoreElements())
+      result.add(enumeration.nextElement());
+    
+    return result;
+  }
+  
+  /**
+   * Converts an enumeration to a list
+   * 
+   * @throws NullPointerException An argument is null.
+   */
+  @Validate
+  public static <T> ReifiedList<T> toList(@NotNull final Enumeration<T> enumeration, @NotNull final Class<?> genericTypeParameter)
+  {
+    ReifiedList<T> result = new ReifiedArrayList<T>(genericTypeParameter); 
+    while(enumeration.hasMoreElements())
+      result.add(enumeration.nextElement());
+    
+    return result;
+  }
+  
+  /**
+   * Converts an Iterable to a list
    * 
    * @throws NullPointerException The values argument is null.
    */
