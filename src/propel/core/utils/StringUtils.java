@@ -1119,6 +1119,22 @@ public final class StringUtils
   }
 
   /**
+   * Returns true if the value ends with a suffix.
+   * 
+   * @throws NullPointerException An argument is null.
+   */
+  public static boolean endsWith(String value, char suffix)
+  {
+    if (value == null)
+      throw new NullPointerException("value");
+
+    if (value.length() == 0)
+      return false;
+
+    return value.charAt(value.length() - 1) == suffix;
+  }
+
+  /**
    * Returns true if a value ends with a suffix. Uses the CurrentLocale string comparison.
    * 
    * @throws NullPointerException An argument is null.
@@ -3335,6 +3351,22 @@ public final class StringUtils
     }
 
     return result.toArray();
+  }
+
+  /**
+   * Returns true if the value starts with a prefix.
+   * 
+   * @throws NullPointerException An argument is null.
+   */
+  public static boolean startsWith(String value, char prefix)
+  {
+    if (value == null)
+      throw new NullPointerException("value");
+
+    if (value.length() == 0)
+      return false;
+
+    return value.charAt(0) == prefix;
   }
 
   /**
