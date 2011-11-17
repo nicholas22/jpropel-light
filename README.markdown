@@ -187,7 +187,7 @@ There are too many utilities to cover here, around the areas of reflection, XML,
 
 ## JPropel
 
-JPropel-light (this project!) is a lightweight version of the [JPropel](https://github.com/nicholas22/jpropel) library. If you do not mind a couple of extra dependencies (BouncyCastle and SLF4j), have a look at it as it contains some extra utility functionality.
+JPropel-light (this project!) is a lightweight version of the [JPropel](https://github.com/nicholas22/jpropel) library. If you do not mind an extra dependency (SLF4j), have a look as it contains some extra utility functionality.
 
 For instance, the CryptographicString class allows you to store a secret in memory in encrypted form:
 
@@ -237,6 +237,11 @@ You may visit the [lombok](http://projectlombok.org/slideshow.html) project webs
 
 
 ##Changelog
+
+####1.0.8: upgrade lib
+Upgraded to lombok-pg-0.10.2 and deployed second jar, which includes sources.
+
+
 
 ####1.0.7: InvokeOneArg, InvokeNoArg
 Functional invocation is now cleaner, by using static imports on methods of these two classes.
