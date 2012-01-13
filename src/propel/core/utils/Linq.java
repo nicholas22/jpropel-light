@@ -43,6 +43,7 @@ import propel.core.collections.lists.ReifiedArrayList;
 import propel.core.collections.lists.ReifiedList;
 import propel.core.collections.maps.ReifiedMap;
 import propel.core.collections.maps.avl.AvlHashtable;
+import propel.core.counters.ModuloCounter;
 import java.lang.SuppressWarnings;
 import static lombok.Yield.yield;
 
@@ -1478,6 +1479,298 @@ public final class Linq
   }
 
   /**
+   * Returns the maximum of the given values. If not values are given, null is returned.
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  @Validate
+  public static <T extends Comparable<T>> T max(@NotNull final T[] items)
+  {
+    if (items.length <= 0)
+      return null;
+
+    T max = items[0];
+    for (T item : items)
+      if (max.compareTo(item) < 0)
+        max = item;
+
+    return max;
+  }
+
+  /**
+   * Returns the maximum of the given values. If not values are given, 0 is returned.
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  @Validate
+  public static int max(@NotNull final int[] items)
+  {
+    if (items.length <= 0)
+      return 0;
+
+    int max = items[0];
+    for (int item : items)
+      if (max < item)
+        max = item;
+
+    return max;
+  }
+
+  /**
+   * Returns the maximum of the given values. If not values are given, 0 is returned.
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  @Validate
+  public static long max(@NotNull final long[] items)
+  {
+    if (items.length <= 0)
+      return 0;
+
+    long max = items[0];
+    for (long item : items)
+      if (max < item)
+        max = item;
+
+    return max;
+  }
+
+  /**
+   * Returns the minimum of the given values. If not values are given, null is returned.
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  @Validate
+  public static <T extends Comparable<T>> T min(@NotNull final T[] items)
+  {
+    if (items.length <= 0)
+      return null;
+
+    T min = items[0];
+    for (T item : items)
+      if (min.compareTo(item) > 0)
+        min = item;
+
+    return min;
+  }
+
+  /**
+   * Returns the minimum of the given values. If not values are given, 0 is returned.
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  @Validate
+  public static int min(@NotNull final int[] items)
+  {
+    if (items.length <= 0)
+      return 0;
+
+    int min = items[0];
+    for (int item : items)
+      if (min > item)
+        min = item;
+
+    return min;
+  }
+
+  /**
+   * Returns the minimum of the given values. If not values are given, 0 is returned.
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  @Validate
+  public static long min(@NotNull final long[] items)
+  {
+    if (items.length <= 0)
+      return 0;
+
+    long min = items[0];
+    for (long item : items)
+      if (min > item)
+        min = item;
+
+    return min;
+  }
+
+  /**
+   * Returns the item with the most occurrences in the given array. If no items are given then null is returned. This method overload uses
+   * the natural item ordering for grouping.
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  public static <T> T maxOccurring(T[] items)
+  {
+    return maxOccurring(items, null);
+  }
+
+  /**
+   * Returns the item with the most occurrences in the given array. If no items are given then null is returned. This method overload uses
+   * the specified comparator for grouping.
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  @Validate
+  public static <T> T maxOccurring(@NotNull final T[] items, Comparator<T> comparator)
+  {
+    if (items.length <= 0)
+      return null;
+
+    Map<T, ModuloCounter> lookup = new TreeMap<T, ModuloCounter>(comparator);
+    for (T item : items)
+      if (!lookup.containsKey(item))
+        lookup.put(item, new ModuloCounter(Long.MAX_VALUE - 1));
+      else
+
+        lookup.get(item).next();
+
+    long max = -1;
+    T result = null;
+    for (Map.Entry<T, ModuloCounter> kvp : lookup.entrySet())
+    {
+      if (kvp.getValue().getValue() > max)
+      {
+        max = kvp.getValue().getValue();
+        result = kvp.getKey();
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Returns the item with the most occurrences in the given iterable. If no items are given then null is returned. This method overload
+   * uses the natural item ordering for grouping.
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  public static <T> T maxOccurring(Iterable<T> items)
+  {
+    return maxOccurring(items, null);
+  }
+
+  /**
+   * Returns the item with the most occurrences in the given iterable. If no items are given then null is returned. This method overload
+   * uses the specified comparator for grouping.
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  @Validate
+  public static <T> T maxOccurring(@NotNull final Iterable<T> items, Comparator<T> comparator)
+  {
+    Map<T, ModuloCounter> lookup = new TreeMap<T, ModuloCounter>(comparator);
+    for (T item : items)
+      if (!lookup.containsKey(item))
+        lookup.put(item, new ModuloCounter(Long.MAX_VALUE - 1));
+      else
+        lookup.get(item).next();
+
+    if (lookup.size() <= 0)
+      return null;
+
+    long max = -1;
+    T result = null;
+    for (Map.Entry<T, ModuloCounter> kvp : lookup.entrySet())
+    {
+      if (kvp.getValue().getValue() > max)
+      {
+        max = kvp.getValue().getValue();
+        result = kvp.getKey();
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Returns the item with the least occurrences in the given array. If no items are given then null is returned. This method overload uses
+   * the natural item ordering for grouping.
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  public static <T> T minOccurring(T[] items)
+  {
+    return minOccurring(items, null);
+  }
+
+  /**
+   * Returns the item with the least occurrences in the given array. If no items are given then null is returned. This method overload uses
+   * the natural item ordering for grouping.
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  @Validate
+  public static <T> T minOccurring(@NotNull final T[] items, Comparator<T> comparator)
+  {
+    if (items.length <= 0)
+      return null;
+
+    Map<T, ModuloCounter> lookup = new TreeMap<T, ModuloCounter>(comparator);
+    for (T item : items)
+      if (!lookup.containsKey(item))
+        lookup.put(item, new ModuloCounter(Long.MAX_VALUE - 1));
+      else
+        lookup.get(item).next();
+
+    long min = Long.MAX_VALUE;
+    T result = null;
+    for (Map.Entry<T, ModuloCounter> kvp : lookup.entrySet())
+    {
+      if (kvp.getValue().getValue() < min)
+      {
+        min = kvp.getValue().getValue();
+        result = kvp.getKey();
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Returns the item with the least occurrences in the given iterable. If no items are given then null is returned. This method overload
+   * uses the natural item ordering for grouping.
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  public static <T> T minOccurring(Iterable<T> items)
+  {
+    return minOccurring(items, null);
+  }
+
+  /**
+   * Returns the item with the least occurrences in the given iterable. If no items are given then null is returned. This method overload
+   * uses the natural item ordering for grouping.
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  @Validate
+  public static <T> T minOccurring(@NotNull final Iterable<T> items, Comparator<T> comparator)
+  {
+    Map<T, ModuloCounter> lookup = new TreeMap<T, ModuloCounter>(comparator);
+
+    for (T item : items)
+      if (!lookup.containsKey(item))
+        lookup.put(item, new ModuloCounter(Long.MAX_VALUE - 1));
+      else
+        lookup.get(item).next();
+
+    if (lookup.size() <= 0)
+      return null;
+
+    long min = Long.MAX_VALUE;
+    T result = null;
+    for (Map.Entry<T, ModuloCounter> kvp : lookup.entrySet())
+    {
+      if (kvp.getValue().getValue() < min)
+      {
+        min = kvp.getValue().getValue();
+        result = kvp.getKey();
+      }
+    }
+
+    return result;
+  }
+
+  /**
    * Performs an inner join (more specifically an equi-join) over two sequences. The outer values are filtered for key uniqueness (first
    * encountered key kept), whereas inner values may be non-unique.
    * 
@@ -2152,36 +2445,36 @@ public final class Linq
       return true;
     }
   }
-  
+
   /**
-   * Throws an exception if the given Iterable does not have a single element (e.g. none, 2, 3, etc.)
-   * If a single element exists, this is returned.
+   * Throws an exception if the given Iterable does not have a single element (e.g. none, 2, 3, etc.) If a single element exists, this is
+   * returned.
    * 
    * @throws NullPointerException When the values argument is null
    * @throws IllegalArgumentException When count is out of range.
    */
   @Validate
-  public static <T> T single(@NotNull final T[] values) 
+  public static <T> T single(@NotNull final T[] values)
   {
-    if(values.length != 1)
+    if (values.length != 1)
       throw new IllegalArgumentException("The given array should contain a single element");
-    
+
     return values[0];
   }
-  
+
   /**
-   * Throws an exception if the given Iterable does not have a single element (e.g. none, 2, 3, etc.)
-   * If a single element exists, this is returned.
+   * Throws an exception if the given Iterable does not have a single element (e.g. none, 2, 3, etc.) If a single element exists, this is
+   * returned.
    * 
    * @throws NullPointerException When the values argument is null
    * @throws IllegalArgumentException When count is out of range.
    */
   @Validate
-  public static <T> T single(@NotNull final Iterable<T> values) 
+  public static <T> T single(@NotNull final Iterable<T> values)
   {
-    if(firstOrDefault(values)==null)
+    if (firstOrDefault(values) == null)
       throw new IllegalArgumentException("The given iterable should contain a single element");
-    
+
     return first(values);
   }
 
@@ -2533,13 +2826,13 @@ public final class Linq
   @Validate
   public static <T> T[] toArray(@NotNull final Enumeration<T> enumeration, @NotNull final Class<?> componentType)
   {
-    ReifiedList<T> result = new ReifiedArrayList<T>(componentType); 
-    while(enumeration.hasMoreElements())
+    ReifiedList<T> result = new ReifiedArrayList<T>(componentType);
+    while (enumeration.hasMoreElements())
       result.add(enumeration.nextElement());
-    
+
     return result.toArray();
   }
-  
+
   /**
    * Converts a list to an array.
    * 
@@ -2648,13 +2941,13 @@ public final class Linq
   @Validate
   public static <T> List<T> toList(@NotNull final Enumeration<? extends T> enumeration)
   {
-    List<T> result = new ArrayList<T>(); 
-    while(enumeration.hasMoreElements())
+    List<T> result = new ArrayList<T>();
+    while (enumeration.hasMoreElements())
       result.add(enumeration.nextElement());
-    
+
     return result;
   }
-  
+
   /**
    * Converts an enumeration to a list
    * 
@@ -2663,13 +2956,13 @@ public final class Linq
   @Validate
   public static <T> ReifiedList<T> toList(@NotNull final Enumeration<T> enumeration, @NotNull final Class<?> genericTypeParameter)
   {
-    ReifiedList<T> result = new ReifiedArrayList<T>(genericTypeParameter); 
-    while(enumeration.hasMoreElements())
+    ReifiedList<T> result = new ReifiedArrayList<T>(genericTypeParameter);
+    while (enumeration.hasMoreElements())
       result.add(enumeration.nextElement());
-    
+
     return result;
   }
-  
+
   /**
    * Converts an Iterable to a list
    * 

@@ -185,4 +185,16 @@ public final class Strings
     System.out.println(element);
     return true;
   }
+  
+  /**
+   * Predicate returning true always, can be used to print out all elements in an all() Linq statement
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static boolean print(String element)
+  {
+    System.out.print(element);
+    return true;
+  }
 }

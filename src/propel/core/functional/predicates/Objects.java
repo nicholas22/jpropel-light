@@ -37,7 +37,7 @@ public final class Objects
    * Predicate returning true when the function argument is equal to a value
    */
   @Predicate
-  public static <T> boolean equal(T element, T _value)
+  public static boolean equal(Object element, Object _value)
   {
     if (element == null)
     {
@@ -58,7 +58,7 @@ public final class Objects
    * Predicate returning true when the function argument is not equal to a value
    */
   @Predicate
-  public static <T> boolean notEqual(T element, T _value)
+  public static boolean notEqual(Object element, Object _value)
   {
     if (element == null)
     {
@@ -123,7 +123,7 @@ public final class Objects
    * Predicate returning true when the function argument is null
    */
   @Predicate
-  public static <T> boolean isNull(T element)
+  public static boolean isNull(Object element)
   {
     return element == null;
   }
@@ -132,7 +132,7 @@ public final class Objects
    * Predicate returning true when the function argument is not null
    */
   @Predicate
-  public static <T> boolean isNotNull(T element)
+  public static boolean isNotNull(Object element)
   {
     return element != null;
   }
@@ -143,7 +143,7 @@ public final class Objects
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static <T> boolean startsWith(T element, String _prefix)
+  public static boolean startsWith(Object element, String _prefix)
   {
     return StringUtils.startsWith(element.toString(), _prefix, StringComparison.Ordinal);
   }
@@ -154,7 +154,7 @@ public final class Objects
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static <T> boolean startsWith(T element, String _prefix, StringComparison _comparison)
+  public static boolean startsWith(Object element, String _prefix, StringComparison _comparison)
   {
     return StringUtils.startsWith(element.toString(), _prefix, _comparison);
   }
@@ -165,7 +165,7 @@ public final class Objects
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static <T> boolean endsWith(T element, String _suffix)
+  public static boolean endsWith(Object element, String _suffix)
   {
     return StringUtils.endsWith(element.toString(), _suffix, StringComparison.Ordinal);
   }
@@ -176,7 +176,7 @@ public final class Objects
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static <T> boolean endsWith(T element, String _suffix, StringComparison _comparison)
+  public static boolean endsWith(Object element, String _suffix, StringComparison _comparison)
   {
     return StringUtils.endsWith(element.toString(), _suffix, _comparison);
   }
@@ -205,7 +205,7 @@ public final class Objects
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static <T> boolean contains(T element, String _part)
+  public static boolean contains(Object element, String _part)
   {
     return StringUtils.contains(element.toString(), _part, StringComparison.Ordinal);
   }
@@ -216,7 +216,7 @@ public final class Objects
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static <T> boolean contains(T element, String _part, StringComparison _comparison)
+  public static boolean contains(Object element, String _part, StringComparison _comparison)
   {
     return StringUtils.contains(element.toString(), _part, _comparison);
   }
@@ -227,7 +227,7 @@ public final class Objects
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static <T> boolean isEqual(T element, String _other)
+  public static boolean isEqual(Object element, String _other)
   {
     return StringUtils.equal(element.toString(), _other, StringComparison.Ordinal);
   }
@@ -238,7 +238,7 @@ public final class Objects
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static <T> boolean isEqual(T element, String _other, StringComparison _comparison)
+  public static boolean isEqual(Object element, String _other, StringComparison _comparison)
   {
     return StringUtils.equal(element.toString(), _other, _comparison);
   }
@@ -249,9 +249,21 @@ public final class Objects
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static <T> boolean println(T element)
+  public static boolean println(Object element)
   {
     System.out.println(element);
+    return true;
+  }
+  
+  /**
+   * Predicate returning true always, can be used to print out all elements in an all() Linq statement
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static boolean print(Object element)
+  {
+    System.out.print(element);
     return true;
   }
 
@@ -262,7 +274,7 @@ public final class Objects
    * @throws IllegalArgumentException When a non-class (e.g. interface) was provided
    */
   @Predicate
-  public static <T> boolean isExtending(T obj, Class<?> _class)
+  public static boolean isExtending(Object obj, Class<?> _class)
   {
     return ReflectionUtils.isExtending(obj.getClass(), _class);
   }
@@ -274,7 +286,7 @@ public final class Objects
    * @throws IllegalArgumentException When a non-interface (e.g. class) was provided
    */
   @Predicate
-  public static <T> boolean isImplementing(T obj, Class<?> _class)
+  public static boolean isImplementing(Object obj, Class<?> _class)
   {
     return ReflectionUtils.isImplementing(obj.getClass(), _class);
   }
@@ -285,7 +297,7 @@ public final class Objects
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static <T> boolean instanceOf(T obj, Class<?> _class)
+  public static boolean instanceOf(Object obj, Class<?> _class)
   {
     return ReflectionUtils.instanceOf(obj.getClass(), _class);
   }

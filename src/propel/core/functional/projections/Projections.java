@@ -20,6 +20,7 @@ package propel.core.functional.projections;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
 import lombok.Actions.Action0;
 import lombok.Function;
 import lombok.Functions.Function0;
@@ -102,6 +103,28 @@ public final class Projections
   }
 
   /**
+   * Calls getKey() on map entries specified
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  @Function
+  public static <K, V> K mapKeySelector(Map.Entry<K, V> entry)
+  {
+    return entry.getKey();
+  }
+  
+  /**
+   * Calls getKey() on map entries specified
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  @Function
+  public static <K, V> V mapValueSelector(Map.Entry<K, V> entry)
+  {
+    return entry.getValue();
+  }
+
+  /**
    * Calls getKey() on key/value pair function arguments
    * 
    * @throws NullPointerException An argument is null
@@ -121,6 +144,39 @@ public final class Projections
   public static <K, V> V valueSelector(KeyValuePair<K, V> kvp)
   {
     return kvp.getValue();
+  }
+  
+  /**
+   * Calls getClass() on the function argument
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  @Function
+  public static Class<?> getClassType(Object obj)
+  {
+    return obj.getClass();
+  }
+
+  /**
+   * Calls getClass().getName() on the function argument
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  @Function
+  public static String getClassName(Object obj)
+  {
+    return obj.getClass().getName();
+  }
+
+  /**
+   * Calls getClass().getSimpleName() on the function argument
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  @Function
+  public static String getClassNameSimple(Object obj)
+  {
+    return obj.getClass().getSimpleName();
   }
 
   /**
