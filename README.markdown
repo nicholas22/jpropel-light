@@ -238,6 +238,12 @@ You may visit the [lombok](http://projectlombok.org/slideshow.html) project webs
 
 ##Changelog
 
+####1.1.0: bugfix & clean-up
+Removed old v1.0.8 and v1.0.9 JARs
+Bugfix for StringUtils.replace
+
+
+
 ####1.0.9: incremental update
 Replaces usages with StringBuilder instead of StringBuffer
 Fixed StringUtils padLeft/padRight comments
@@ -248,8 +254,8 @@ Added print() predicate to Objects and Strings classes
 Added min() and max() to Linq
 Added minOccurring() and maxOccurring() to Linq
 (using non-parallel map/reduce which needs to be optimised in a next version)
-
 Upgraded to lombok-pg-0.10.4
+
 
 
 ####1.0.8: upgrade lib
