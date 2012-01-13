@@ -3,6 +3,8 @@ import static propel.core.functional.projections.Projections.*;
 import lombok.ExtensionMethod;
 import lombok.val;
 import propel.core.utils.Linq;
+import propel.core.utils.StringComparison;
+import propel.core.utils.StringUtils;
 
 @ExtensionMethod({Linq.class})
 public class Main
