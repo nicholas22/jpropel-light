@@ -37,6 +37,20 @@ public final class HashingUtils
   }
 
   /**
+   * Hashes a long to an int
+   */
+  public static int int64toInt32(long key)
+  {
+    key = (~key) + (key << 18);
+    key = key ^ (key >>> 31);
+    key = key * 21;
+    key = key ^ (key >>> 11);
+    key = key + (key << 6);
+    key = key ^ (key >>> 22);
+    return (int) key;
+  }
+
+  /**
    * Hashes a UUID to an Int32
    * 
    * @throws NullPointerException An argument is null

@@ -49,6 +49,28 @@ public final class ConversionUtils
   private static final Calendar ZERO_AD = new GregorianCalendar(0, 0, 0, 0, 0, 0);
 
   /**
+   * Packs two 32-bit integers into a 64-bit long (a,b => ab)
+   */
+  public static long pack64(int a, int b)
+  {
+    long c1 = (((long) a) << 32);
+    long c2 = ((long) b) & 0xFFFFFFFFL;
+    long num = c1 | c2;
+    return num;
+  }
+
+  /**
+   * Reversed the pack64() function
+   */
+  public static int[] unpack64(long num)
+  {
+    int a = (int) (num >>> 32);
+    int b = (int) num;
+
+    return new int[] {a, b};
+  }
+
+  /**
    * Conversion utility method, allows for a C# unsigned byte to be converted to a Java signed byte.
    */
   public static byte byteDotNetToJvm(int i)

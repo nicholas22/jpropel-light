@@ -22,7 +22,8 @@ import propel.core.model.IShared;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Thread-safe class using Monitors to provide modulo counter functionality. This class should be used for medium/high contention scenarios.
+ * Thread-safe class using Monitors to provide modulo counter functionality. This class should be preferred over SharedModuloCounterLight
+ * for medium/high contention scenarios, as it does not use spin-waiting.
  */
 public final class SharedModuloCounter
     extends ModuloCounter

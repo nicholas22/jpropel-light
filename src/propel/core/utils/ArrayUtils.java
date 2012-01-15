@@ -411,6 +411,20 @@ public final class ArrayUtils
   }
 
   /**
+   * Creates a generic array
+   *
+   * @throws NullPointerException An argument is null
+   * @throws IllegalArgumentException If componentType is {@link Void#TYPE}
+   * @throws ClassCastException An invalid type parameter was specified
+   * @throws NegativeArraySizeException If the specified size is negative
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> T[] create(final Class<?> componentType, final int size)
+  {
+    return (T[]) Array.newInstance(componentType, size);
+  }
+  
+  /**
    * Creates a 1-dimensional array populated with the specified element in all places
    * 
    * @throws NullPointerException Value is null.

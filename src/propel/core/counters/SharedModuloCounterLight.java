@@ -21,8 +21,9 @@ package propel.core.counters;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Thread-safe class using AtomicLong to provide modulo counter functionality. Best used in very low contention scenarios (medium/high
- * contention scenarios use too much CPU), this is because it uses spin waiting instead of kernel mode sleep transitions.
+ * Thread-safe class using AtomicLong to provide modulo counter functionality. Should be preferred over SharedModuloCounter in very low
+ * contention scenarios (medium/high contention scenarios use too much CPU), this is because it uses spin waiting instead of kernel mode
+ * sleep transitions.
  */
 public final class SharedModuloCounterLight
     extends ModuloCounter
@@ -87,7 +88,7 @@ public final class SharedModuloCounterLight
 
     do
     {
-      oldValue = value;
+      oldValue = atomicValue.longValue();
       newValue = minValue;
     }
     while (!atomicValue.compareAndSet(oldValue, newValue));
