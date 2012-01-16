@@ -239,6 +239,14 @@ You may visit the [lombok](http://projectlombok.org/slideshow.html) project webs
 
 ##Changelog
 
+####1.1.1: Primitive collections and counters
+Added primitive collections: FixedSizeLongBuffer, SharedFixedSizeLongBuffer, LongHashMap, SharedLongHashMap  
+Added more counters: SharedModuloIndexer, SharedModuloIndexerLight (specialised for traversing 
+buffers/arrays)
+
+
+
+
 ####1.1.0: bugfix & clean-up
 Removed old v1.0.8 and v1.0.9 JARs  
 Bugfix for StringUtils.replace
