@@ -241,9 +241,10 @@ You may visit the [lombok](http://projectlombok.org/slideshow.html) project webs
 
 ####1.1.2: Performance improvements
 LongHashMap now has very fast lookup performance and smaller memory footprint  
-ReflectionUtils.proxy() overload added, which allows for "sealing" of methods via proxying and preventing certain methods to be called.  
-Using these two features together (a long->T map and immutability), you can create a hash map that is ~500% faster than ConcurrentHashMap (during lookups) due to absence of locking.  
-Also, removed SharedLongHashMap implementation.
+A way to "seal" classes and make them immutable has been added via ReflectionUtils.proxy()  
+It works by preventing certain methods to be called and as such guaranteeing immutability for things like collections  
+Using a long->T LongHashMap and this feature, you can create a hash map that is x5 faster than ConcurrentHashMap in lookups, due to absence of locking  
+Removed SharedLongHashMap implementation for now  
 
 
 
