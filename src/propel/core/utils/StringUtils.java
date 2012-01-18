@@ -20,6 +20,9 @@ package propel.core.utils;
 
 import lombok.Predicate;
 import lombok.Function;
+import lombok.Validate;
+import lombok.Validate.NotNull;
+import lombok.val;
 import org.joda.time.Duration;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.*;
@@ -3433,6 +3436,22 @@ public final class StringUtils
       throw new IndexOutOfBoundsException("length=" + length + " startIndex=" + startIndex + " valueLen=" + valueLen);
 
     return new String(value.toCharArray(), startIndex, length);
+  }
+
+  /**
+   * Title-cases a string
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  @Validate
+  public static String titleCase(@NotNull final String value)
+  {
+    val parts = split(value, CONSTANT.WHITESPACE_CHAR, StringSplitOptions.None);
+    for (int i = 0; i < parts.length; i++)
+      if (parts[i].length() > 0)
+        parts[i] = parts[i].substring(0, 1).toUpperCase() + parts[i].substring(1).toLowerCase();
+
+    return delimit(parts, CONSTANT.WHITESPACE);
   }
 
   /**

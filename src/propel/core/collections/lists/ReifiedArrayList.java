@@ -277,8 +277,7 @@ public class ReifiedArrayList<T>
 
     ensureCapacity(realListSize + size);
 
-    for (int i = 0; i < size; i++)
-      buffer[i + realListSize] = array[i];
+    System.arraycopy(array, 0, buffer, realListSize, size);
 
     realListSize += size;
     return true;
@@ -598,10 +597,9 @@ public class ReifiedArrayList<T>
   @Override
   public T[] toArray()
   {
-    int size = size();
-    T[] result = (T[]) Array.newInstance(getGenericTypeParameter(), size);
+    T[] result = (T[]) Array.newInstance(getGenericTypeParameter(), realListSize);
 
-    System.arraycopy(buffer, 0, result, 0, size);
+    System.arraycopy(buffer, 0, result, 0, realListSize);
 
     return result;
   }
@@ -614,11 +612,10 @@ public class ReifiedArrayList<T>
   @Override
   public <T> T[] toArray(T[] a)
   {
-    int size = size();
-    if (a == null || a.length < size)
-      a = (T[]) Array.newInstance(getGenericTypeParameter(), size);
+    if (a == null || a.length < realListSize)
+      a = (T[]) Array.newInstance(getGenericTypeParameter(), realListSize);
 
-    System.arraycopy(buffer, 0, a, 0, size);
+    System.arraycopy(buffer, 0, a, 0, realListSize);
 
     return a;
   }

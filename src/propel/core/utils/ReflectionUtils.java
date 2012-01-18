@@ -18,22 +18,19 @@
 // /////////////////////////////////////////////////////////
 package propel.core.utils;
 
-import lombok.Function;
-import lombok.Predicate;
-import java.util.Arrays;
-import propel.core.collections.KeyValuePair;
-import propel.core.collections.lists.ReifiedArrayList;
-import propel.core.collections.lists.ReifiedList;
-import propel.core.collections.maps.avl.AvlHashtable;
-import propel.core.collections.sets.AvlTreeSet;
-import propel.core.common.CONSTANT;
-import propel.core.functional.projections.Projections;
 import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -41,6 +38,18 @@ import java.util.List;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import lombok.Function;
+import lombok.Predicate;
+import lombok.Validate;
+import lombok.Validate.NotNull;
+import lombok.val;
+import propel.core.collections.KeyValuePair;
+import propel.core.collections.lists.ReifiedArrayList;
+import propel.core.collections.lists.ReifiedList;
+import propel.core.collections.maps.avl.AvlHashtable;
+import propel.core.collections.sets.AvlTreeSet;
+import propel.core.common.CONSTANT;
+import propel.core.functional.projections.Projections;
 
 public final class ReflectionUtils
 {
@@ -1550,19 +1559,17 @@ public final class ReflectionUtils
   }
 
   /**
-   * Allows dynamic dispatch on any object using a specified interface. I.e. method calls to interface methods are routed to the given
-   * run-time object. TODO: support overloaded methods.
+   * Quick-and-dirty proxy-ing utility method, allows dynamic dispatch on any object using a specified interface. The run-time object and
+   * the interface given need not have an inheritance relationship. Method calls to interface methods are routed to the given run-time
+   * object. TODO: support overloaded methods.
    * 
    * @throws NullPointerException An argument is null
    * @throws IllegalArgumentException The interface class type is not an actual interface type
    */
+  @Validate
   @SuppressWarnings("unchecked")
-  public static <T> T proxy(final Object obj, Class<T> interfaceType)
+  public static <T> T proxy(@NotNull final Object obj, @NotNull final Class<T> interfaceType)
   {
-    if (obj == null)
-      throw new NullPointerException("obj");
-    if (interfaceType == null)
-      throw new NullPointerException("interfaceType");
     if (!interfaceType.isInterface())
       throw new IllegalArgumentException(interfaceType.getName() + " is not an interface!");
 
@@ -1586,7 +1593,45 @@ public final class ReflectionUtils
         return dispatchedMethod.invoke(obj, args);
       }
     });
+  }
 
+  /**
+   * Overloaded variation of the above method, which allows certain methods to be prevented from being called. Useful for "sealing" classes
+   * in a fashion similar to e.g. UnmodifiableMap and such classes. TODO: support overloaded methods.
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IllegalArgumentException The interface class type is not an actual interface type
+   */
+  @Validate
+  @SuppressWarnings("unchecked")
+  public static <T> T
+      proxy(@NotNull final Object obj, @NotNull final Class<T> interfaceType, @NotNull final String[] suppressedMethodNames)
+  {
+    if (!interfaceType.isInterface())
+      throw new IllegalArgumentException(interfaceType.getName() + " is not an interface!");
+
+    // wrap with proxy, implementing the specified interface and this invocation handler
+    return (T) Proxy.newProxyInstance(interfaceType.getClassLoader(), new Class[] {interfaceType}, new InvocationHandler() {
+
+      /**
+       * Dispatches method invocations to the original object, using reflection
+       */
+      @Override
+      public Object invoke(Object proxy, Method method, Object[] args)
+          throws Throwable
+      {
+        // convert proxy method invocation to a call to the service
+        val methodName = method.getName();
+        if (StringUtils.contains(suppressedMethodNames, methodName, StringComparison.Ordinal))
+          throw new UnsupportedOperationException("The method '" + methodName + "' is not allowed to be called");
+
+        Method dispatchedMethod = getMethod(obj.getClass(), methodName, true);
+        if (dispatchedMethod == null)
+          throw new NoSuchMethodException("methodName=" + methodName);
+
+        return dispatchedMethod.invoke(obj, args);
+      }
+    });
   }
 
   /**

@@ -239,10 +239,17 @@ You may visit the [lombok](http://projectlombok.org/slideshow.html) project webs
 
 ##Changelog
 
+####1.1.2: Performance improvements
+LongHashMap now has very fast lookup performance and smaller memory footprint  
+ReflectionUtils.proxy() overload added, which allows for "sealing" of methods via proxying and preventing certain methods to be called.  
+Using these two features together (a long->T map and immutability), you can create a hash map that is ~500% faster than ConcurrentHashMap (during lookups) due to absence of locking.  
+Also, removed SharedLongHashMap implementation.
+
+
+
 ####1.1.1: Primitive collections and counters
 Added primitive collections: FixedSizeLongBuffer, SharedFixedSizeLongBuffer, LongHashMap, SharedLongHashMap  
-Added more counters: SharedModuloIndexer, SharedModuloIndexerLight (specialised for traversing 
-buffers/arrays)
+Added more counters: SharedModuloIndexer, SharedModuloIndexerLight (specialised, for traversing buffers/arrays)  
 
 
 

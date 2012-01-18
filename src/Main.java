@@ -1,10 +1,12 @@
-import static propel.core.functional.predicates.Strings.*;
-import static propel.core.functional.projections.Projections.*;
+import static propel.core.functional.predicates.Strings.println;
+import static propel.core.functional.predicates.Strings.startsWith;
+import static propel.core.functional.projections.Projections.toUpperCase;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.ExtensionMethod;
 import lombok.val;
+import propel.core.collections.maps.primitive.LongHashMap;
+import propel.core.tracing.Stopwatch;
 import propel.core.utils.Linq;
-import propel.core.utils.StringComparison;
-import propel.core.utils.StringUtils;
 
 @ExtensionMethod({Linq.class})
 public class Main
@@ -15,7 +17,7 @@ public class Main
     // LINQ, extension methods, functions
     val names = new String[] {"john", "james", "john", "eddie"}.where(startsWith("j")).distinct().select(toUpperCase());
     names.all(println());
-    
+
     // Note: if you get compilation errors, make sure you've installed "lombok-pg"
     // Simply copy the lombok-pg-10.4.jar (from lib) to your $ECLIPSE_HOME and edit eclipse.ini, add at the end the following:
     //

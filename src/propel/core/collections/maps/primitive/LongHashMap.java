@@ -18,9 +18,6 @@
 // /////////////////////////////////////////////////////////
 package propel.core.collections.maps.primitive;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.Validate;
 import lombok.Validate.NotNull;
 import lombok.val;
@@ -30,7 +27,7 @@ import propel.core.utils.SuperTypeToken;
 import propel.core.utils.SuperTypeTokenException;
 
 /**
- * Implementation of a long -> V hash map. 
+ * Implementation of a long -> V hash map with an emphasis on lookup speed and reduction of memory footprint.
  */
 public class LongHashMap<V>
     implements ILongHashMap<V>
@@ -40,13 +37,13 @@ public class LongHashMap<V>
    */
   private static final int MAXIMUM_CAPACITY = 1 << 30;
   private final Class<?> genericTypeParameterValue;
-  private List<LongEntry<V>>[] table;
+  private BucketEntry[] table;
   private int size;
 
   /**
    * Constructs an empty map with the specified max capacity
    * 
-   * @param maxCapacity The maximum capacity
+   * @throws NullPointerException An argument is null
    * @throws IllegalArgumentException An argument is invalid
    * @throws SuperTypeTokenException When called without using anonymous class semantics.
    */
@@ -59,7 +56,7 @@ public class LongHashMap<V>
   /**
    * Constructs an empty map with the specified max capacity.
    * 
-   * @param maxCapacity The maximum capacity
+   * @throws NullPointerException An argument is null
    * @throws IllegalArgumentException An argument is invalid
    */
   @Validate
@@ -76,36 +73,25 @@ public class LongHashMap<V>
   {
     if (maxCapacity < 0)
       throw new IllegalArgumentException("maxCapacity=" + maxCapacity);
+
     // Find a power of 2 >= maxSize
     int capacity = 1;
     while (capacity < maxCapacity)
       capacity <<= 1;
+
     // must not be over this maximum
     if (capacity > MAXIMUM_CAPACITY)
       capacity = MAXIMUM_CAPACITY;
-    this.table = create(List.class, capacity);
+
+    this.table = ArrayUtils.create(BucketEntry.class, capacity);
   }
 
   /**
-   * Creates a generic array
-   * 
-   * @throws NullPointerException An argument is null
-   * @throws IllegalArgumentException If componentType is {@link Void#TYPE}
-   * @throws ClassCastException An invalid type parameter was specified
-   * @throws NegativeArraySizeException If the specified size is negative
-   */
-  @SuppressWarnings("unchecked")
-  private static <T> T[] create(final Class<?> componentType, final int size)
-  {
-    return (T[]) Array.newInstance(componentType, size);
-  }
-
-  /**
-   * Clears the contents.
-   * This is an O(n) operation
+   * Clears the contents. This is an O(n) operation
    */
   public void clear()
   {
+    // clear all bucket entries
     for (int i = 0; i < table.length; i++)
       table[i] = null;
 
@@ -120,25 +106,27 @@ public class LongHashMap<V>
   @Override
   public V put(final long key, final V value)
   {
+    // find bucket entry
     int index = indexFor(key);
     if (table[index] == null)
-      table[index] = new ArrayList<LongEntry<V>>(4);
+      table[index] = new BucketEntry();
 
+    // the new long->V entry
     val inserted = new LongEntry<V>(key, value);
 
-    val bucket = table[index];
-    // attempt to find old, if existent
-    int existingIndex = findInBucket(bucket, key);
+    // attempt to find old long->V entry, if existent, to replace it
+    BucketEntry bucket = table[index];
+    int existingIndex = bucket.find(key);
 
     // if existent, replace
     if (existingIndex >= 0)
     {
-      // this does not increase size
+      // this does not increase the hash map size
       val oldItem = bucket.set(existingIndex, inserted);
       return oldItem.value;
     }
 
-    // otherwise insert new
+    // otherwise insert new, this increases the size
     bucket.add(inserted);
     size++;
     return null;
@@ -154,7 +142,7 @@ public class LongHashMap<V>
   {
     int index = indexFor(key);
     if (table[index] != null)
-      return findInBucket(table[index], key) >= 0;
+      return table[index].find(key) >= 0;
 
     return false;
   }
@@ -170,10 +158,13 @@ public class LongHashMap<V>
   {
     for (int i = 0; i < table.length; i++)
       if (table[i] != null)
-        for (val item : table[i])
+        for (int j = 0; j < table[i].position; j++)
+        {
+          val item = table[i].entries[j];
           if (item.value != null)
             if (item.value.equals(value))
               return item;
+        }
 
     return null;
   }
@@ -189,7 +180,7 @@ public class LongHashMap<V>
     val result = new ReifiedArrayList<LongEntry<V>>(size, LongEntry.class);
     for (int i = 0; i < table.length; i++)
       if (table[i] != null)
-        result.addAll(table[i]);
+        result.addAll(table[i].entries);
 
     return result.toArray();
   }
@@ -202,11 +193,14 @@ public class LongHashMap<V>
   @Override
   public V get(long key)
   {
-    val bucket = table[indexFor(key)];
+    BucketEntry bucket = table[indexFor(key)];
     if (bucket != null)
-      for (val item : bucket)
-        if (item.key == key)
-          return item.value;
+      for (int i = 0; i < bucket.position; i++)
+      {
+        val entry = bucket.entries[i];
+        if (entry.key == key)
+          return entry.value;
+      }
 
     return null;
   }
@@ -233,8 +227,12 @@ public class LongHashMap<V>
     val result = new ReifiedArrayList<V>(size, genericTypeParameterValue);
     for (int i = 0; i < table.length; i++)
       if (table[i] != null)
-        for (val item : table[i])
-          result.add(item.value);
+        for (int j = 0; j < table[i].position; j++)
+        {
+          val item = table[i].entries[j];
+          if (item != null)
+            result.add(item.value);
+        }
 
     return result.toArray();
   }
@@ -251,10 +249,11 @@ public class LongHashMap<V>
     long[] result = new long[size];
     for (int i = 0; i < table.length; i++)
       if (table[i] != null)
-      {
-        for (val item : table[i])
+        for (int j = 0; j < table[i].position; j++)
+        {
+          val item = table[i].entries[j];
           result[index++] = item.key;
-      }
+        }
 
     return result;
   }
@@ -287,42 +286,69 @@ public class LongHashMap<V>
    */
   public void resize(int capacity)
   {
-    val tableCopy = ArrayUtils.clone(table);
+    BucketEntry[] tableCopy = ArrayUtils.clone(table);
     init(capacity);
-    for (val bucket : tableCopy)
+    for (BucketEntry bucket : tableCopy)
       if (bucket != null)
-        for (val item : bucket)
+        for (val item : bucket.entries)
           put(item.key, item.value);
   }
 
   /**
    * Returns index for hash code h.
    */
-  private int indexFor(long hash)
+  private int indexFor(long key)
   {
-    return hash64to32(hash) & (table.length - 1);
-  }
-
-  private static int hash64to32(long key)
-  {
-    key = (~key) + (key << 18);
-    key = key ^ (key >>> 31);
-    key = key * 21;
-    key = key ^ (key >>> 11);
-    key = key + (key << 6);
-    key = key ^ (key >>> 22);
-    return (int) key;
+    return ((int) key / 2) & (table.length - 1);
   }
 
   /**
-   * Returns the index of a key within the given bucket, or -1 if that's not found
+   * The hash map contains multiple bucket entry classes such as this
    */
-  private int findInBucket(final List<LongEntry<V>> bucket, final long key)
+  final class BucketEntry
   {
-    for (int i = 0; i < bucket.size(); i++)
-      if (bucket.get(i).key == key)
-        return i;
+    long[] keys;
+    LongEntry<V>[] entries;
+    int position;
 
-    return -1;
+    BucketEntry()
+    {
+      keys = new long[8];
+      entries = ArrayUtils.create(LongEntry.class, 8);
+      position = 0;
+    }
+
+    void add(LongEntry<V> entry)
+    {
+      keys[position] = entry.key;
+      entries[position] = entry;
+      position++;
+
+      // ensure capacity
+      if (position >= entries.length)
+      {
+        val newKeys = new long[(int) (keys.length * 0.75f)];
+        System.arraycopy(keys, 0, newKeys, 0, entries.length);
+        keys = newKeys;
+        entries = ArrayUtils.resize(entries, entries.length * 2);
+      }
+    }
+
+    int find(long key)
+    {
+      for (int i = 0; i < position; i++)
+        if (keys[i] == key)
+          return i;
+
+      return -1;
+    }
+
+    LongEntry<V> set(int index, LongEntry<V> entry)
+    {
+      keys[index] = entry.key;
+      val old = entries[index];
+      entries[index] = entry;
+      return old;
+    }
   }
 }
