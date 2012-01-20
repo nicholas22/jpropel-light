@@ -24,6 +24,9 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
+/**
+ * Provides utility functionality for random data
+ */
 public final class RandomUtils
 {
   private static final SecureRandom CRYPTO_RANDOM = new SecureRandom();

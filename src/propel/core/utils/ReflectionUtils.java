@@ -51,6 +51,9 @@ import propel.core.collections.sets.AvlTreeSet;
 import propel.core.common.CONSTANT;
 import propel.core.functional.projections.Projections;
 
+/**
+ * Provides utility functionality for reflective manipulations
+ */
 public final class ReflectionUtils
 {
 

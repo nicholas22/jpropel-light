@@ -28,6 +28,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Provides utility functionality for byte array manipulations
+ */
 public final class ByteArrayUtils
 {
   private ByteArrayUtils()
