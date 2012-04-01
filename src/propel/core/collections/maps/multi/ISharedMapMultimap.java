@@ -29,5 +29,5 @@ public interface ISharedMapMultimap<T extends Comparable<? super T>, K extends C
    * 
    * @throws NullPointerException A key or sub-key is null
    */
-  V putIfAbsent(T key, K subKey, V value);
+  V putIfAbsent(T key, K subkey, V value);
 }

@@ -55,7 +55,7 @@ public class NumericUtils
   }
 
   /**
-   * Returns a range from start (inclusive) to end (exclusive)
+   * Returns a range from start (inclusive) to end (inclusive)
    * 
    * @throws NullPointerException An argument is null
    * @throws IllegalArgumentException When the end is before start
@@ -99,7 +99,7 @@ public class NumericUtils
   }
 
   /**
-   * Returns a range from start (inclusive) to end (exclusive)
+   * Returns a range from start (inclusive) to end (inclusive)
    * 
    * @throws NullPointerException An argument is null
    * @throws IllegalArgumentException When the end is before start

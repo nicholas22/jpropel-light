@@ -44,6 +44,7 @@ import propel.core.collections.lists.ReifiedList;
 import propel.core.collections.maps.ReifiedMap;
 import propel.core.collections.maps.avl.AvlHashtable;
 import propel.core.counters.ModuloCounter;
+import propel.core.functional.tuples.Pair;
 import java.lang.SuppressWarnings;
 import static lombok.Yield.yield;
 
@@ -1268,6 +1269,76 @@ public final class Linq
   }
 
   /**
+   * Performs an inner join (more specifically an equi-join) over two sequences. The outer values are filtered for key uniqueness (first
+   * encountered key kept), whereas inner values may be non-unique.
+   * 
+   * @throws NullPointerException If an argument is null.
+   */
+  @Validate
+  public static <TOuter, TInner, TKey extends Comparable<TKey>, TResult> Iterable<TResult>
+      join(@NotNull final Iterable<TOuter> outerValues, @NotNull final Iterable<TInner> innerValues,
+           @NotNull final Function1<TOuter, TKey> outerKeySelector, @NotNull final Function1<TInner, TKey> innerKeySelector,
+           @NotNull final Function2<TOuter, TInner, TResult> resultSelector)
+  {
+    AvlHashtable<TKey, TOuter> lookup = new AvlHashtable<TKey, TOuter>(outerKeySelector.getReturnType(),
+        outerKeySelector.getParameterType1());
+
+    for (TOuter value : outerValues)
+    {
+      TKey outerKey = outerKeySelector.apply(value);
+      lookup.add(outerKey, value);
+    }
+
+    for (TInner inner : innerValues)
+    {
+      TKey innerKey = innerKeySelector.apply(inner);
+
+      if (lookup.containsKey(innerKey))
+      {
+        TOuter outer = lookup.get(innerKey);
+        TResult res = resultSelector.apply(outer, inner);
+        yield(res);
+      }
+    }
+  }
+
+  /**
+   * Performs an inner join (more specifically an equi-join) over two sequences. The outer values are filtered for key uniqueness (first
+   * encountered key kept), whereas inner values may be non-unique.
+   * 
+   * @throws NullPointerException If an argument is null.
+   */
+  @Validate
+  public static <TOuter, TInner, TKey extends Comparable<TKey>, TResult> TResult[]
+      join(@NotNull final TOuter[] outerValues, @NotNull final TInner[] innerValues,
+           @NotNull final Function1<TOuter, TKey> outerKeySelector, @NotNull final Function1<TInner, TKey> innerKeySelector,
+           @NotNull final Function2<TOuter, TInner, TResult> resultSelector)
+  {
+    List<TResult> result = new ArrayList<TResult>(DEFAULT_LIST_SIZE);
+    AvlHashtable<TKey, TOuter> lookup = new AvlHashtable<TKey, TOuter>(outerKeySelector.getReturnType(), outerKeySelector.getReturnType());
+
+    for (TOuter value : outerValues)
+    {
+      TKey outerKey = outerKeySelector.apply(value);
+      lookup.add(outerKey, value);
+    }
+
+    for (TInner inner : innerValues)
+    {
+      TKey innerKey = innerKeySelector.apply(inner);
+
+      if (lookup.containsKey(innerKey))
+      {
+        TOuter outer = lookup.get(innerKey);
+        TResult res = resultSelector.apply(outer, inner);
+        result.add(res);
+      }
+    }
+
+    return toArray(result, resultSelector.getReturnType());
+  }
+
+  /**
    * Returns the last element in the iterable.
    * 
    * @throws NullPointerException If the array is null
@@ -1771,76 +1842,6 @@ public final class Linq
   }
 
   /**
-   * Performs an inner join (more specifically an equi-join) over two sequences. The outer values are filtered for key uniqueness (first
-   * encountered key kept), whereas inner values may be non-unique.
-   * 
-   * @throws NullPointerException If an argument is null.
-   */
-  @Validate
-  public static <TOuter, TInner, TKey extends Comparable<TKey>, TResult> Iterable<TResult>
-      join(@NotNull final Iterable<TOuter> outerValues, @NotNull final Iterable<TInner> innerValues,
-           @NotNull final Function1<TOuter, TKey> outerKeySelector, @NotNull final Function1<TInner, TKey> innerKeySelector,
-           @NotNull final Function2<TOuter, TInner, TResult> resultSelector)
-  {
-    AvlHashtable<TKey, TOuter> lookup = new AvlHashtable<TKey, TOuter>(outerKeySelector.getReturnType(),
-        outerKeySelector.getParameterType1());
-
-    for (TOuter value : outerValues)
-    {
-      TKey outerKey = outerKeySelector.apply(value);
-      lookup.add(outerKey, value);
-    }
-
-    for (TInner inner : innerValues)
-    {
-      TKey innerKey = innerKeySelector.apply(inner);
-
-      if (lookup.containsKey(innerKey))
-      {
-        TOuter outer = lookup.get(innerKey);
-        TResult res = resultSelector.apply(outer, inner);
-        yield(res);
-      }
-    }
-  }
-
-  /**
-   * Performs an inner join (more specifically an equi-join) over two sequences. The outer values are filtered for key uniqueness (first
-   * encountered key kept), whereas inner values may be non-unique.
-   * 
-   * @throws NullPointerException If an argument is null.
-   */
-  @Validate
-  public static <TOuter, TInner, TKey extends Comparable<TKey>, TResult> TResult[]
-      join(@NotNull final TOuter[] outerValues, @NotNull final TInner[] innerValues,
-           @NotNull final Function1<TOuter, TKey> outerKeySelector, @NotNull final Function1<TInner, TKey> innerKeySelector,
-           @NotNull final Function2<TOuter, TInner, TResult> resultSelector)
-  {
-    List<TResult> result = new ArrayList<TResult>(DEFAULT_LIST_SIZE);
-    AvlHashtable<TKey, TOuter> lookup = new AvlHashtable<TKey, TOuter>(outerKeySelector.getReturnType(), outerKeySelector.getReturnType());
-
-    for (TOuter value : outerValues)
-    {
-      TKey outerKey = outerKeySelector.apply(value);
-      lookup.add(outerKey, value);
-    }
-
-    for (TInner inner : innerValues)
-    {
-      TKey innerKey = innerKeySelector.apply(inner);
-
-      if (lookup.containsKey(innerKey))
-      {
-        TOuter outer = lookup.get(innerKey);
-        TResult res = resultSelector.apply(outer, inner);
-        result.add(res);
-      }
-    }
-
-    return toArray(result, resultSelector.getReturnType());
-  }
-
-  /**
    * Returns all values in a sequence that are of a particular type. This operates differently to Cast, in that it does not force a cast; it
    * rather checks if a TSource is of TDest type.
    * 
@@ -1856,11 +1857,12 @@ public final class Linq
       try
       {
         temp = destinationClass.cast(item);
+        yield(temp);
       }
       catch(ClassCastException e)
-      {}
-
-      yield(temp);
+      {
+        
+      }
     }
   }
 
@@ -1884,7 +1886,6 @@ public final class Linq
       }
       catch(ClassCastException e)
       {
-        continue;
       }
     }
 
@@ -1992,7 +1993,7 @@ public final class Linq
    * @throws NullPointerException When an argument is null.
    */
   @Validate
-  public static <TKey extends Comparable<TKey>, TKey2 extends Comparable<TKey>, TResult> Iterable<TResult>
+  public static <TKey extends Comparable<TKey>, TKey2 extends Comparable<TKey2>, TResult> Iterable<TResult>
       orderByThenBy(@NotNull final Iterable<TResult> values, @NotNull final Function1<TResult, TKey> keySelector,
                     @NotNull final Function1<TResult, TKey2> keySelector2)
   {
@@ -2005,7 +2006,7 @@ public final class Linq
    * @throws NullPointerException When an argument is null.
    */
   @Validate
-  public static <TKey extends Comparable<TKey>, TKey2 extends Comparable<TKey>, TResult> TResult[]
+  public static <TKey extends Comparable<TKey>, TKey2 extends Comparable<TKey2>, TResult> TResult[]
       orderByThenBy(@NotNull final TResult[] values, @NotNull final Function1<TResult, TKey> keySelector,
                     @NotNull final Function1<TResult, TKey2> keySelector2)
   {
@@ -2463,8 +2464,7 @@ public final class Linq
   }
 
   /**
-   * Throws an exception if the given Iterable does not have a single element (e.g. none, 2, 3, etc.) If a single element exists, this is
-   * returned.
+   * Throws an exception if the given Iterable does not have a single element (e.g. none, 2, etc.) If onr element exists, it's returned.
    * 
    * @throws NullPointerException When the values argument is null
    * @throws IllegalArgumentException When count is out of range.
@@ -2472,10 +2472,21 @@ public final class Linq
   @Validate
   public static <T> T single(@NotNull final Iterable<T> values)
   {
-    if (firstOrDefault(values) == null)
-      throw new IllegalArgumentException("The given iterable should contain a single element");
+    int i = 0;
+    T result = null;
 
-    return first(values);
+    for (T item : values)
+    {
+      if (i == 0)
+        result = item;
+      i++;
+      if (i == 2)
+        throw new IllegalArgumentException("The given iterable contains more than one element");
+    }
+    if (i == 0)
+      throw new IllegalArgumentException("The given iterable does not contain any elements");
+
+    return result;
   }
 
   /**
@@ -2493,21 +2504,15 @@ public final class Linq
     // skip phase
     int skipped = 0;
     Iterator<T> iterator = values.iterator();
-    for (T item : values)
+    while(iterator.hasNext() && skipped < count)
     {
-      if (iterator.hasNext() && skipped < count)
-      {
         iterator.next();
         skipped++;
-      }
     }
 
     // return remaining phase
-    while (iterator.hasNext() && skipped < count)
-    {
+    while (iterator.hasNext())
       yield(iterator.next());
-      skipped++;
-    }
   }
 
   /**
@@ -3083,6 +3088,38 @@ public final class Linq
       return distinct(union, comparer);
     }
   }
+  
+  /**
+   * Performs the reverse operation to zip()
+   *
+   * @throws NullPointerException When an argument is null
+   */
+  @Validate
+  public static <T, TResult1, TResult2> Iterable<Pair<TResult1, TResult2>> unzip(@NotNull final Iterable<T> values, @NotNull final Function1<T, Pair<TResult1, TResult2>> func)
+  {
+  List<Pair<TResult1, TResult2>> result = new ArrayList<Pair<TResult1, TResult2>>(DEFAULT_LIST_SIZE);
+    
+  for (T item : values)
+    result.add(func.apply(item));
+      
+    return result;
+  }
+  
+  /**
+   * Performs the reverse operation to zip()
+   *
+   * @throws NullPointerException When an argument is null
+   */
+  @Validate
+  public static <T, TResult1, TResult2> Pair<TResult1, TResult2>[] unzip(@NotNull final T[] values, @NotNull final Function1<T, Pair<TResult1, TResult2>> func)
+  {
+  ReifiedList<Pair<TResult1, TResult2>> result = new ReifiedArrayList<Pair<TResult1, TResult2>>(DEFAULT_LIST_SIZE, values.getClass().getComponentType());
+    
+  for (T item : values)
+    result.add(func.apply(item));
+      
+    return result.toArray();
+  }  
 
   /**
    * Returns a subset of the provided sequence, which conforms to the given predicate i.e. acts like a Where LINQ function It will never

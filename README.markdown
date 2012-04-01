@@ -1,4 +1,4 @@
-# Hi there!
+﻿# Hi there!
 
 jpropel-light is a Java library which can seriously hinder your salary if you are paid by the number of lines of code you create!
 
@@ -239,57 +239,69 @@ You may visit the [lombok](http://projectlombok.org/slideshow.html) project webs
 
 ##Changelog
 
+####1.1.3: Minor improvements
+Included Eclipse project in sources JAR.  
+Added EnvironmentUtils utility class, allows for altering JVM env. vars at run-time.  
+Added Stopwatch.restart() convenience method.  
+Added Iterable validator (IterablePropertyMetadata)  
+Added URL validator (URLPropertyMetadata)  
+StackTraceLogger now has configurable level, showing minimal, abbreviated or full trace.  
+Fixed inaccurate comments in NumericUtils, StringUtils, Linq, etc.  
+Linq unzip() and partition() methods added. Bug-fixing (ofType, orderByThenBy, skip)  
+Using lombok-pg 0.10.8-SNAPSHOT dependency.  
+
+
+
 ####1.1.2: Performance improvements
 LongHashMap now has very fast lookup performance and smaller memory footprint.  
 A way to "seal" classes and make them immutable has been added via ReflectionUtils.proxy().  
 It works by preventing certain methods to be called and as such guaranteeing immutability for things like collections.  
 Using a long->T LongHashMap and this feature, you can create a hash map that is x5 faster than ConcurrentHashMap in lookups, due to absence of locking.  
-See ImmutableUtils.toReadOnly() for an implementatiof of this.
+See ImmutableUtils.toReadOnly() for an implementatiof of this.  
 Also, removed SharedLongHashMap implementation for now.  
 
 
 
 ####1.1.1: Primitive collections and counters
-Added primitive collections: FixedSizeLongBuffer, SharedFixedSizeLongBuffer, LongHashMap, SharedLongHashMap  
-Added more counters: SharedModuloIndexer, SharedModuloIndexerLight (specialised, for traversing buffers/arrays)  
-
+Added primitive collections: FixedSizeLongBuffer, SharedFixedSizeLongBuffer, LongHashMap, SharedLongHashMap.  
+Added more counters: SharedModuloIndexer, SharedModuloIndexerLight (specialised, for traversing buffers/arrays).  
 
 
 
 ####1.1.0: bugfix & clean-up
-Removed old v1.0.8 and v1.0.9 JARs  
-Bugfix for StringUtils.replace
+Removed old v1.0.8 and v1.0.9 JARs.  
+Bugfix for StringUtils.replace()  
 
 
 
 ####1.0.9: incremental update
-Replaces usages with StringBuilder instead of StringBuffer  
-Fixed StringUtils padLeft/padRight comments  
-Added projections: getClassType(), getClassName(), getClassNameSimple()  
+Replaces usages with StringBuilder instead of StringBuffer.  
+Fixed StringUtils padLeft/padRight comments.  
+Added projections: getClassType(), getClassName(), getClassNameSimple().  
 Updated Objects.* predicates to use Object instead of T where a type is not needed  
 (this is to alleviate some type inferencing woes with javac/ecj)  
-Added print() predicate to Objects and Strings classes  
-Added min() and max() to Linq  
-Added minOccurring() and maxOccurring() to Linq  
-(using non-parallel map/reduce which needs to be optimised in a next version)  
+Added print() predicate to Objects and Strings classes.  
+Added min() and max() to Linq.  
+Added minOccurring() and maxOccurring() to Linq.  
+(using non-parallel map/reduce which could be optimised in a next version)  
 Upgraded to lombok-pg-0.10.4  
 
 
 
 ####1.0.8: upgrade lib
-Upgraded to lombok-pg-0.10.2 and deployed second jar, which includes sources.
+Upgraded to lombok-pg-0.10.2 and deployed second jar, which includes sources.  
 
 
 
 ####1.0.7: InvokeOneArg, InvokeNoArg
-Functional invocation is now cleaner, by using static imports on methods of these two classes.
+Functional invocation is now cleaner, by using static imports on methods of these two classes.  
 
 
 
 ####1.0.6: SharedMapMultimap 
 Thread-safe version of MapMultimap (SharedMapMultimap)  
-Linq.single() ensuring a single element exist in an iterable/array  
-StringUtils.crop() is a trim-like function where you specify which characters to leave in, rather than trim  
+Linq.single() ensuring a single element exist in an iterable/array.  
+StringUtils.crop() is a trim-like function where you specify which characters to leave in, rather than trim.  
 
 
 
@@ -306,7 +318,7 @@ A breaking change that uses the @Predicate annotation instead of @Function. Anno
 ####1.0.3: Minor improvements
 
 ####MapMultimap data structure
-Another type-aware collection, this is a "map of maps".
+Another type-aware collection, a "map of maps".
 
      val map = new MapMultimap<String, String, Integer>() {};
      map.put("Male", "Nick", 18);

@@ -895,7 +895,7 @@ public final class StringUtils
   }
 
   /**
-   * Strips all characters from the start of the given string, until the except character is encountered
+   * Crops all characters from the start of the given string, until the except character is encountered
    * 
    * @throws NullPointerException An argument is null
    */
@@ -905,7 +905,7 @@ public final class StringUtils
   }
 
   /**
-   * Strips all characters from the start of the given string, until a character is encountered which exists in the given exception array
+   * Crops all characters from the start of the given string, until a character is encountered which exists in the given exception array
    * 
    * @throws NullPointerException An argument is null
    */
@@ -924,7 +924,7 @@ public final class StringUtils
   }
 
   /**
-   * Strips all characters from the end of the given string, until the except character is encountered
+   * Crops all characters from the end of the given string, until the except character is encountered
    * 
    * @throws NullPointerException An argument is null
    */
@@ -934,7 +934,7 @@ public final class StringUtils
   }
 
   /**
-   * Strips all characters from the end of the given string, until a character is encountered which exists in the given exception array
+   * Crops all characters from the end of the given string, until a character is encountered which exists in the given exception array
    * 
    * @throws NullPointerException An argument is null
    */
@@ -974,8 +974,8 @@ public final class StringUtils
     if (text == null)
       throw new NullPointerException("text");
 
-    int crs = StringUtils.count(text, CONSTANT.CR, StringComparison.Ordinal);
-    int lfs = StringUtils.count(text, CONSTANT.LF, StringComparison.Ordinal);
+    int crs = count(text, CONSTANT.CR_CHAR);
+    int lfs = count(text, CONSTANT.LF_CHAR);
 
     // multiply to ensure random CR/LFs used in source do not affect the outcome
     if (crs > lfs * ratio)

@@ -1212,9 +1212,8 @@ public final class ReflectionUtils
       return false;
 
     String methodName = method.getName();
-    if (methodName.length() >= 4)
-      // bean syntax for getters
-      if (methodName.startsWith("get"))
+    // bean syntax for getters
+    if (((methodName.length() >= 4) && methodName.startsWith("get")) || ((methodName.length() >= 3) && methodName.startsWith("is"))) 
         // must have non-void return type and no arguments
         if (!isReturnTypeVoid(method))
           if (method.getParameterTypes().length == 0)

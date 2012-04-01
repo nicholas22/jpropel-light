@@ -666,22 +666,6 @@ public final class ArrayUtils
   }
 
   /**
-   * Removes the first encounter of element from the given array, returning an new array if found. Otherwise returns a copy of the array
-   * containing all original items.
-   * 
-   * @throws NullPointerException Array is null.
-   */
-  public static <T> T[] remove(T[] array, T element)
-  {
-    if (array == null)
-      throw new NullPointerException("array");
-
-    ReifiedArrayList<T> list = new ReifiedArrayList<T>(array);
-    list.remove(element);
-    return list.toArray();
-  }
-
-  /**
    * Adds an element to the given array, at position 0
    * 
    * @throws NullPointerException Array is null.
@@ -696,6 +680,22 @@ public final class ArrayUtils
     System.arraycopy(array, 0, result, 1, array.length);
     result[0] = element;
     return result;
+  }
+  
+  /**
+   * Removes the first encounter of element from the given array, returning an new array if found. Otherwise returns a copy of the array
+   * containing all original items.
+   * 
+   * @throws NullPointerException Array is null.
+   */
+  public static <T> T[] remove(T[] array, T element)
+  {
+    if (array == null)
+      throw new NullPointerException("array");
+
+    ReifiedArrayList<T> list = new ReifiedArrayList<T>(array);
+    list.remove(element);
+    return list.toArray();
   }
 
   /**

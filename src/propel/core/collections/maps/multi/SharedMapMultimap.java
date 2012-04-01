@@ -42,7 +42,7 @@ public class SharedMapMultimap<T extends Comparable<? super T>, K extends Compar
 {
   private final ConcurrentNavigableMap<T, ConcurrentNavigableMap<K, V>> map;
   private final Class<?> keyType;
-  private final Class<?> subKeyType;
+  private final Class<?> subkeyType;
   private final Class<?> valueType;
 
   /**
@@ -53,7 +53,7 @@ public class SharedMapMultimap<T extends Comparable<? super T>, K extends Compar
   public SharedMapMultimap()
   {
     keyType = SuperTypeToken.getClazz(this.getClass(), 0);
-    subKeyType = SuperTypeToken.getClazz(this.getClass(), 1);
+    subkeyType = SuperTypeToken.getClazz(this.getClass(), 1);
     valueType = SuperTypeToken.getClazz(this.getClass(), 2);
 
     map = new ConcurrentSkipListMap<T, ConcurrentNavigableMap<K, V>>();
@@ -65,10 +65,10 @@ public class SharedMapMultimap<T extends Comparable<? super T>, K extends Compar
    * @throws NullPointerException When the generic type parameter is null.
    */
   @Validate
-  public SharedMapMultimap(@NotNull final Class<?> keyType, @NotNull final Class<?> subKeyType, @NotNull final Class<?> valueType)
+  public SharedMapMultimap(@NotNull final Class<?> keyType, @NotNull final Class<?> subkeyType, @NotNull final Class<?> valueType)
   {
     this.keyType = keyType;
-    this.subKeyType = subKeyType;
+    this.subkeyType = subkeyType;
     this.valueType = valueType;
 
     map = new ConcurrentSkipListMap<T, ConcurrentNavigableMap<K, V>>();
@@ -230,13 +230,13 @@ public class SharedMapMultimap<T extends Comparable<? super T>, K extends Compar
    */
   @Override
   @Validate
-  public V put(@NotNull final T key, @NotNull final K subKey, V value)
+  public V put(@NotNull final T key, @NotNull final K subkey, V value)
   {
     ConcurrentSkipListMap<K, V> newer = new ConcurrentSkipListMap<K, V>();
     ConcurrentNavigableMap<K, V> m = map.putIfAbsent(key, newer);
     if (m == null)
       m = newer;
-    return m.put(subKey, value);
+    return m.put(subkey, value);
   }
 
   /**
@@ -244,13 +244,13 @@ public class SharedMapMultimap<T extends Comparable<? super T>, K extends Compar
    */
   @Override
   @Validate
-  public V putIfAbsent(@NotNull final T key, @NotNull final K subKey, V value)
+  public V putIfAbsent(@NotNull final T key, @NotNull final K subkey, V value)
   {
     ConcurrentSkipListMap<K, V> newer = new ConcurrentSkipListMap<K, V>();
     ConcurrentNavigableMap<K, V> m = map.putIfAbsent(key, newer);
     if (m == null)
       m = newer;
-    return m.putIfAbsent(subKey, value);
+    return m.putIfAbsent(subkey, value);
   }
 
   /**
@@ -395,7 +395,7 @@ public class SharedMapMultimap<T extends Comparable<? super T>, K extends Compar
   @Override
   public Class<?> getGenericTypeParameterSubKey()
   {
-    return subKeyType;
+    return subkeyType;
   }
 
   /**

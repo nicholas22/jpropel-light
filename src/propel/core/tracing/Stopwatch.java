@@ -19,7 +19,7 @@
 package propel.core.tracing;
 
 /**
- * Stop watch class for measuring time taken to execute some code. This is not a thread-safe class.
+ * High-precision stop watch class for measuring time taken to execute some code. This is not a thread-safe class.
  */
 public class Stopwatch
 {
@@ -60,7 +60,7 @@ public class Stopwatch
   }
 
   /**
-   * Stops the stop watch.
+   * Stops the stop watch
    * 
    * @throws IllegalStateException If the stop watch is not stopped
    */
@@ -83,6 +83,16 @@ public class Stopwatch
 
     totalNanos = 0;
   }
+  
+  /**
+   * Restarts the stop watch
+   */
+  public void restart()
+  {
+    totalNanos = 0;
+    isRunning = true;
+    currentNanos = System.nanoTime();
+  }
 
   /**
    * Returns the total elapsed nanosecond count.
@@ -96,7 +106,7 @@ public class Stopwatch
   }
 
   /**
-   * Returns the approximate total elapsed microsecond count.
+   * Returns the approximate total elapsed microsecond count
    */
   public long getElapsedMicros()
   {
@@ -104,7 +114,7 @@ public class Stopwatch
   }
 
   /**
-   * Returns the approximate total elapsed millisecond count.
+   * Returns the approximate total elapsed millisecond count
    */
   public long getElapsedMillis()
   {
@@ -112,7 +122,7 @@ public class Stopwatch
   }
 
   /**
-   * Returns the approximate total elapsed second count.
+   * Returns the approximate total elapsed second count
    */
   public long getElapsedSeconds()
   {

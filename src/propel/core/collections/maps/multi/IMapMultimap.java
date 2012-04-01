@@ -23,7 +23,7 @@ import java.util.Set;
 import propel.core.collections.maps.multi.ReifiedMultimap;
 
 /**
- * Interface of a MapMultimap (a map of maps). TODO: MapMultimap to inherit from this and use @Override on overridden methods!
+ * Interface of a MapMultimap (a map of maps).
  */
 public interface IMapMultimap<T extends Comparable<? super T>, K extends Comparable<? super K>, V>
     extends ReifiedMultimap<T, K, V>
@@ -106,7 +106,7 @@ public interface IMapMultimap<T extends Comparable<? super T>, K extends Compara
    * 
    * @throws NullPointerException A key or sub-key is null
    */
-  V put(T key, K subKey, V value);
+  V put(T key, K subkey, V value);
 
   /**
    * Removes a key/sub-key tuple value. Returns the removed value, or null if no such key/sub-key tuple existed.

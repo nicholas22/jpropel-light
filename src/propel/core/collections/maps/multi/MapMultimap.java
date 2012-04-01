@@ -40,23 +40,23 @@ public class MapMultimap<T extends Comparable<? super T>, K extends Comparable<?
 {
   private final Map<T, Map<K, V>> map;
   private final Class<?> keyType;
-  private final Class<?> subKeyType;
+  private final Class<?> subkeyType;
   private final Class<?> valueType;
 
   public MapMultimap()
   {
     keyType = SuperTypeToken.getClazz(this.getClass(), 0);
-    subKeyType = SuperTypeToken.getClazz(this.getClass(), 1);
+    subkeyType = SuperTypeToken.getClazz(this.getClass(), 1);
     valueType = SuperTypeToken.getClazz(this.getClass(), 2);
 
     map = new TreeMap<T, Map<K, V>>();
   }
 
   @Validate
-  public MapMultimap(@NotNull final Class<?> keyType, @NotNull final Class<?> subKeyType, @NotNull final Class<?> valueType)
+  public MapMultimap(@NotNull final Class<?> keyType, @NotNull final Class<?> subkeyType, @NotNull final Class<?> valueType)
   {
     this.keyType = keyType;
-    this.subKeyType = subKeyType;
+    this.subkeyType = subkeyType;
     this.valueType = valueType;
 
     map = new TreeMap<T, Map<K, V>>();
@@ -209,12 +209,12 @@ public class MapMultimap<T extends Comparable<? super T>, K extends Comparable<?
    */
   @Override
   @Validate
-  public V put(@NotNull final T key, @NotNull final K subKey, V value)
+  public V put(@NotNull final T key, @NotNull final K subkey, V value)
   {
     if (!map.containsKey(key))
       map.put(key, new TreeMap<K, V>());
 
-    return map.get(key).put(subKey, value);
+    return map.get(key).put(subkey, value);
   }
 
   /**
@@ -354,7 +354,7 @@ public class MapMultimap<T extends Comparable<? super T>, K extends Comparable<?
   @Override
   public Class<?> getGenericTypeParameterSubKey()
   {
-    return subKeyType;
+    return subkeyType;
   }
 
   /**
