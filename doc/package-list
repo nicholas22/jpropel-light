@@ -2,12 +2,15 @@ propel.core
 propel.core.collections
 propel.core.collections.arrays
 propel.core.collections.buffers
+propel.core.collections.buffers.primitive
 propel.core.collections.lists
+propel.core.collections.lists.primitive
 propel.core.collections.maps
 propel.core.collections.maps.avl
 propel.core.collections.maps.bi
 propel.core.collections.maps.combinational
 propel.core.collections.maps.multi
+propel.core.collections.maps.primitive
 propel.core.collections.queues
 propel.core.collections.sets
 propel.core.collections.stacks
@@ -18,6 +21,7 @@ propel.core.functional.predicates
 propel.core.functional.projections
 propel.core.functional.tuples
 propel.core.model
+propel.core.tracing
 propel.core.transactional
 propel.core.userTypes
 propel.core.utils
