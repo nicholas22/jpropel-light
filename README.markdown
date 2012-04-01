@@ -225,6 +225,12 @@ Finally, another nice feature is a validation framework, where you define your P
 
 
 
+## PropelS
+
+A [Scala port of JPropel](https://github.com/nicholas22/propels) has been started!
+
+
+
 ##Lombok-pg
 
 JPropel and JPropel-light depend on the [lombok-pg](https://github.com/peichhorn/lombok-pg) library. 
