@@ -251,6 +251,7 @@ Added EnvironmentUtils utility class, allows for altering JVM env. vars at run-t
 Added Stopwatch.restart() convenience method.  
 Added Iterable validator (IterablePropertyMetadata)  
 Added URL validator (URLPropertyMetadata)  
+Added a few commonly used predicates (propel.core.functional.predicates.*)
 StackTraceLogger now has configurable level, showing minimal, abbreviated or full trace.  
 Fixed inaccurate comments in NumericUtils, StringUtils, Linq, etc.  
 Linq unzip() and partition() methods added. Bug-fixing (ofType, orderByThenBy, skip)  
