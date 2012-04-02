@@ -32,6 +32,50 @@ public final class Strings
   }
 
   /**
+   * Predicate returning true when the function argument contains some string
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static boolean contains(String element, String _part)
+  {
+    return StringUtils.contains(element, _part, StringComparison.Ordinal);
+  }
+
+  /**
+   * Predicate returning true when the function argument contains some string
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static boolean contains(String element, String _part, StringComparison _comparison)
+  {
+    return StringUtils.contains(element, _part, _comparison);
+  }
+
+  /**
+   * Predicate returning true when the function argument ends with a suffix
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static boolean endsWith(String element, String _suffix)
+  {
+    return StringUtils.endsWith(element, _suffix, StringComparison.Ordinal);
+  }
+
+  /**
+   * Predicate returning true when the function argument ends with a suffix
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static boolean endsWith(String element, String _suffix, StringComparison _comparison)
+  {
+    return StringUtils.endsWith(element, _suffix, _comparison);
+  }
+
+  /**
    * Predicate returning true when the function argument is empty
    * 
    * @throws NullPointerException When an argument is null
@@ -40,6 +84,28 @@ public final class Strings
   public static boolean isEmpty(String element)
   {
     return element.isEmpty();
+  }
+
+  /**
+   * Predicate returning true when the function argument is equal to some string
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static boolean isEqual(String element, String _other)
+  {
+    return StringUtils.equal(element, _other, StringComparison.Ordinal);
+  }
+
+  /**
+   * Predicate returning true when the function argument is equal to some string
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static boolean isEqual(String element, String _other, StringComparison _comparison)
+  {
+    return StringUtils.equal(element, _other, _comparison);
   }
 
   /**
@@ -87,6 +153,138 @@ public final class Strings
   }
 
   /**
+   * Predicate returning true when the function argument has a specified length
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static boolean lengthEquals(String element, int _len)
+  {
+    return element.length() == _len;
+  }
+
+  /**
+   * Predicate returning true when the function argument has a length greater than specified
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static boolean lengthGreaterThan(String element, int _len)
+  {
+    return element.length() > _len;
+  }
+
+  /**
+   * Predicate returning true when the function argument has a length greater than or equal to specified
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static boolean lengthGreaterThanOrEqual(String element, int _len)
+  {
+    return element.length() >= _len;
+  }
+
+  /**
+   * Predicate returning true when the function argument has a length less than specified
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static boolean lengthLessThan(String element, int _len)
+  {
+    return element.length() < _len;
+  }
+
+  /**
+   * Predicate returning true when the function argument has a length less than or equal to specified
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static boolean lengthLessThanOrEqual(String element, int _len)
+  {
+    return element.length() <= _len;
+  }
+
+  /**
+   * Predicate returning true when the function argument does not have a specified length
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static boolean lengthNotEqual(String element, int _len)
+  {
+    return element.length() != _len;
+  }
+
+  /**
+   * Predicate returning true when the function argument does not contain some string
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static boolean notContains(String element, String _part)
+  {
+    return !StringUtils.contains(element, _part, StringComparison.Ordinal);
+  }
+
+  /**
+   * Predicate returning true when the function argument does not contain some string
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static boolean notContains(String element, String _part, StringComparison _comparison)
+  {
+    return !StringUtils.contains(element, _part, _comparison);
+  }
+
+  /**
+   * Predicate returning true when the function argument does not end with a suffix
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static boolean notEndsWith(String element, String _suffix)
+  {
+    return !StringUtils.endsWith(element, _suffix, StringComparison.Ordinal);
+  }
+
+  /**
+   * Predicate returning true when the function argument does not end with a suffix
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static boolean notEndsWith(String element, String _suffix, StringComparison _comparison)
+  {
+    return !StringUtils.endsWith(element, _suffix, _comparison);
+  }
+
+  /**
+   * Predicate returning true when the function argument does not start with a prefix
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static boolean notStartsWith(String element, String _prefix)
+  {
+    return !StringUtils.startsWith(element, _prefix, StringComparison.Ordinal);
+  }
+
+  /**
+   * Predicate returning true when the function argument does not start with a prefix
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static boolean notStartsWith(String element, String _prefix, StringComparison _comparison)
+  {
+    return !StringUtils.startsWith(element, _prefix, _comparison);
+  }
+
+  /**
    * Predicate returning true when the function argument starts with a prefix
    * 
    * @throws NullPointerException When an argument is null
@@ -109,72 +307,6 @@ public final class Strings
   }
 
   /**
-   * Predicate returning true when the function argument ends with a suffix
-   * 
-   * @throws NullPointerException When an argument is null
-   */
-  @Predicate
-  public static boolean endsWith(String element, String _suffix)
-  {
-    return StringUtils.endsWith(element, _suffix, StringComparison.Ordinal);
-  }
-
-  /**
-   * Predicate returning true when the function argument ends with a suffix
-   * 
-   * @throws NullPointerException When an argument is null
-   */
-  @Predicate
-  public static boolean endsWith(String element, String _suffix, StringComparison _comparison)
-  {
-    return StringUtils.endsWith(element, _suffix, _comparison);
-  }
-
-  /**
-   * Predicate returning true when the function argument contains some string
-   * 
-   * @throws NullPointerException When an argument is null
-   */
-  @Predicate
-  public static boolean contains(String element, String _part)
-  {
-    return StringUtils.contains(element, _part, StringComparison.Ordinal);
-  }
-
-  /**
-   * Predicate returning true when the function argument contains some string
-   * 
-   * @throws NullPointerException When an argument is null
-   */
-  @Predicate
-  public static boolean contains(String element, String _part, StringComparison _comparison)
-  {
-    return StringUtils.contains(element, _part, _comparison);
-  }
-
-  /**
-   * Predicate returning true when the function argument is equal to some string
-   * 
-   * @throws NullPointerException When an argument is null
-   */
-  @Predicate
-  public static boolean isEqual(String element, String _other)
-  {
-    return StringUtils.equal(element, _other, StringComparison.Ordinal);
-  }
-
-  /**
-   * Predicate returning true when the function argument is equal to some string
-   * 
-   * @throws NullPointerException When an argument is null
-   */
-  @Predicate
-  public static boolean isEqual(String element, String _other, StringComparison _comparison)
-  {
-    return StringUtils.equal(element, _other, _comparison);
-  }
-
-  /**
    * Predicate returning true always, can be used to print out all elements in an all() Linq statement
    * 
    * @throws NullPointerException When an argument is null
@@ -185,7 +317,7 @@ public final class Strings
     System.out.println(element);
     return true;
   }
-  
+
   /**
    * Predicate returning true always, can be used to print out all elements in an all() Linq statement
    * 

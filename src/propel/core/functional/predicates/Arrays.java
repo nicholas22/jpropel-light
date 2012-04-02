@@ -61,6 +61,27 @@ public final class Arrays
   }
 
   /**
+   * Predicate returning true when the function argument is equal to another array
+   */
+  @Predicate
+  public static <T> boolean equal(T[] element, T[] _value)
+  {
+    if (element == null)
+    {
+      if (_value == null)
+        return true;
+      else
+        return false;
+    } else
+    {
+      if (_value == null)
+        return false;
+      else
+        return java.util.Arrays.equals(element, _value);
+    }
+  }
+  
+  /**
    * Predicate returning true when the function argument is empty
    * 
    * @throws NullPointerException When an argument is null
@@ -81,26 +102,71 @@ public final class Arrays
   {
     return element.length > 0;
   }
-
+  
   /**
-   * Predicate returning true when the function argument is equal to another array
+   * Predicate returning true when the length equals to specified value
+   * 
+   * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static <T> boolean equal(T[] element, T[] _value)
+  public static <T> boolean lengthEquals(T[] element, int _len)
   {
-    if (element == null)
-    {
-      if (_value == null)
-        return true;
-      else
-        return false;
-    } else
-    {
-      if (_value == null)
-        return false;
-      else
-        return java.util.Arrays.equals(element, _value);
-    }
+    return element.length == _len;
+  }
+
+  /**
+   * Predicate returning true when the length is greater than a specified value
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static <T> boolean lengthGreaterThan(T[] element, int _len)
+  {
+    return element.length > _len;
+  }
+
+  /**
+   * Predicate returning true when the length is greater than or equal to a specified value
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static <T> boolean lengthGreaterThanOrEqual(T[] element, int _len)
+  {
+    return element.length >= _len;
+  }
+
+  /**
+   * Predicate returning true when the length is less than a specified value
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static <T> boolean lengthLessThan(T[] element, int _len)
+  {
+    return element.length < _len;
+  }
+
+  /**
+   * Predicate returning true when the length is less than or equal to a specified value
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static <T> boolean lengthLessThanOrEqual(T[] element, int _len)
+  {
+    return element.length <= _len;
+  }
+
+  /**
+   * Predicate returning true when the length is not equal to a specified value
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static <T> boolean lengthNotEqual(T[] element, int _len)
+  {
+    return element.length != _len;
   }
 
   /**

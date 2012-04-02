@@ -1861,7 +1861,7 @@ public final class Linq
       }
       catch(ClassCastException e)
       {
-        
+
       }
     }
   }
@@ -1885,8 +1885,7 @@ public final class Linq
         result.add(temp);
       }
       catch(ClassCastException e)
-      {
-      }
+      {}
     }
 
     return result.toArray();
@@ -2129,6 +2128,44 @@ public final class Linq
         result.addAll(list);
 
     return result.toArray();
+  }
+
+  /**
+   * Partitions the given values based on a predicate. Matching values are first, non-matching second.
+   * 
+   * @throws NullPointerException The values argument is null.
+   */
+  public static <T> Pair<Iterable<T>, Iterable<T>> partition(@NotNull final Iterable<T> values, @NotNull final Predicate1<T> predicate)
+  {
+    List<T> matching = new ArrayList<T>(DEFAULT_LIST_SIZE);
+    List<T> nonMatching = new ArrayList<T>(DEFAULT_LIST_SIZE);
+
+    for (T item : values)
+      if (predicate.evaluate(item))
+        matching.add(item);
+      else
+        nonMatching.add(item);
+
+    return new Pair<Iterable<T>, Iterable<T>>(matching, nonMatching);
+  }
+
+  /**
+   * Partitions the given values based on a predicate. Matching values are first, non-matching second.
+   * 
+   * @throws NullPointerException The values argument is null.
+   */
+  public static <T> Pair<T[], T[]> partition(@NotNull final T[] values, @NotNull final Predicate1<T> predicate)
+  {
+    ReifiedList<T> matching = new ReifiedArrayList<T>(DEFAULT_LIST_SIZE, values.getClass().getComponentType());
+    ReifiedList<T> nonMatching = new ReifiedArrayList<T>(DEFAULT_LIST_SIZE, values.getClass().getComponentType());
+
+    for (T item : values)
+      if (predicate.evaluate(item))
+        matching.add(item);
+      else
+        nonMatching.add(item);
+
+    return new Pair<T[], T[]>(matching.toArray(), nonMatching.toArray());
   }
 
   /**
@@ -2504,10 +2541,10 @@ public final class Linq
     // skip phase
     int skipped = 0;
     Iterator<T> iterator = values.iterator();
-    while(iterator.hasNext() && skipped < count)
+    while (iterator.hasNext() && skipped < count)
     {
-        iterator.next();
-        skipped++;
+      iterator.next();
+      skipped++;
     }
 
     // return remaining phase
@@ -3088,38 +3125,40 @@ public final class Linq
       return distinct(union, comparer);
     }
   }
-  
+
   /**
    * Performs the reverse operation to zip()
-   *
+   * 
    * @throws NullPointerException When an argument is null
    */
   @Validate
-  public static <T, TResult1, TResult2> Iterable<Pair<TResult1, TResult2>> unzip(@NotNull final Iterable<T> values, @NotNull final Function1<T, Pair<TResult1, TResult2>> func)
+  public static <T, TResult1, TResult2> Iterable<Pair<TResult1, TResult2>>
+      unzip(@NotNull final Iterable<T> values, @NotNull final Function1<T, Pair<TResult1, TResult2>> func)
   {
-  List<Pair<TResult1, TResult2>> result = new ArrayList<Pair<TResult1, TResult2>>(DEFAULT_LIST_SIZE);
-    
-  for (T item : values)
-    result.add(func.apply(item));
-      
+    List<Pair<TResult1, TResult2>> result = new ArrayList<Pair<TResult1, TResult2>>(DEFAULT_LIST_SIZE);
+
+    for (T item : values)
+      result.add(func.apply(item));
+
     return result;
   }
-  
+
   /**
    * Performs the reverse operation to zip()
-   *
+   * 
    * @throws NullPointerException When an argument is null
    */
   @Validate
-  public static <T, TResult1, TResult2> Pair<TResult1, TResult2>[] unzip(@NotNull final T[] values, @NotNull final Function1<T, Pair<TResult1, TResult2>> func)
+  public static <T, TResult1, TResult2> Pair<TResult1, TResult2>[] unzip(@NotNull final T[] values,
+                                                                         @NotNull final Function1<T, Pair<TResult1, TResult2>> func)
   {
-  ReifiedList<Pair<TResult1, TResult2>> result = new ReifiedArrayList<Pair<TResult1, TResult2>>(DEFAULT_LIST_SIZE, values.getClass().getComponentType());
-    
-  for (T item : values)
-    result.add(func.apply(item));
-      
+    ReifiedList<Pair<TResult1, TResult2>> result = new ReifiedArrayList<Pair<TResult1, TResult2>>(DEFAULT_LIST_SIZE, Pair.class);
+
+    for (T item : values)
+      result.add(func.apply(item));
+
     return result.toArray();
-  }  
+  }
 
   /**
    * Returns a subset of the provided sequence, which conforms to the given predicate i.e. acts like a Where LINQ function It will never

@@ -34,129 +34,43 @@ public final class Objects
   }
 
   /**
-   * Predicate returning true when the function argument is equal to a value
-   */
-  @Predicate
-  public static boolean equal(Object element, Object _value)
-  {
-    if (element == null)
-    {
-      if (_value == null)
-        return true;
-      else
-        return false;
-    } else
-    {
-      if (_value == null)
-        return false;
-      else
-        return element.equals(_value);
-    }
-  }
-
-  /**
-   * Predicate returning true when the function argument is not equal to a value
-   */
-  @Predicate
-  public static boolean notEqual(Object element, Object _value)
-  {
-    if (element == null)
-    {
-      if (_value == null)
-        return false;
-      else
-        return true;
-    } else
-    {
-      if (_value == null)
-        return true;
-      else
-        return !element.equals(_value);
-    }
-  }
-
-  /**
-   * Predicate returning true when the function argument is greater than a value
+   * Predicate returning true when the function argument's toString() contains some string
    * 
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static <T extends Comparable<T>> boolean greaterThan(T element, T _value)
+  public static boolean contains(Object element, String _part)
   {
-    return element.compareTo(_value) > 0;
+    return StringUtils.contains(element.toString(), _part, StringComparison.Ordinal);
   }
 
   /**
-   * Predicate returning true when the function argument is less than a value
+   * Predicate returning true when the function argument's toString() contains some string
    * 
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static <T extends Comparable<T>> boolean lessThan(T element, T _value)
+  public static boolean contains(Object element, String _part, StringComparison _comparison)
   {
-    return element.compareTo(_value) < 0;
+    return StringUtils.contains(element.toString(), _part, _comparison);
   }
 
   /**
-   * Predicate returning true when the function argument is greater than or equal to a value
-   * 
-   * @throws NullPointerException When an argument is null
+   * Predicate returning true if an element is contained in the function argument (Array)
    */
   @Predicate
-  public static <T extends Comparable<T>> boolean greaterThanOrEqual(T element, T _value)
+  public static <T> boolean containedIn(T element, T[] _elements)
   {
-    return element.compareTo(_value) >= 0;
+    return Linq.contains(_elements, element);
   }
 
   /**
-   * Predicate returning true when the function argument is less than or equal to a value
-   * 
-   * @throws NullPointerException When an argument is null
+   * Predicate returning true if an element is contained in the function argument (Iterable)
    */
   @Predicate
-  public static <T extends Comparable<T>> boolean lessThanOrEqual(T element, T _value)
+  public static <T> boolean containedBy(T element, Iterable<T> _elements)
   {
-    return element.compareTo(_value) <= 0;
-  }
-
-  /**
-   * Predicate returning true when the function argument is null
-   */
-  @Predicate
-  public static boolean isNull(Object element)
-  {
-    return element == null;
-  }
-
-  /**
-   * Predicate returning true when the function argument is not null
-   */
-  @Predicate
-  public static boolean isNotNull(Object element)
-  {
-    return element != null;
-  }
-
-  /**
-   * Predicate returning true when the function argument's toString() starts with a prefix
-   * 
-   * @throws NullPointerException When an argument is null
-   */
-  @Predicate
-  public static boolean startsWith(Object element, String _prefix)
-  {
-    return StringUtils.startsWith(element.toString(), _prefix, StringComparison.Ordinal);
-  }
-
-  /**
-   * Predicate returning true when the function argument's toString() starts with a prefix
-   * 
-   * @throws NullPointerException When an argument is null
-   */
-  @Predicate
-  public static boolean startsWith(Object element, String _prefix, StringComparison _comparison)
-  {
-    return StringUtils.startsWith(element.toString(), _prefix, _comparison);
+    return Linq.contains(_elements, element);
   }
 
   /**
@@ -182,43 +96,46 @@ public final class Objects
   }
 
   /**
-   * Predicate returning true if an element is contained in the function argument (Array)
+   * Predicate returning true when the function argument is equal to a value
    */
   @Predicate
-  public static <T> boolean containedIn(T element, T[] _elements)
+  public static boolean equal(Object element, Object _value)
   {
-    return Linq.contains(_elements, element);
+    if (element == null)
+    {
+      if (_value == null)
+        return true;
+      else
+        return false;
+    } else
+    {
+      if (_value == null)
+        return false;
+      else
+        return element.equals(_value);
+    }
   }
 
   /**
-   * Predicate returning true if an element is contained in the function argument (Iterable)
-   */
-  @Predicate
-  public static <T> boolean containedBy(T element, Iterable<T> _elements)
-  {
-    return Linq.contains(_elements, element);
-  }
-
-  /**
-   * Predicate returning true when the function argument's toString() contains some string
+   * Predicate returning true when the function argument is greater than a value
    * 
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean contains(Object element, String _part)
+  public static <T extends Comparable<T>> boolean greaterThan(T element, T _value)
   {
-    return StringUtils.contains(element.toString(), _part, StringComparison.Ordinal);
+    return element.compareTo(_value) > 0;
   }
 
   /**
-   * Predicate returning true when the function argument's toString() contains some string
+   * Predicate returning true when the function argument is greater than or equal to a value
    * 
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean contains(Object element, String _part, StringComparison _comparison)
+  public static <T extends Comparable<T>> boolean greaterThanOrEqual(T element, T _value)
   {
-    return StringUtils.contains(element.toString(), _part, _comparison);
+    return element.compareTo(_value) >= 0;
   }
 
   /**
@@ -241,30 +158,6 @@ public final class Objects
   public static boolean isEqual(Object element, String _other, StringComparison _comparison)
   {
     return StringUtils.equal(element.toString(), _other, _comparison);
-  }
-
-  /**
-   * Predicate returning true always, can be used to print out all elements in an all() Linq statement
-   * 
-   * @throws NullPointerException When an argument is null
-   */
-  @Predicate
-  public static boolean println(Object element)
-  {
-    System.out.println(element);
-    return true;
-  }
-  
-  /**
-   * Predicate returning true always, can be used to print out all elements in an all() Linq statement
-   * 
-   * @throws NullPointerException When an argument is null
-   */
-  @Predicate
-  public static boolean print(Object element)
-  {
-    System.out.print(element);
-    return true;
   }
 
   /**
@@ -301,4 +194,112 @@ public final class Objects
   {
     return ReflectionUtils.instanceOf(obj.getClass(), _class);
   }
+
+  /**
+   * Predicate returning true when the function argument is null
+   */
+  @Predicate
+  public static boolean isNull(Object element)
+  {
+    return element == null;
+  }
+
+  /**
+   * Predicate returning true when the function argument is not null
+   */
+  @Predicate
+  public static boolean isNotNull(Object element)
+  {
+    return element != null;
+  }
+
+  /**
+   * Predicate returning true always, can be used to print out all elements in an all() Linq statement
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static boolean println(Object element)
+  {
+    System.out.println(element);
+    return true;
+  }
+
+  /**
+   * Predicate returning true always, can be used to print out all elements in an all() Linq statement
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static boolean print(Object element)
+  {
+    System.out.print(element);
+    return true;
+  }
+
+  /**
+   * Predicate returning true when the function argument is less than a value
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static <T extends Comparable<T>> boolean lessThan(T element, T _value)
+  {
+    return element.compareTo(_value) < 0;
+  }
+
+  /**
+   * Predicate returning true when the function argument is less than or equal to a value
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static <T extends Comparable<T>> boolean lessThanOrEqual(T element, T _value)
+  {
+    return element.compareTo(_value) <= 0;
+  }
+
+  /**
+   * Predicate returning true when the function argument is not equal to a value
+   */
+  @Predicate
+  public static boolean notEqual(Object element, Object _value)
+  {
+    if (element == null)
+    {
+      if (_value == null)
+        return false;
+      else
+        return true;
+    } else
+    {
+      if (_value == null)
+        return true;
+      else
+        return !element.equals(_value);
+    }
+  }
+
+  /**
+   * Predicate returning true when the function argument's toString() starts with a prefix
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static boolean startsWith(Object element, String _prefix)
+  {
+    return StringUtils.startsWith(element.toString(), _prefix, StringComparison.Ordinal);
+  }
+
+  /**
+   * Predicate returning true when the function argument's toString() starts with a prefix
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static boolean startsWith(Object element, String _prefix, StringComparison _comparison)
+  {
+    return StringUtils.startsWith(element.toString(), _prefix, _comparison);
+  }
+
 }
