@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="JPropel-light : Leaner version of jpropel, containing only LINQ, reified collections and utilities for arrays/strings/numerics/files/xml etc." />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>JPropel-light</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/nicholas22/jpropel-light">Fork Me on GitHub</a>
+
+          <h1 id="project_title">JPropel-light</h1>
+          <h2 id="project_tagline">Leaner version of jpropel, containing only LINQ, reified collections and utilities for arrays/strings/numerics/files/xml etc.</h2>
+
+          <section id="downloads">
+            <a class="zip_download_link" href="https://github.com/nicholas22/jpropel-light/zipball/master">Download this project as a .zip file</a>
+            <a class="tar_download_link" href="https://github.com/nicholas22/jpropel-light/tarball/master">Download this project as a tar.gz file</a>
+          </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>Hi there!</h1>
+
+<p>jpropel-light is a Java library which can seriously hinder your salary if you are paid by the number of lines of code you create!</p>
+
+<pre><code>// create alphabet char[]
+char[] alphabet = new Character('A').to(new Character('Z')).unbox();
+
+// join two arrays and put in list 
+List&lt;Character&gt; allowed = alphabet.join(numbers).toList(); 
+
+// select names starting with j, using LINQ-style statements
+new String[] { "james", "john", "john", "eddie" }.where(startsWith("j")).distinct().all(println());
+</code></pre>
+
+<p>It is a free and open-source Java library aiming to cut down code bloat, boilerplate and generally the number of lines of code Java developers have to write in order to complete a task.</p>
+
+<p>It comes with full LINQ support, reified generic collections and concise one-liners for performing common tasks such as reading an entire text file into memory, array manipulations, XML processing/querying, etc. 
+Let's examine some of them.</p>
+
+<h2>LINQ</h2>
+
+<p>A very popular language feature of C#, Language INtegrated Query adds native data querying capabilities. These can, for example, be used to project and filter data in arrays and enumerable classes (source: <a href="http://en.wikipedia.org/wiki/LINQ">LINQ</a>)</p>
+
+<pre><code>var results = someCollection.where(c =&gt; c.SomeProperty &lt; someValue * 2);
+</code></pre>
+
+<p>Here is an equivalent Java snippet:</p>
+
+<pre><code>List&lt;SomeElement&gt; results = new ArrayList&lt;SomeElement&gt;();
+for(SomeElement c : SomeCollection)
+  if(c.SomeProperty &lt; someValue * 2)
+    results.add(c);
+</code></pre>
+
+<p>This is a trivial example, but it becomes obvious that for more complex queries, such as group by, select many, etc. the code becomes much more verbose. Even the low level of verbosity shown above hides the real purpose of the snippet, so one has to read it multiple lines of code in their entirety to understand it. This gets in the way of the developer and is not good for productivity. </p>
+
+<p>So is the following <em>valid</em> Java code perhaps better?</p>
+
+<pre><code>List results = someCollection.where(propertyLessThan(someValue*2));
+</code></pre>
+
+<p>How is this possible? Well, firstly we have to import the right class, which would be the Linq class of the framework. It has implementations for all methods found in the .NET implementation such as: <a href="https://github.com/nicholas22/jpropel-light/blob/master/src/propel/core/utils/Linq.java">all, any, select, where, distinct, first, last, zip, etc.</a></p>
+
+<p>The second step is to annotate the class that contains your code with the @ExtensionMethod annotation, imported from a library called <a href="https://github.com/peichhorn/lombok-pg">lombok-pg</a>. This library makes a lot of the shown syntactic sugar possible by instructing your compiler to pre-process the class code before compiling. This is done transparently to the developer. As far as bytecode is concerned, the code is converted to standard Java calls. So for the snippet above, the code effectively becomes:</p>
+
+<pre><code>List results = Linq.where(someCollection, propertyLessThan(someValue*2));
+</code></pre>
+
+<p>This you will recognise is standard Java static method call. This is how <a href="http://en.wikipedia.org/wiki/Extension_method">extension methods</a> work under-the-hood in other languages too. 
+But crucially, you as a developer <em>do not</em> have to work as such and can be much more expressive, using a fluent API: </p>
+
+<pre><code>new String[] {"james","john","john","eddie"}.where(startsWith("j").select(toUppercase()).distinct().toList();
+</code></pre>
+
+<p>Isn't that nice? :)</p>
+
+<p>The above statement returns ["JAMES", "JOHN"] and is more readable and concise than the following equivalent (but horrible) statement:</p>
+
+<pre><code>Linq.toList(Linq.distinct(Linq.select(Linq.where(new String[] { "james","john","john","eddie"}, startsWith("j")), toUppercase())));
+</code></pre>
+
+<p>It's verbose and bug prone because it's hard to understand. Let's get back on the prettier version:</p>
+
+<pre><code>new String[] {"james","john","john","eddie"}.where(startsWith("j").select(toUppercase()).distinct().toList();
+</code></pre>
+
+<p>The other interesting with the above statement is how can we seemingly pass functions as arguments (e.g. see startsWith, toUppercase). Everyone knows that Java does not have first class functions, in other words, cannot pass methods/functions around as objects. This is another area where lombok-pg helps us, allowing for the annotation of methods/functions with <a href="/function" class="user-mention">@function</a>, enabling easier functional programming in Java. </p>
+
+<pre><code>@Function 
+private static String toUppercase(String element) { 
+   return element.toUpperCase(); 
+}
+</code></pre>
+
+<p>The above annotation will pre-process the code by wrapping the annotated function in an anonymous class, allowing us to pass it around as an object. This is what the resulting code would look like if you decompiled the class:</p>
+
+<pre><code>private static Function1&lt;String, String&gt; toUppercase(String element) {
+  return new Function1&lt;String, String&gt;() {
+    public String apply(String arg) { 
+      return element.toUpperCase(); 
+    } 
+  } 
+}
+</code></pre>
+
+<p>This is very similar to how Scala functions are implemented. You can then pass these 'functions' (which are really just Java objects / anonymous classes) around, just like you would pass objects around in other languages. And these are the types of objects that the Linq class accepts as selectors, predicates, filters, etc. Here is for example the source code of the select() method:</p>
+
+<pre><code>public static TResult[] select(final TSource[] values, final Function1&lt;TSource, TResult&gt; selector) 
+{ 
+  List result = new ArrayList(values.length); 
+
+  for(TSource item : values) 
+    result.add(selector.apply(item)); 
+
+  return toArray(result, selector.getReturnType()); 
+}
+</code></pre>
+
+<p>As you can see, all the above method does is call the apply() method of the function to extract the required data, oblivious to the actual implementation of your selector. The JPropel library comes with a number of predicates and projections built-in, such as the ones shown above e.g. startsWith, endsWith, contains, equal, etc. The Linq class static methods accept these as well as custom (written by you!) functions to perform select, where and other such operations, in a way that is suitable to your program.</p>
+
+<p>The JVM deals with anonymous classes very frequently when you code against it using languages such as Scala. A benchmark between <a href="http://www.readwriteweb.com/hack/2011/06/cpp-go-java-scala-performance-benchmark.php">C++, Go, Java and Scala</a> which made the news recently, showed that Scala's performance is very much on par with Java's. So clearly the JVM can cope with wrapping methods into anonymous classes pretty well. Therefore there is a minimal performance consideration when using such code, but you can also cache such 'functions' around when you know you will use them very frequently.</p>
+
+<p>Most Linq methods come in two flavors. One accepts generic arrays and one accepts generic Iterables. There are two reasons for this. Firstly, arrays and Iterables do not share a common super class which would allow for traversal of items. Secondly, arrays and Iterables are handled completely differently from the JPropel library perspective. </p>
+
+<p>So when you pass an array to be processed, the resulting array is allocated and all results are inserted before it is returned. This is not the case with iterables. Iterables are created using a block iterator, similarly to how yielding works in C# and is down to lombok's <a href="http://peichhorn.github.com/lombok-pg/Yield.html">yield construct</a>. This means that if you do not iterate over the entire collection, then only some of the elements are processed, which is more efficient, because it allows you, for instance, to break the iteration process without consuming as much memory and processing resources as the array would.</p>
+
+<h2>Reified generic collections</h2>
+
+<p>Generics in Java are implemented using <a href="http://en.wikipedia.org/wiki/Type_erasure">type erasure</a>. This means that generic type information is removed at run-time. A list of integers and a list of strings have the same class type in Java, which creates an interesting set of problems in areas such as overloading, instantiation and introspection. Type erasure is considered by many an inferior way of implementing generics. The subject of <a href="http://beust.com/weblog/2011/07/29/erasure-vs-reification/">erasure vs reification</a> has been covered neatly already so let's focus on what's important here. Since the JVM erases the run-time type of generics, we have to live with this. Or do we?</p>
+
+<p>Neil Gafter came up with a workaround to this problem, called <a href="http://gafter.blogspot.com/2006/11/reified-generics-for-java.html">super-type token</a>. The whole idea is based on the fact that the JVM does not erase type information of anonymous classes. Therefore if you instantiate a class using anonymous class semantics, you can query its run-time type parameter(s): </p>
+
+<pre><code>List&lt;String&gt; list = new ArrayList&lt;String&gt;() {}; // note: braces after parentheses
+</code></pre>
+
+<p>The JPropel library embraces this pattern and provides a wide array of collections that follow it, such as Lists, Maps, Hashtables and others.  This allows you to do common sense things such as:</p>
+
+<pre><code>LinkedList&lt;String&gt; list = new LinkedList&lt;String&gt;(){};
+String[] items = list.toArray();
+</code></pre>
+
+<p>With type-erased collections you would have to do nonsensical things such as: </p>
+
+<pre><code>Object[] items = list.toArray();
+</code></pre>
+
+<p>or</p>
+
+<pre><code>String[] items = list.toArray(new String[list.size()]);
+</code></pre>
+
+<p>Being able to query the run-time type parameter can bring several benefits, especially if you are creating a generic container, e.g. your own collection classes. But in such scenarios, if you have multiple layers of generic containers, you may not be able to reliably obtain the run-time type information. One example:</p>
+
+<pre><code>public class MyClass&lt;T&gt; {
+  public MyClass() {
+    List&lt;T&gt; list = new ReifiedArrayList&lt;T&gt;() {}; // no can do
+  }
+}
+</code></pre>
+
+<p>The reason this is not possible, is because the type T of MyClass is not known. In such scenarios you have to pass the type explicitly, as such:</p>
+
+<pre><code>public class MyClass&lt;T&gt; {
+  public MyClass() {
+    Class&lt;?&gt; clazz = SuperTypeToken.getClazz(this);
+    List&lt;T&gt; list = new ReifiedArrayList&lt;T&gt;(clazz) {}; // OK
+  }
+}
+</code></pre>
+
+<p>You then go ahead and instantiate MyClass using anonymous class semantics, as shown above (or pass the type explicitly if you wish). Although this is not ideal, at least it is possible to accommodate for multi-level generic containers.</p>
+
+<p>Finally, it is also possible to instantiate collections with multiple type parameters:</p>
+
+<pre><code>AvlHashtable&lt;UUID, String&gt; lookup = AvlHashtable&lt;UUID, String&gt;() {};
+Iterable&lt;UUID&gt; keys = lookup.getKeys();
+Iterable&lt;String&gt; values = lookup.getValues();
+</code></pre>
+
+<p>This is possible because the SuperTypeToken class has an overloaded method that allows you to obtain the generic run-time parameter type based on its zero-based index.</p>
+
+<h2>Fun with utilities</h2>
+
+<p>There are a lot of very concise one-liners supported by the library which allow you to focus on the task at hand instead of writing boilerplate. Here are some examples:</p>
+
+<pre><code>// create alphabet
+char[] alphabet = new Character('A').to(new Character('Z'));
+char[] numbers = new Charracter('1').to(new Character('9'));
+
+// join two arrays and put in a list
+List&lt;Character&gt; allowed = alphabet.join(numbers).toList();
+
+// load entire text file in memory
+String data = file.readFileToEnd();
+
+// append to file
+file.appendText("Some more text");
+
+// XML compacting
+String compacted = someXml.compact();
+
+// copy stream over
+inputStream.copy(outputStream);
+
+// Culture-aware case-insensitive string comparison
+boolean trueInGermany = StringUtils.equal("straße", "STRASSE", StringComparison.CurrentCultureIgnoreCase);
+
+// check if all elements are present
+boolean itsTrue = "abcdef".containsAll(new String[] {"bc", "cd"}, StringComparison.Ordinal);`
+
+// benchmark
+Stopwatch sw = Stopwatch.startNew();
+long ns = sw.getElapsedNanos();
+</code></pre>
+
+<p>There are too many utilities to cover here, around the areas of reflection, XML, conversions (e.g. binary, octal, hex, decimal, base64, etc.), character escaping, hashing, strings, etc. Have a look at the <a href="https://github.com/nicholas22/jpropel-light/tree/master/src/propel/core/utils">propel.core.utils.*</a> package for more. For more examples also see <a href="https://github.com/nicholas22/jpropel">the JPropel changelog</a> </p>
+
+<h2>JPropel</h2>
+
+<p>JPropel-light (this project!) is a lightweight version of the <a href="https://github.com/nicholas22/jpropel">JPropel</a> library. If you do not mind an extra dependency (SLF4j), have a look as it contains some extra utility functionality.</p>
+
+<p>For instance, the CryptographicString class allows you to store a secret in memory in encrypted form:</p>
+
+<pre><code>CryptographicString cs = new CryptographicString("super secret"); 
+char[] unencrypted1 = cs.asCharArray();
+byte[] unencrypted2 = cs.asByteArray();
+String unencrypted3 = cs.asString(); // beware of String interning
+</code></pre>
+
+<p>Another construct you may find interesting is the ability to trace method calls, logging all input and output data (or exceptions thrown) in a highly configurable way. This is done without any AOP library dependencies or custom AOP language.</p>
+
+<pre><code>@Trace(level=LogLevel.INFO)
+public int add(int a, int b) { 
+   return a+b;
+}
+</code></pre>
+
+<p>This allows you to focus on the task at hand without worrying if you have enough logging within a method. To enable the tracing you have to instantiate your class (perhaps via a factory newInstance() method) in a way that allows the tracing to take place:</p>
+
+<pre><code>MyInterface myClass = new Tracer&lt;MyInterface&gt;(new MyClass());
+</code></pre>
+
+<p>All calls to methods of the myClass instance that have been annotated with <a href="/trace" class="user-mention">@trace</a> will emit logging statements of all method arguments, results (if not void) and exceptions (if thrown). The logger uses  SLF4j so will plug into any popular logging library you are using. The format of messages is highly configurable as well.</p>
+
+<p>Finally, another nice feature is a validation framework, where you define your POJOs' metadata and can validate in a single line of code, removing the need for convoluted if-then-else statements sprinkled around many places in your code:</p>
+
+<pre><code>boolean notNull = true;
+boolean notEmpty = true;
+boolean notNullChars = true;
+StringPropertyMetadata name = new StringPropertyMetadata("Name", 3, 20, notNull, notEmpty, notNullChars);
+
+// perform validation
+name.validate(null); // "Name cannot be null"
+name.validate(""); // "Name cannot be empty"
+name.validate("John"); // OK
+name.validate("Jo"); // "Name cannot be 2 or fewer characters in length"
+name.validate("123456789012345678901"); // "Name cannot be 21 or more characters in length"
+</code></pre>
+
+<h2>PropelS</h2>
+
+<p>A <a href="https://github.com/nicholas22/propels">Scala port of JPropel</a> has been started!</p>
+
+<p>##Lombok-pg</p>
+
+<p>JPropel and JPropel-light depend on the <a href="https://github.com/peichhorn/lombok-pg">lombok-pg</a> library. </p>
+
+<p>If you are using an IDE such as Eclipse, Netbeans or IntelliJ, you should patch it so that it uses lombok as 
+a Java agent. The process is very simple: just double-click on the lombok.jar found in the "lib" folder. This will enable much of the syntactic sugar shown above.</p>
+
+<p>Javac and Ant do not require any patching as such.</p>
+
+<p>You may visit the <a href="http://projectlombok.org/slideshow.html">lombok</a> project website for more info, or ask <a href="https://github.com/peichhorn">Philipp</a> more about it.</p>
+
+<p>##Changelog</p>
+
+<p>####1.1.3: Minor improvements
+Included Eclipse project in sources JAR.<br>
+Added EnvironmentUtils utility class, allows for altering JVM env. vars at run-time.<br>
+Added Stopwatch.restart() convenience method.<br>
+Added Iterable validator (IterablePropertyMetadata)<br>
+Added URL validator (URLPropertyMetadata)<br>
+Added a few commonly used predicates (propel.core.functional.predicates.*)
+StackTraceLogger now has configurable level, showing minimal, abbreviated or full trace.<br>
+Fixed inaccurate comments in NumericUtils, StringUtils, Linq, etc.<br>
+Linq unzip() and partition() methods added. Bug-fixing (ofType, orderByThenBy, skip)<br>
+Using lombok-pg 0.10.8-SNAPSHOT dependency.  </p>
+
+<p>####1.1.2: Performance improvements
+LongHashMap now has very fast lookup performance and smaller memory footprint.<br>
+A way to "seal" classes and make them immutable has been added via ReflectionUtils.proxy().<br>
+It works by preventing certain methods to be called and as such guaranteeing immutability for things like collections.<br>
+Using a long-&gt;T LongHashMap and this feature, you can create a hash map that is x5 faster than ConcurrentHashMap in lookups, due to absence of locking.<br>
+See ImmutableUtils.toReadOnly() for an implementatiof of this.<br>
+Also, removed SharedLongHashMap implementation for now.  </p>
+
+<p>####1.1.1: Primitive collections and counters
+Added primitive collections: FixedSizeLongBuffer, SharedFixedSizeLongBuffer, LongHashMap, SharedLongHashMap.<br>
+Added more counters: SharedModuloIndexer, SharedModuloIndexerLight (specialised, for traversing buffers/arrays).  </p>
+
+<p>####1.1.0: bugfix &amp; clean-up
+Removed old v1.0.8 and v1.0.9 JARs.<br>
+Bugfix for StringUtils.replace()  </p>
+
+<p>####1.0.9: incremental update
+Replaces usages with StringBuilder instead of StringBuffer.<br>
+Fixed StringUtils padLeft/padRight comments.<br>
+Added projections: getClassType(), getClassName(), getClassNameSimple().<br>
+Updated Objects.* predicates to use Object instead of T where a type is not needed<br>
+(this is to alleviate some type inferencing woes with javac/ecj)<br>
+Added print() predicate to Objects and Strings classes.<br>
+Added min() and max() to Linq.<br>
+Added minOccurring() and maxOccurring() to Linq.<br>
+(using non-parallel map/reduce which could be optimised in a next version)<br>
+Upgraded to lombok-pg-0.10.4  </p>
+
+<p>####1.0.8: upgrade lib
+Upgraded to lombok-pg-0.10.2 and deployed second jar, which includes sources.  </p>
+
+<p>####1.0.7: InvokeOneArg, InvokeNoArg
+Functional invocation is now cleaner, by using static imports on methods of these two classes.  </p>
+
+<p>####1.0.6: SharedMapMultimap 
+Thread-safe version of MapMultimap (SharedMapMultimap)<br>
+Linq.single() ensuring a single element exist in an iterable/array.<br>
+StringUtils.crop() is a trim-like function where you specify which characters to leave in, rather than trim.  </p>
+
+<p>####1.0.5: Predicates split up Objects, Strings, Arrays and Iterables classes
+A breaking change for the modularization of predicates</p>
+
+<p>####1.0.4: Function1&lt;?, Boolean&gt; became Predicate1&lt;?&gt;
+A breaking change that uses the <a href="/Predicate" class="user-mention">@Predicate</a> annotation instead of <a href="/function" class="user-mention">@function</a>. Annotated methods return Predicate1&lt;?&gt; instead of Function1&lt;?, Boolean&gt;</p>
+
+<p>####1.0.3: Minor improvements</p>
+
+<p>####MapMultimap data structure
+Another type-aware collection, a "map of maps".</p>
+
+<pre><code> val map = new MapMultimap&lt;String, String, Integer&gt;() {};
+ map.put("Male", "Nick", 18);
+ map.put("Male", "John", 25);
+ map.put("Female", "Jo", 20);
+
+ // get map of all males
+ Map&lt;String, Integer&gt; males = map.get("Male");
+
+ // check if anyone is 23 years old
+ boolean notTrue = map.getValue(23);
+</code></pre>
+
+<p>####Improved extension method support for java.io.File
+Most methods in FileUtils will now accept a File object as first argument, facilitating extension method use:</p>
+
+<pre><code> // line-oriented file input
+ String[] lines = new File("myFile.txt").readFileToEnd().split("\r\n");
+</code></pre>
+
+<p>####1.0.2: New features, upgrades, etc.
+Lots of new statically importable predicates and projections:</p>
+
+<pre><code>import static propel.core.functional.predicates.Predicates.*;
+import static propel.core.functional.projections.Projections.*;
+</code></pre>
+
+<p>examples: instanceOf(), appendToFile(), copyFile, moveFile(), etc.</p>
+
+<p>####Matcher allowing for fewer if-then-else statements (beta!)</p>
+
+<pre><code>val matcher = new Matcher&lt;Object, Person&gt;();
+
+// wire-up appropriate matching conditions to handlers
+matcher.addAction(instanceOf(SalesPerson.class), salesHandler);
+matcher.addAction(instanceOf(MarketingPerson.class), marketingHandler);
+matcher.addAction(instanceOf(AdminPerson.class), adminHandler);
+
+// this is the default action, will match if nothing else matches
+matcher.setDefaultAction(throwDetailed(new Exception("An unrecognised person type was given: ")));
+</code></pre>
+
+<p>####Functional transaction manager
+A transaction manager which accepts functions as actions and rollback actions.</p>
+
+<pre><code>// we will transactionally replace a file, i.e. revert changes if something fails
+ITransactionManager tm = new TransactionManager();
+
+String originalPath = "/source/file"
+String destinationPath = "/destination/file";
+String tempPath = destinationPath + CONSTANT.DOT + RandomUtils.getPseudoAlphanumericText(16);
+
+// action is to move the file to a temporary location, upon failure move it back
+if (new File(originalPath).exists())
+  tm.add(moveFile(originalPath, tempPath), moveFile(tempPath, originalPath));
+
+// action is to append file contents, upon failure delete this new file
+tm.add(appendToFile(originalPath, xmlData), deleteFile(originalPath));
+
+// action is to delete temporary file, this is last action hence no need for recovery counter-action
+tm.add(deleteFile(tempPath));
+
+// perform operations, upon failure this will execute all rollback actions, before re-throwing
+tm.commitWithRollback();
+</code></pre>
+
+<p>####1.0.1: Added println() predicate</p>
+
+<pre><code>new String[] { "hello", "world" }.all(println());
+</code></pre>
+
+<p>####1.0.0: Creation
+Lightweight version forked from <a href="https://github.com/nicholas22/jpropel">JPropel</a></p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">JPropel-light maintained by <a href="https://github.com/nicholas22">nicholas22</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
