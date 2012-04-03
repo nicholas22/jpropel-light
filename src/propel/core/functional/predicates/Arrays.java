@@ -189,6 +189,39 @@ public final class Arrays
         return !java.util.Arrays.equals(element, _value);
     }
   }
+  
+  /**
+   * Predicate returning true when the function argument does not contain an item
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static <T> boolean notContains(T[] element, T _item)
+  {
+    return !Linq.contains(element, _item);
+  }
+
+  /**
+   * Predicate returning true when the function argument does not contain all items
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static <T> boolean notContainsAll(T[] element, T[] _items)
+  {
+    return !Linq.containsAll(element, _items);
+  }
+
+  /**
+   * Predicate returning true when the function argument does not contain any of the given items
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static <T> boolean notContainsAny(T[] element, T[] _items)
+  {
+    return !Linq.containsAny(element, _items);
+  }
 
   private Arrays()
   {

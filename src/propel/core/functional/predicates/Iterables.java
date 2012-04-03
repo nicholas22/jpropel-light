@@ -61,6 +61,27 @@ public final class Iterables
   }
 
   /**
+   * Predicate returning true when the function argument is equal to another array
+   */
+  @Predicate
+  public static <T> boolean equal(Iterable<T> element, Iterable<T> _value)
+  {
+    if (element == null)
+    {
+      if (_value == null)
+        return true;
+      else
+        return false;
+    } else
+    {
+      if (_value == null)
+        return false;
+      else
+        return Linq.sequenceEqual(element, _value);
+    }
+  }
+
+  /**
    * Predicate returning true when the function argument is empty
    * 
    * @throws NullPointerException When an argument is null
@@ -91,24 +112,69 @@ public final class Iterables
   }
 
   /**
-   * Predicate returning true when the function argument is equal to another array
+   * Predicate returning true when the length equals to specified value
+   * 
+   * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static <T> boolean equal(Iterable<T> element, Iterable<T> _value)
+  public static boolean lengthEquals(Iterable<?> element, int _len)
   {
-    if (element == null)
-    {
-      if (_value == null)
-        return true;
-      else
-        return false;
-    } else
-    {
-      if (_value == null)
-        return false;
-      else
-        return Linq.sequenceEqual(element, _value);
-    }
+    return _len >= 0 && Linq.count(element) == _len;
+  }
+
+  /**
+   * Predicate returning true when the length is greater than a specified value
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static boolean lengthGreaterThan(Iterable<?> element, int _len)
+  {
+    return _len >= 0 && Linq.count(element) > _len;
+  }
+
+  /**
+   * Predicate returning true when the length is greater than or equal to a specified value
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static boolean lengthGreaterThanOrEqual(Iterable<?> element, int _len)
+  {
+    return _len >= 0 && Linq.count(element) >= _len;
+  }
+
+  /**
+   * Predicate returning true when the length is less than a specified value
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static boolean lengthLessThan(Iterable<?> element, int _len)
+  {
+    return _len >= 0 && Linq.count(element) < _len;
+  }
+
+  /**
+   * Predicate returning true when the length is less than or equal to a specified value
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static boolean lengthLessThanOrEqual(Iterable<?> element, int _len)
+  {
+    return _len >= 0 && Linq.count(element) <= _len;
+  }
+
+  /**
+   * Predicate returning true when the length is not equal to a specified value
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static boolean lengthNotEqual(Iterable<?> element, int _len)
+  {
+    return _len >= 0 && Linq.count(element) != _len;
   }
 
   /**
@@ -130,6 +196,39 @@ public final class Iterables
       else
         return !Linq.sequenceEqual(element, _value);
     }
+  }
+  
+  /**
+   * Predicate returning true when the function argument does not contain an item
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static <T> boolean notContains(Iterable<T> element, T _item)
+  {
+    return !Linq.contains(element, _item);
+  }
+
+  /**
+   * Predicate returning true when the function argument does not contain all items
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static <T> boolean notContainsAll(Iterable<T> element, Iterable<T> _items)
+  {
+    return !Linq.containsAll(element, _items);
+  }
+
+  /**
+   * Predicate returning true when the function argument does not contain any of the given items
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static <T> boolean notContainsAny(Iterable<T> element, Iterable<T> _items)
+  {
+    return !Linq.containsAny(element, _items);
   }
 
   private Iterables()

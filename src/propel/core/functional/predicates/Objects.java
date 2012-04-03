@@ -183,7 +183,31 @@ public final class Objects
   {
     return ReflectionUtils.isImplementing(obj.getClass(), _class);
   }
-
+  
+  /**
+   * Predicate that returns true if the function argument is not a subclass of the class specified
+   * 
+   * @throws NullPointerException When an argument is null
+   * @throws IllegalArgumentException When a non-class (e.g. interface) was provided
+   */
+  @Predicate
+  public static boolean isNotExtending(Object obj, Class<?> _class)
+  {
+    return !ReflectionUtils.isExtending(obj.getClass(), _class);
+  }
+  
+  /**
+   * Predicate that returns true if the function argument is not an instance of the interface specified
+   * 
+   * @throws NullPointerException When an argument is null
+   * @throws IllegalArgumentException When a non-interface (e.g. class) was provided
+   */
+  @Predicate
+  public static boolean isNotImplementing(Object obj, Class<?> _class)
+  {
+    return !ReflectionUtils.isImplementing(obj.getClass(), _class);
+  }
+  
   /**
    * Predicate that returns true if the function argument is an instance of the class specified
    * 
@@ -258,6 +282,68 @@ public final class Objects
   {
     return element.compareTo(_value) <= 0;
   }
+  
+  /**
+   * Predicate returning true when the function argument's toString() does not contain some string
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static boolean notContains(Object element, String _part)
+  {
+    return !StringUtils.contains(element.toString(), _part, StringComparison.Ordinal);
+  }
+  
+  /**
+   * Predicate returning true when the function argument's toString() does not contain some string
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static boolean notContains(Object element, String _part, StringComparison _comparison)
+  {
+    return !StringUtils.contains(element.toString(), _part, _comparison);
+  }
+  
+  /**
+   * Predicate returning true if an element is not contained in the function argument (Array)
+   */
+  @Predicate
+  public static <T> boolean notContainedIn(T element, T[] _elements)
+  {
+    return !Linq.contains(_elements, element);
+  }
+
+  /**
+   * Predicate returning true if an element is not contained in the function argument (Iterable)
+   */
+  @Predicate
+  public static <T> boolean notContainedBy(T element, Iterable<T> _elements)
+  {
+    return !Linq.contains(_elements, element);
+  }
+  
+  /**
+   * Predicate returning true when the function argument's toString() does not end with a suffix
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static boolean notEndsWith(Object element, String _suffix)
+  {
+    return !StringUtils.endsWith(element.toString(), _suffix, StringComparison.Ordinal);
+  }
+
+  /**
+   * Predicate returning true when the function argument's toString() does not end with a suffix
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static boolean notEndsWith(Object element, String _suffix, StringComparison _comparison)
+  {
+    return !StringUtils.endsWith(element.toString(), _suffix, _comparison);
+  }
 
   /**
    * Predicate returning true when the function argument is not equal to a value
@@ -278,6 +364,39 @@ public final class Objects
       else
         return !element.equals(_value);
     }
+  }
+  
+  /**
+   * Predicate that returns true if the function argument is not an instance of the class specified
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static boolean notInstanceOf(Object obj, Class<?> _class)
+  {
+    return !ReflectionUtils.instanceOf(obj.getClass(), _class);
+  }
+  
+  /**
+   * Predicate returning true when the function argument's toString() does not start with a prefix
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static boolean notStartsWith(Object element, String _prefix)
+  {
+    return !StringUtils.startsWith(element.toString(), _prefix, StringComparison.Ordinal);
+  }
+
+  /**
+   * Predicate returning true when the function argument's toString() does not start with a prefix
+   * 
+   * @throws NullPointerException When an argument is null
+   */
+  @Predicate
+  public static boolean notStartsWith(Object element, String _prefix, StringComparison _comparison)
+  {
+    return !StringUtils.startsWith(element.toString(), _prefix, _comparison);
   }
 
   /**
