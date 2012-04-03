@@ -1,4 +1,4 @@
-﻿# Hi there!
+﻿## Hi there!
 
 jpropel-light is a Java library which can seriously hinder your salary if you are paid by the number of lines of code you create!
 
