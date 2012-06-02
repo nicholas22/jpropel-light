@@ -18,6 +18,7 @@
 // /////////////////////////////////////////////////////////
 package propel.core.collections.maps.combinational;
 
+import static propel.core.functional.projections.Tuples.kvpValueSelector;
 import propel.core.collections.KeyNotFoundException;
 import propel.core.collections.KeyValuePair;
 import propel.core.collections.maps.ReifiedMap;
@@ -30,6 +31,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import lombok.Functions.Function1;
+import lombok.Validate;
+import lombok.Validate.NotNull;
 
 /**
  * A type-aware AVL-tree-backed map holding values which are accessible by key as well as a list-style index. This map does not allow null
@@ -45,6 +48,9 @@ public class AvlTreeList<TKey extends Comparable<TKey>, TValue>
   private final AvlHashtable<TKey, TValue> hashtable;
   // holds values, to allow int->value access
   private final List<KeyValuePair<TKey, TValue>> list;
+
+  @SuppressWarnings("rawtypes")
+  private static Function1 valueSelector = kvpValueSelector();
 
   /**
    * Default constructor
@@ -73,11 +79,9 @@ public class AvlTreeList<TKey extends Comparable<TKey>, TValue>
    * 
    * @throws NullPointerException When the argument is null.
    */
-  public AvlTreeList(ReifiedMap<TKey, TValue> map)
+  @Validate
+  public AvlTreeList(@NotNull final ReifiedMap<TKey, TValue> map)
   {
-    if (map == null)
-      throw new NullPointerException("map");
-
     hashtable = new AvlHashtable<TKey, TValue>(map.getGenericTypeParameterKey(), map.getGenericTypeParameterValue());
     list = new ArrayList<KeyValuePair<TKey, TValue>>();
 
@@ -92,11 +96,9 @@ public class AvlTreeList<TKey extends Comparable<TKey>, TValue>
    * @throws SuperTypeTokenException When called without using anonymous class semantics.
    * @throws NullPointerException When the argument is null.
    */
-  public AvlTreeList(Map<? extends TKey, ? extends TValue> map)
+  @Validate
+  public AvlTreeList(@NotNull final Map<? extends TKey, ? extends TValue> map)
   {
-    if (map == null)
-      throw new NullPointerException("map");
-
     hashtable = new AvlHashtable<TKey, TValue>(SuperTypeToken.getClazz(this.getClass(), 0), SuperTypeToken.getClazz(this.getClass(), 1));
     list = new ArrayList<KeyValuePair<TKey, TValue>>();
 
@@ -114,10 +116,10 @@ public class AvlTreeList<TKey extends Comparable<TKey>, TValue>
    * 
    * @throws NullPointerException When an argument is null.
    */
-  public AvlTreeList(Map<? extends TKey, ? extends TValue> map, Class<?> genericTypeParameterKey, Class<?> genericTypeParameterValue)
+  @Validate
+  public AvlTreeList(@NotNull final Map<? extends TKey, ? extends TValue> map, @NotNull final Class<?> genericTypeParameterKey,
+                     @NotNull final Class<?> genericTypeParameterValue)
   {
-    if (map == null)
-      throw new NullPointerException("map");
     if (genericTypeParameterKey == null)
       throw new NullPointerException("genericTypeParameterKey");
     if (genericTypeParameterValue == null)
@@ -143,11 +145,9 @@ public class AvlTreeList<TKey extends Comparable<TKey>, TValue>
    * @throws NullPointerException When the key is null.
    */
   @Override
-  public boolean add(TKey key, TValue value)
+  @Validate
+  public boolean add(@NotNull final TKey key, TValue value)
   {
-    if (key == null)
-      throw new NullPointerException("key");
-
     if (hashtable.add(key, value))
     {
       list.add(new KeyValuePair<TKey, TValue>(key, value));
@@ -165,7 +165,8 @@ public class AvlTreeList<TKey extends Comparable<TKey>, TValue>
    * @throws NullPointerException When the key or the key/value pair is null.
    */
   @Override
-  public boolean add(KeyValuePair<? extends TKey, ? extends TValue> kvp)
+  @Validate
+  public boolean add(@NotNull final KeyValuePair<? extends TKey, ? extends TValue> kvp)
   {
     return add(kvp.getKey(), kvp.getValue());
   }
@@ -186,11 +187,9 @@ public class AvlTreeList<TKey extends Comparable<TKey>, TValue>
    * @return True if contained.
    */
   @Override
-  public boolean contains(TKey key)
+  @Validate
+  public boolean contains(@NotNull final TKey key)
   {
-    if (key == null)
-      throw new NullPointerException("key");
-
     return hashtable.containsKey(key);
   }
 
@@ -201,7 +200,8 @@ public class AvlTreeList<TKey extends Comparable<TKey>, TValue>
    * @throws KeyNotFoundException The key was not found.
    */
   @Override
-  public TValue get(TKey key)
+  @Validate
+  public TValue get(@NotNull final TKey key)
   {
     if (key == null)
       throw new NullPointerException("key");
@@ -254,16 +254,10 @@ public class AvlTreeList<TKey extends Comparable<TKey>, TValue>
    * Returns all values in the order they were input. This is an O(n) operation.
    */
   @Override
+  @SuppressWarnings("unchecked")
   public Iterable<TValue> getValues()
   {
-    return Linq.select(list, new Function1<KeyValuePair<TKey, TValue>, TValue>() {
-
-      @Override
-      public TValue apply(KeyValuePair<TKey, TValue> arg0)
-      {
-        return arg0.getValue();
-      }
-    });
+    return Linq.select(list, (Function1<KeyValuePair<TKey, TValue>, TValue>) valueSelector);
   }
 
   /**
@@ -273,11 +267,9 @@ public class AvlTreeList<TKey extends Comparable<TKey>, TValue>
    * @throws NullPointerException If the key is null
    */
   @Override
-  public int indexOf(TKey key)
+  @Validate
+  public int indexOf(@NotNull final TKey key)
   {
-    if (key == null)
-      throw new NullPointerException("key");
-
     if (!hashtable.containsKey(key))
       return -1;
 
@@ -300,11 +292,9 @@ public class AvlTreeList<TKey extends Comparable<TKey>, TValue>
    * @throws NullPointerException If the key is null
    */
   @Override
-  public boolean remove(TKey key)
+  @Validate
+  public boolean remove(@NotNull final TKey key)
   {
-    if (key == null)
-      throw new NullPointerException("key");
-
     if (!hashtable.containsKey(key))
       return false;
 
@@ -347,11 +337,9 @@ public class AvlTreeList<TKey extends Comparable<TKey>, TValue>
    * @throws NullPointerException If the key is null.
    */
   @Override
-  public boolean replace(TKey key, TValue newValue)
+  @Validate
+  public boolean replace(@NotNull final TKey key, TValue newValue)
   {
-    if (key == null)
-      throw new NullPointerException("key");
-
     TValue value;
     try
     {

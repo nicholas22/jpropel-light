@@ -21,7 +21,7 @@ package propel.core.utils;
 /**
  * Exception signifies that generic types could not be determined due to improper use of the SuperTypeToken construct.
  */
-public class SuperTypeTokenException
+public final class SuperTypeTokenException
     extends RuntimeException
 {
   private static final long serialVersionUID = -3119546424790668807L;

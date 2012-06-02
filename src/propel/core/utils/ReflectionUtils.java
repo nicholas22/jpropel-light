@@ -18,6 +18,7 @@
 // /////////////////////////////////////////////////////////
 package propel.core.utils;
 
+import static propel.core.functional.projections.Objects.toStringify;
 import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -31,12 +32,9 @@ import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import lombok.Function;
 import lombok.Predicate;
@@ -45,25 +43,15 @@ import lombok.Validate.NotNull;
 import lombok.val;
 import propel.core.collections.KeyValuePair;
 import propel.core.collections.lists.ReifiedArrayList;
-import propel.core.collections.lists.ReifiedList;
 import propel.core.collections.maps.avl.AvlHashtable;
 import propel.core.collections.sets.AvlTreeSet;
 import propel.core.common.CONSTANT;
-import propel.core.functional.projections.Projections;
 
 /**
  * Provides utility functionality for reflective manipulations
  */
 public final class ReflectionUtils
 {
-
-  /**
-   * Private constructor
-   */
-  private ReflectionUtils()
-  {
-  }
-
   /**
    * Activates an object from the type.
    * 
@@ -71,12 +59,10 @@ public final class ReflectionUtils
    * @throws InstantiationException When instantiation fails.
    * @throws IllegalAccessException When a member is illegally accessed.
    */
-  public static <T> T activate(Class<T> clazz)
+  @Validate
+  public static <T> T activate(@NotNull final Class<T> clazz)
       throws InstantiationException, IllegalAccessException
   {
-    if (clazz == null)
-      throw new NullPointerException("clazz");
-
     return clazz.newInstance();
   }
 
@@ -90,22 +76,21 @@ public final class ReflectionUtils
    * @throws IllegalArgumentException When no constructor accepting this many arguments is found, or there are more than 1 constructors
    *           found accepting the arguments given.
    */
+  @Validate
   @SuppressWarnings("unchecked")
-  public static <T> T activate(Class<T> clazz, Object[] constructorArgs)
+  public static <T> T activate(@NotNull final Class<T> clazz, @NotNull final Object[] constructorArgs)
       throws InstantiationException, IllegalAccessException, InvocationTargetException
   {
-    if (clazz == null)
-      throw new NullPointerException("clazz");
     if (constructorArgs == null || constructorArgs.length == 0)
       return activate(clazz);
-    final int constructorArgsLength = constructorArgs.length;
+    val constructorArgsLength = constructorArgs.length;
 
     // find relevant constructors
-    Constructor<?>[] constructors = Linq.where(clazz.getConstructors(), constructorParametersEqual(constructorArgsLength));
+    val constructors = Linq.where(clazz.getConstructors(), constructorParametersEqual(constructorArgsLength));
     if (constructors.length <= 0)
       throw new IllegalArgumentException("A constructor with " + constructorArgsLength + " arguments was not found: " + clazz.getName());
 
-    Constructor<?> constructor = constructors.length == 1 ? constructors[0] : matchConstructor(constructors, constructorArgs);
+    val constructor = constructors.length == 1 ? constructors[0] : matchConstructor(constructors, constructorArgs);
 
     return (T) constructor.newInstance(constructorArgs);
   }
@@ -119,16 +104,16 @@ public final class ReflectionUtils
   private static Constructor<?> matchConstructor(Constructor<?>[] constructors, Object[] constructorArgs)
   {
     // get constructor argument types
-    Class<?>[] argTypes = Linq.select(constructorArgs, getClassIfNotNull());
+    val argTypes = Linq.select(constructorArgs, getClassIfNotNull());
 
     // not found, throw ambiguous call exception
-    for (Constructor<?> constructor : constructors)
+    for (val constructor : constructors)
     {
       // get parameter types
-      Class<?>[] parameterTypes = constructor.getParameterTypes();
+      val parameterTypes = constructor.getParameterTypes();
 
       // combine into one class
-      List<KeyValuePair<Class<?>, Class<?>>> list = new ArrayList<KeyValuePair<Class<?>, Class<?>>>();
+      val list = new ArrayList<KeyValuePair<Class<?>, Class<?>>>();
       for (int i = 0; i < parameterTypes.length; i++)
         list.add(new KeyValuePair<Class<?>, Class<?>>(argTypes[i], parameterTypes[i]));
 
@@ -138,8 +123,8 @@ public final class ReflectionUtils
     }
 
     // failed to find match, log an informative message
-    String[] constructorSignatures = Linq.select(constructors, Projections.toStringify());
-    String[] argTypeNames = Linq.select(argTypes, Projections.toStringify());
+    val constructorSignatures = Linq.select(constructors, toStringify());
+    val argTypeNames = Linq.select(argTypes, toStringify());
 
     throw new IllegalArgumentException("There are " + constructorSignatures.length + " constructors ("
         + StringUtils.delimit(constructorSignatures, CONSTANT.COMMA) + ") accepting the arguments given: "
@@ -179,12 +164,10 @@ public final class ReflectionUtils
    * @throws InvocationTargetException When the constructor called throws an exception.
    * @throws ClassNotFoundException The specified class name does not correspond to a class.
    */
-  public static Object activate(String className)
+  @Validate
+  public static Object activate(@NotNull final String className)
       throws InstantiationException, IllegalAccessException, InvocationTargetException, ClassNotFoundException
   {
-    if (className == null)
-      throw new NullPointerException("className");
-
     return activate(className, new Object[0]);
   }
 
@@ -196,12 +179,10 @@ public final class ReflectionUtils
    * @throws InvocationTargetException When the constructor called throws an exception.
    * @throws ClassNotFoundException The specified class name does not correspond to a class.
    */
-  public static Object activate(String className, Object[] constructorArgs)
+  @Validate
+  public static Object activate(@NotNull final String className, Object[] constructorArgs)
       throws InstantiationException, IllegalAccessException, InvocationTargetException, ClassNotFoundException
   {
-    if (className == null)
-      throw new NullPointerException("className");
-
     Class<?> clazz = parse(className);
     return activate(clazz, constructorArgs);
   }
@@ -211,18 +192,14 @@ public final class ReflectionUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static boolean equal(Method methodA, Method methodB)
+  @Validate
+  public static boolean equal(@NotNull final Method methodA, @NotNull final Method methodB)
   {
-    if (methodA == null)
-      throw new NullPointerException("methodA");
-    if (methodB == null)
-      throw new NullPointerException("methodB");
-
     if (methodA.getName().equals(methodB.getName()))
       if (methodA.getReturnType().equals(methodB.getReturnType()))
       {
-        Class<?>[] firstMethodArgs = methodA.getParameterTypes();
-        Class<?>[] secondMethodArgs = methodB.getParameterTypes();
+        val firstMethodArgs = methodA.getParameterTypes();
+        val secondMethodArgs = methodB.getParameterTypes();
 
         if (Linq.sequenceEqual(firstMethodArgs, secondMethodArgs))
           return true;
@@ -236,13 +213,9 @@ public final class ReflectionUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static boolean equal(Field fieldA, Field fieldB)
+  @Validate
+  public static boolean equal(@NotNull final Field fieldA, @NotNull final Field fieldB)
   {
-    if (fieldA == null)
-      throw new NullPointerException("fieldA");
-    if (fieldB == null)
-      throw new NullPointerException("fieldB");
-
     if (fieldA.getName().equals(fieldB.getName()))
       if (fieldA.getType().equals(fieldB.getType()))
         return true;
@@ -255,13 +228,9 @@ public final class ReflectionUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static boolean equal(Constructor<?> constrA, Constructor<?> constrB)
+  @Validate
+  public static boolean equal(@NotNull final Constructor<?> constrA, @NotNull final Constructor<?> constrB)
   {
-    if (constrA == null)
-      throw new NullPointerException("constrA");
-    if (constrB == null)
-      throw new NullPointerException("constrB");
-
     if (constrA.getName().equals(constrB.getName()))
       if (constrA.getDeclaringClass().equals(constrB.getDeclaringClass()))
         return true;
@@ -274,13 +243,9 @@ public final class ReflectionUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static boolean equal(MemberInfo membA, MemberInfo membB)
+  @Validate
+  public static boolean equal(@NotNull final MemberInfo membA, @NotNull final MemberInfo membB)
   {
-    if (membA == null)
-      throw new NullPointerException("membA");
-    if (membB == null)
-      throw new NullPointerException("membB");
-
     // check if of the same backing member type
     if ((membA.isField() & membB.isField()) != true)
       if ((membA.isMethod() & membB.isMethod()) != true)
@@ -304,19 +269,15 @@ public final class ReflectionUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static boolean equal(PropertyInfo propA, PropertyInfo propB)
+  @Validate
+  public static boolean equal(@NotNull final PropertyInfo propA, @NotNull final PropertyInfo propB)
   {
-    if (propA == null)
-      throw new NullPointerException("propA");
-    if (propB == null)
-      throw new NullPointerException("propB");
-
     if (propA.getName().equals(propB.getName()))
       if (propA.getPropertyType().equals(propB.getPropertyType()))
       {
         // compare getters
-        Method getterA = propA.getGetter();
-        Method getterB = propB.getGetter();
+        val getterA = propA.getGetter();
+        val getterB = propB.getGetter();
 
         boolean gettersEqual = false;
         if (getterA == null && getterB == null)
@@ -330,8 +291,8 @@ public final class ReflectionUtils
           return false;
 
         // compare setters
-        Method setterA = propA.getSetter();
-        Method setterB = propB.getSetter();
+        val setterA = propA.getSetter();
+        val setterB = propB.getSetter();
 
         boolean settersEqual = false;
         if (setterA == null && setterB == null)
@@ -359,30 +320,28 @@ public final class ReflectionUtils
   }
 
   /**
-   * Lists all classes inside a package. TODO: fix bug where having a whitespace in the contained folder causes %20 to be used (when this
-   * used as part of a JAR)
+   * Lists all classes inside a package.
    * 
    * @throws NullPointerException An argument is null.
    * @throws IllegalArgumentException A package is invalid.
    * @throws ClassNotFoundException When finding a class from a class name fails while enumerating.
    */
-  public static List<Class<?>> getClasses(Package pkg)
+  @Validate
+  public static List<Class<?>> getClasses(@NotNull final Package pkg)
       throws ClassNotFoundException
   {
-    if (pkg == null)
-      throw new NullPointerException("pkg");
-
-    List<Class<?>> result = new ArrayList<Class<?>>();
+    val result = new ArrayList<Class<?>>();
 
     // Get a File object for the package
-    String pkgName = pkg.getName();
     File directory = null;
-    String fullPath;
+    String fullPath = null;
+    val pkgName = pkg.getName();
     String relPath = pkgName.replace(CONSTANT.DOT_CHAR, CONSTANT.FORWARD_SLASH_CHAR);
     URL resource = ClassLoader.getSystemClassLoader().getResource(relPath);
+
     if (resource == null)
     {
-      // try other slashes
+      // try the other slashes
       relPath = pkgName.replace(CONSTANT.DOT_CHAR, CONSTANT.BACK_SLASH_CHAR);
       resource = ClassLoader.getSystemClassLoader().getResource(relPath);
 
@@ -393,30 +352,29 @@ public final class ReflectionUtils
 
     fullPath = resource.getFile();
 
-    String normalizedFullPath = fullPath;
-    if (StringUtils.contains(fullPath, '/'))
-      normalizedFullPath = StringUtils.replace(StringUtils.replace(fullPath, "%5c", "/", StringComparison.OrdinalIgnoreCase), "%2f", "/",
-          StringComparison.OrdinalIgnoreCase);
-    else if (StringUtils.contains(fullPath, '\\'))
-      normalizedFullPath = StringUtils.replace(StringUtils.replace(fullPath, "%5c", "\\", StringComparison.OrdinalIgnoreCase), "%2f", "\\",
-          StringComparison.OrdinalIgnoreCase);
-
+    // un-escape to locate locally
+    val normalizedFullPath = EscapingUtils.fromUrl(fullPath);
     directory = new File(normalizedFullPath);
-    final String classExt = ".class";
+    val classExt = ".class";
 
     if (directory.exists())
     {
       // Get the list of the files contained in the package
-      String[] files = directory.list();
+      val files = directory.list();
       for (int i = 0; i < files.length; i++)
         // we are only interested in .class files
         if (StringUtils.match(files[i], MatchType.EndsWith, classExt, StringComparison.Ordinal))
         {
           // removes the .class extension
-          String className = pkgName + CONSTANT.DOT_CHAR + files[i].substring(0, files[i].length() - classExt.length());
+          val className = pkgName + CONSTANT.DOT_CHAR + files[i].substring(0, files[i].length() - classExt.length());
+
           try
           {
             result.add(Class.forName(className));
+          }
+          catch(NoClassDefFoundError e)
+          {
+            // no class definition present
           }
           catch(ClassNotFoundException e)
           {
@@ -426,41 +384,49 @@ public final class ReflectionUtils
     } else
     {
       // directory does not exist, find JAR file
-      String jarPath = fullPath.replaceFirst("[.]jar[!].*", ".jar").replaceFirst("file:", "");
+      val jarpath = fullPath.replaceFirst("[.]jar[!].*", ".jar").replaceFirst("file:", CONSTANT.EMPTY_STRING);
 
+      // un-escape to locate locally
+      val normalizedJarPath = EscapingUtils.fromUrl(jarpath);
       try
       {
         // enumerate entries
-        JarFile jarFile = new JarFile(jarPath);
-        Enumeration<JarEntry> entries = jarFile.entries();
+        val jarFile = new JarFile(normalizedJarPath);
+        val entries = jarFile.entries();
         while (entries.hasMoreElements())
         {
           // get next entry
-          JarEntry entry = entries.nextElement();
-          String entryName = entry.getName();
+          val entry = entries.nextElement();
+          val entryName = entry.getName();
 
-          // must be a .class entry, starting with package name
-          if (entryName.endsWith(classExt) && entryName.startsWith(relPath)
-              && entryName.length() > (relPath.length() + CONSTANT.FORWARD_SLASH.length()))
+          // must be a .class entry, starting with the package name
+          if (entryName.endsWith(classExt) && entryName.startsWith(relPath))
           {
-            String className = entryName.replace(CONSTANT.FORWARD_SLASH_CHAR, CONSTANT.DOT_CHAR)
+            // must be in the same package
+            val className = entryName.replace(CONSTANT.FORWARD_SLASH_CHAR, CONSTANT.DOT_CHAR)
                 .replace(CONSTANT.BACK_SLASH_CHAR, CONSTANT.DOT_CHAR).replace(classExt, CONSTANT.EMPTY_STRING);
 
             // attempt to get the class by its name
             try
             {
-              result.add(Class.forName(className));
+              val clazz = Class.forName(className);
+              if (clazz.getPackage().equals(pkg))
+                result.add(clazz);
+            }
+            catch(NoClassDefFoundError e)
+            {
+              // no class definition present
             }
             catch(ClassNotFoundException e)
             {
-              throw new ClassNotFoundException("Could not find class '" + className + "' in JAR file '" + jarPath + "'.");
+              throw new ClassNotFoundException("Could not find class '" + className + "' in JAR file '" + normalizedJarPath + "'.");
             }
           }
         }
       }
       catch(IOException e)
       {
-        throw new IllegalArgumentException("Package " + pkgName + " (for JAR " + jarPath + ") does not appear to be valid.", e);
+        throw new IllegalArgumentException("Package " + pkgName + " (for JAR " + normalizedJarPath + ") does not appear to be valid.", e);
       }
     }
     return result;
@@ -471,14 +437,10 @@ public final class ReflectionUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static <T extends Annotation> List<T> getAnnotations(Class<?> annotatedClass, Class<T> annotationType, boolean includeInherited)
+  @Validate
+  public static <T extends Annotation> List<T> getAnnotations(@NotNull final Class<?> annotatedClass, @NotNull final Class<T> annotationType, boolean includeInherited)
   {
-    if (annotatedClass == null)
-      throw new NullPointerException("annotatedClass");
-    if (annotationType == null)
-      throw new NullPointerException("annotationType");
-
-    List<T> result = new ArrayList<T>(16);
+    val result = new ArrayList<T>(16);
 
     // get derived class annotations
     List<Annotation> annotations = ArrayUtils.toList(annotatedClass.getDeclaredAnnotations());
@@ -497,7 +459,7 @@ public final class ReflectionUtils
       }
 
       // now get all the superinterfaces' annotations
-      for (Class<?> iface : annotatedClass.getInterfaces())
+      for (val iface : annotatedClass.getInterfaces())
       {
         annotations = ArrayUtils.toList(iface.getDeclaredAnnotations());
         result.addAll(Linq.toList(Linq.ofType(annotations, annotationType)));
@@ -512,12 +474,10 @@ public final class ReflectionUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static List<Annotation> getAnnotations(Class<?> annotatedClass, boolean includeInherited)
+  @Validate
+  public static List<Annotation> getAnnotations(@NotNull final Class<?> annotatedClass, boolean includeInherited)
   {
-    if (annotatedClass == null)
-      throw new NullPointerException("annotatedClass");
-
-    List<Annotation> result = new ArrayList<Annotation>(16);
+    val result = new ArrayList<Annotation>(16);
 
     // get derived class annotations
     result.addAll(ArrayUtils.toList(annotatedClass.getDeclaredAnnotations()));
@@ -532,7 +492,7 @@ public final class ReflectionUtils
         result.addAll(ArrayUtils.toList(superClass.getDeclaredAnnotations()));
 
       // now get all the superinterfaces' annotations
-      for (Class<?> iface : annotatedClass.getInterfaces())
+      for (val iface : annotatedClass.getInterfaces())
         result.addAll(ArrayUtils.toList(iface.getDeclaredAnnotations()));
     }
 
@@ -544,12 +504,10 @@ public final class ReflectionUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static List<Annotation> getMethodAnnotations(Method annotatedMethod, boolean includeInherited)
+  @Validate
+  public static List<Annotation> getMethodAnnotations(@NotNull final Method annotatedMethod, boolean includeInherited)
   {
-    if (annotatedMethod == null)
-      throw new NullPointerException("annotatedMethod");
-
-    List<Annotation> result = new ArrayList<Annotation>(16);
+    val result = new ArrayList<Annotation>(16);
 
     // get method annotations
     result.addAll(ArrayUtils.toList(annotatedMethod.getDeclaredAnnotations()));
@@ -568,9 +526,9 @@ public final class ReflectionUtils
       }
 
       // now get all the super-interfaces' annotations
-      for (Class<?> iface : annotatedMethod.getDeclaringClass().getInterfaces())
+      for (val iface : annotatedMethod.getDeclaringClass().getInterfaces())
       {
-        Method ifaceMethod = findDeclaredMethod(iface, annotatedMethod);
+        val ifaceMethod = findDeclaredMethod(iface, annotatedMethod);
         if (ifaceMethod != null)
           result.addAll(ArrayUtils.toList(ifaceMethod.getDeclaredAnnotations()));
       }
@@ -585,13 +543,11 @@ public final class ReflectionUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static <T extends Annotation> List<T> getMethodAnnotations(Method annotatedMethod, Class<T> annotationType,
+  @Validate
+  public static <T extends Annotation> List<T> getMethodAnnotations(@NotNull final Method annotatedMethod, @NotNull final Class<T> annotationType,
                                                                     boolean includeInherited)
   {
-    if (annotatedMethod == null)
-      throw new NullPointerException("annotatedMethod");
-
-    List<T> result = new ArrayList<T>(16);
+    val result = new ArrayList<T>(16);
 
     // get method annotations
     List<Annotation> annotations = ArrayUtils.toList(annotatedMethod.getDeclaredAnnotations());
@@ -605,7 +561,7 @@ public final class ReflectionUtils
       while ((superClass = superClass.getSuperclass()) != null)
       {
         // get super class method annotations
-        Method superClassMethod = findDeclaredMethod(superClass, annotatedMethod);
+        val superClassMethod = findDeclaredMethod(superClass, annotatedMethod);
         if (superClassMethod != null)
         {
           annotations = ArrayUtils.toList(superClassMethod.getDeclaredAnnotations());
@@ -614,9 +570,9 @@ public final class ReflectionUtils
       }
 
       // now get all the super-interfaces' annotations
-      for (Class<?> iface : annotatedMethod.getDeclaringClass().getInterfaces())
+      for (val iface : annotatedMethod.getDeclaringClass().getInterfaces())
       {
-        Method ifaceMethod = findDeclaredMethod(iface, annotatedMethod);
+        val ifaceMethod = findDeclaredMethod(iface, annotatedMethod);
         if (ifaceMethod != null)
         {
           annotations = ArrayUtils.toList(ifaceMethod.getDeclaredAnnotations());
@@ -634,16 +590,14 @@ public final class ReflectionUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static Class<?>[] getInterfaces(Class<?> type, boolean includeInherited)
+  @Validate
+  public static Class<?>[] getInterfaces(@NotNull final Class<?> type, boolean includeInherited)
   {
-    if (type == null)
-      throw new NullPointerException("type");
-
-    Set<Class<?>> result = new HashSet<Class<?>>();
-    LinkedList<Class<?>> typeStack = new LinkedList<Class<?>>();
+    val result = new HashSet<Class<?>>();
+    val typeStack = new LinkedList<Class<?>>();
 
     // populate initially with type's implementing interfaces
-    for (Class<?> iface : type.getInterfaces())
+    for (val iface : type.getInterfaces())
       if (!result.contains(iface))
       {
         typeStack.push(iface);
@@ -685,18 +639,14 @@ public final class ReflectionUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static Class<?>[] getInterfacesExcept(Class<?> type, Class<?> excludedInterface)
+  @Validate
+  public static Class<?>[] getInterfacesExcept(@NotNull final Class<?> type, @NotNull final Class<?> excludedInterface)
   {
-    if (type == null)
-      throw new NullPointerException("type");
-    if (excludedInterface == null)
-      throw new NullPointerException("excludedInterface");
-
     // get all interfaces
-    ReifiedList<Class<?>> interfaces = new ReifiedArrayList<Class<?>>(16, Class.class);
+    val interfaces = new ReifiedArrayList<Class<?>>(16, Class.class);
 
     // exclude the specified one
-    for (Class<?> iface : type.getInterfaces())
+    for (val iface : type.getInterfaces())
       if (!iface.equals(excludedInterface))
         interfaces.add(iface);
 
@@ -709,14 +659,12 @@ public final class ReflectionUtils
    * @throws NullPointerException An argument is null.
    * @throws SecurityException Cannot perform reflection operations in this context.
    */
-  public static Constructor<?>[] getConstructors(Class<?> type, boolean includeSuperClass)
+  @Validate
+  public static Constructor<?>[] getConstructors(@NotNull final Class<?> type, boolean includeSuperClass)
   {
-    if (type == null)
-      throw new NullPointerException("type");
+    val result = new ReifiedArrayList<Constructor<?>>() {};
 
-    ReifiedList<Constructor<?>> result = new ReifiedArrayList<Constructor<?>>() {};
-
-    for (Constructor<?> constr : type.getDeclaredConstructors())
+    for (val constr : type.getDeclaredConstructors())
       result.add(constr);
 
     if (includeSuperClass)
@@ -735,13 +683,11 @@ public final class ReflectionUtils
    * @throws NullPointerException An argument is null.
    * @throws SecurityException Cannot perform reflection operations in this context.
    */
-  public static Constructor<?> getConstructorDefault(Class<?> type)
+  @Validate
+  public static Constructor<?> getConstructorDefault(@NotNull final Class<?> type)
   {
-    if (type == null)
-      throw new NullPointerException("type");
-
     // iterate constructors
-    for (Constructor<?> constructor : type.getConstructors())
+    for (val constructor : type.getConstructors())
       if (constructor.getParameterTypes().length == 0)
         return constructor;
 
@@ -754,14 +700,12 @@ public final class ReflectionUtils
    * @throws NullPointerException An argument is null.
    * @throws SecurityException Cannot perform reflection operations in this context.
    */
-  public static Field[] getFields(Class<?> type, boolean includeInherited)
+  @Validate
+  public static Field[] getFields(@NotNull final Class<?> type, boolean includeInherited)
   {
-    if (type == null)
-      throw new NullPointerException("type");
+    val result = new ReifiedArrayList<Field>(Field.class);
 
-    ReifiedList<Field> result = new ReifiedArrayList<Field>(Field.class);
-
-    for (Field field : type.getDeclaredFields())
+    for (val field : type.getDeclaredFields())
       result.add(field);
 
     if (includeInherited)
@@ -781,7 +725,7 @@ public final class ReflectionUtils
    * @throws NullPointerException An argument is null.
    * @throws SecurityException Cannot perform reflection operations in this context.
    */
-  public static Field[] getFields(Class<?> type, final String name, boolean includeInherited)
+  public static Field[] getFields(final Class<?> type, final String name, boolean includeInherited)
   {
     return Linq.where(getFields(type, includeInherited), fieldNameEquals(name));
   }
@@ -792,13 +736,9 @@ public final class ReflectionUtils
    * @throws NullPointerException An argument is null.
    * @throws SecurityException Cannot perform reflection operations in this context.
    */
-  public static Field getField(Class<?> type, final String name, boolean includeInherited)
+  @Validate
+  public static Field getField(@NotNull final Class<?> type, @NotNull final String name, boolean includeInherited)
   {
-    if (type == null)
-      throw new NullPointerException("type");
-    if (name == null)
-      throw new NullPointerException("name");
-
     return Linq.firstOrDefault(getFields(type, includeInherited), fieldNameEquals(name));
   }
 
@@ -814,18 +754,16 @@ public final class ReflectionUtils
    * @throws NullPointerException An argument is null.
    * @throws SecurityException Cannot perform reflection operations in this context.
    */
-  public static PropertyInfo[] getProperties(Class<?> type, boolean includeInherited)
+  @Validate
+  public static PropertyInfo[] getProperties(@NotNull final Class<?> type, boolean includeInherited)
   {
-    if (type == null)
-      throw new NullPointerException("type");
-
-    ReifiedList<PropertyInfo> result = new ReifiedArrayList<PropertyInfo>(PropertyInfo.class);
-    AvlHashtable<String, Method> methods = new AvlHashtable<String, Method>(String.class, Method.class);
+    val result = new ReifiedArrayList<PropertyInfo>(PropertyInfo.class);
+    val methods = new AvlHashtable<String, Method>(String.class, Method.class);
 
     // get declared method names
-    for (Method method : type.getDeclaredMethods())
+    for (val method : type.getDeclaredMethods())
     {
-      String methodName = method.getName();
+      val methodName = method.getName();
 
       if (isGetter(method) || isSetter(method))
         if (!methods.containsKey(methodName))
@@ -837,7 +775,7 @@ public final class ReflectionUtils
     {
       Class<?> superClass = type;
       while ((superClass = superClass.getSuperclass()) != null)
-        for (Method method : superClass.getDeclaredMethods())
+        for (val method : superClass.getDeclaredMethods())
         {
           String methodName = method.getName();
 
@@ -848,7 +786,7 @@ public final class ReflectionUtils
     }
 
     // find which methods exist in pairs of getters/setters
-    AvlTreeSet<String> propertyNames = new AvlTreeSet<String>(String.class);
+    val propertyNames = new AvlTreeSet<String>(String.class);
     for (String methodName : methods.getKeys())
     {
       Method getter;
@@ -893,6 +831,7 @@ public final class ReflectionUtils
    * @throws NullPointerException An argument is null.
    * @throws SecurityException Cannot perform reflection operations in this context.
    */
+  @Validate
   public static PropertyInfo[] getProperties(Class<?> type, final String name, boolean includeInherited)
   {
     return Linq.where(getProperties(type, includeInherited), propertyNameEquals(name));
@@ -904,13 +843,9 @@ public final class ReflectionUtils
    * @throws NullPointerException An argument is null.
    * @throws SecurityException Cannot perform reflection operations in this context.
    */
-  public static PropertyInfo getProperty(Class<?> type, final String name, boolean includeInherited)
+  @Validate
+  public static PropertyInfo getProperty(@NotNull final Class<?> type, @NotNull final String name, boolean includeInherited)
   {
-    if (type == null)
-      throw new NullPointerException("type");
-    if (name == null)
-      throw new NullPointerException("name");
-
     return Linq.firstOrDefault(getProperties(type, includeInherited), propertyNameEquals(name));
   }
 
@@ -928,8 +863,19 @@ public final class ReflectionUtils
    */
   public static Method[] getGetters(Class<?> type, boolean includeInherited)
   {
-    Method[] methods = getMethods(type, includeInherited);
+    val methods = getMethods(type, includeInherited);
     return Linq.where(methods, methodIsGetter());
+  }
+
+  /**
+   * Returns the first encountered getter with the given name, or null if not found
+   * 
+   * @throws NullPointerException An argument is null.
+   * @throws SecurityException Cannot perform reflection operations in this context.
+   */
+  public static Method getGetter(Class<?> type, String name, boolean includeInherited)
+  {
+    return Linq.firstOrDefault(Linq.where(getGetters(type, includeInherited), methodNameEquals(name)));
   }
 
   @Predicate
@@ -946,8 +892,19 @@ public final class ReflectionUtils
    */
   public static Method[] getSetters(Class<?> type, boolean includeInherited)
   {
-    Method[] methods = getMethods(type, includeInherited);
+    val methods = getMethods(type, includeInherited);
     return Linq.where(methods, methodIsSetter());
+  }
+
+  /**
+   * Returns the first encountered setter with the given name, or null if not found
+   * 
+   * @throws NullPointerException An argument is null.
+   * @throws SecurityException Cannot perform reflection operations in this context.
+   */
+  public static Method getSetter(Class<?> type, String name, boolean includeInherited)
+  {
+    return Linq.firstOrDefault(Linq.where(getSetters(type, includeInherited), methodNameEquals(name)));
   }
 
   @Predicate
@@ -962,12 +919,10 @@ public final class ReflectionUtils
    * @throws NullPointerException An argument is null.
    * @throws SecurityException Cannot perform reflection operations in this context.
    */
-  public static Method[] getMethods(Class<?> type, boolean includeInherited)
+  @Validate
+  public static Method[] getMethods(@NotNull final Class<?> type, boolean includeInherited)
   {
-    if (type == null)
-      throw new NullPointerException("type");
-
-    ReifiedList<Method> result = new ReifiedArrayList<Method>(Method.class);
+    val result = new ReifiedArrayList<Method>(Method.class);
 
     for (Method method : type.getDeclaredMethods())
       result.add(method);
@@ -1001,13 +956,9 @@ public final class ReflectionUtils
    * @throws NullPointerException An argument is null.
    * @throws SecurityException Cannot perform reflection operations in this context.
    */
-  public static Method getMethod(Class<?> type, final String name, boolean includeInherited)
+  @Validate
+  public static Method getMethod(@NotNull final Class<?> type, @NotNull final String name, boolean includeInherited)
   {
-    if (type == null)
-      throw new NullPointerException("type");
-    if (name == null)
-      throw new NullPointerException("name");
-
     return Linq.firstOrDefault(getMethods(type, includeInherited), methodNameEquals(name));
   }
 
@@ -1023,12 +974,10 @@ public final class ReflectionUtils
    * @throws NullPointerException An argument is null.
    * @throws SecurityException Cannot perform reflection operations in this context.
    */
-  public static MemberInfo[] getMembers(Class<?> type, boolean includeInherited)
+  @Validate
+  public static MemberInfo[] getMembers(@NotNull final Class<?> type, boolean includeInherited)
   {
-    if (type == null)
-      throw new NullPointerException("type");
-
-    ReifiedList<MemberInfo> result = new ReifiedArrayList<MemberInfo>(MemberInfo.class);
+    val result = new ReifiedArrayList<MemberInfo>(MemberInfo.class);
 
     // get fields
     result.addAll(Arrays.asList(Linq.select(getFields(type, includeInherited), fieldToMemberInfo())));
@@ -1084,13 +1033,9 @@ public final class ReflectionUtils
    * @throws NullPointerException An argument is null.
    * @throws SecurityException Cannot perform reflection operations in this context.
    */
-  public static MemberInfo getMember(Class<?> type, final String name, boolean includeInherited)
+  @Validate
+  public static MemberInfo getMember(@NotNull final Class<?> type, @NotNull final String name, boolean includeInherited)
   {
-    if (type == null)
-      throw new NullPointerException("type");
-    if (name == null)
-      throw new NullPointerException("name");
-
     return Linq.firstOrDefault(getMembers(type, includeInherited), memberNameEquals(name));
   }
 
@@ -1105,13 +1050,9 @@ public final class ReflectionUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static boolean hasMethod(Class<?> type, final Method method, boolean includeInherited)
+  @Validate
+  public static boolean hasMethod(@NotNull final Class<?> type, @NotNull final Method method, boolean includeInherited)
   {
-    if (type == null)
-      throw new NullPointerException("type");
-    if (method == null)
-      throw new NullPointerException("method");
-
     return Linq.firstOrDefault(getMethods(type, includeInherited), methodsAreEqual(method)) != null;
   }
 
@@ -1126,13 +1067,9 @@ public final class ReflectionUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static boolean hasProperty(Class<?> type, final PropertyInfo property, boolean includeInherited)
+  @Validate
+  public static boolean hasProperty(@NotNull final Class<?> type, @NotNull final PropertyInfo property, boolean includeInherited)
   {
-    if (type == null)
-      throw new NullPointerException("type");
-    if (property == null)
-      throw new NullPointerException("property");
-
     return Linq.firstOrDefault(getProperties(type, includeInherited), propertiesAreEqual(property)) != null;
   }
 
@@ -1147,13 +1084,9 @@ public final class ReflectionUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static boolean hasField(Class<?> type, final Field field, boolean includeInherited)
+  @Validate
+  public static boolean hasField(@NotNull final Class<?> type, @NotNull final Field field, boolean includeInherited)
   {
-    if (type == null)
-      throw new NullPointerException("type");
-    if (field == null)
-      throw new NullPointerException("field");
-
     return Linq.firstOrDefault(getFields(type, includeInherited), fieldsAreEqual(field)) != null;
   }
 
@@ -1168,13 +1101,9 @@ public final class ReflectionUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static boolean hasMember(Class<?> type, final MemberInfo member, boolean includeInherited)
+  @Validate
+  public static boolean hasMember(@NotNull final Class<?> type, @NotNull final MemberInfo member, boolean includeInherited)
   {
-    if (type == null)
-      throw new NullPointerException("type");
-    if (member == null)
-      throw new NullPointerException("member");
-
     return Linq.firstOrDefault(getMembers(type, includeInherited), membersAreEqual(member)) != null;
   }
 
@@ -1189,11 +1118,9 @@ public final class ReflectionUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static boolean isGeneric(Class<?> type)
+  @Validate
+  public static boolean isGeneric(@NotNull final Class<?> type)
   {
-    if (type == null)
-      throw new NullPointerException("type");
-
     return type.getTypeParameters().length > 0;
   }
 
@@ -1202,22 +1129,20 @@ public final class ReflectionUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static boolean isGetter(Method method)
+  @Validate
+  public static boolean isGetter(@NotNull final Method method)
   {
-    if (method == null)
-      throw new NullPointerException("method");
-
-    int mod = method.getModifiers();
+    val mod = method.getModifiers();
     if (Modifier.isAbstract(mod) || Modifier.isFinal(mod) || Modifier.isNative(mod) || Modifier.isStatic(mod))
       return false;
 
-    String methodName = method.getName();
+    val methodName = method.getName();
     // bean syntax for getters
-    if (((methodName.length() >= 4) && methodName.startsWith("get")) || ((methodName.length() >= 3) && methodName.startsWith("is"))) 
-        // must have non-void return type and no arguments
-        if (!isReturnTypeVoid(method))
-          if (method.getParameterTypes().length == 0)
-            return true;
+    if (((methodName.length() >= 4) && methodName.startsWith("get")) || ((methodName.length() >= 3) && methodName.startsWith("is")))
+      // must have non-void return type and no arguments
+      if (!isReturnTypeVoid(method))
+        if (method.getParameterTypes().length == 0)
+          return true;
 
     return false;
   }
@@ -1227,12 +1152,10 @@ public final class ReflectionUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static boolean isReturnTypeVoid(Method method)
+  @Validate
+  public static boolean isReturnTypeVoid(@NotNull final Method method)
   {
-    if (method == null)
-      throw new NullPointerException("method");
-
-    return method.getReturnType().getSimpleName().equals("void");
+    return method.getReturnType() == Void.class;
   }
 
   /**
@@ -1240,16 +1163,14 @@ public final class ReflectionUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static boolean isSetter(Method method)
+  @Validate
+  public static boolean isSetter(@NotNull final Method method)
   {
-    if (method == null)
-      throw new NullPointerException("method");
-
-    int mod = method.getModifiers();
+    val mod = method.getModifiers();
     if (Modifier.isAbstract(mod) || Modifier.isFinal(mod) || Modifier.isNative(mod) || Modifier.isStatic(mod))
       return false;
 
-    String methodName = method.getName();
+    val methodName = method.getName();
     if (methodName.length() >= 4)
       // bean syntax for setters
       if (methodName.startsWith("set"))
@@ -1267,15 +1188,11 @@ public final class ReflectionUtils
    * @throws NullPointerException The object or property name is null.
    * @throws SecurityException Cannot perform reflection operations in this context.
    */
-  public static void injectProperty(Object obj, String propertyName, Object propertyValue, boolean includeInherited)
+  @Validate
+  public static void injectProperty(@NotNull final Object obj, @NotNull final String propertyName, Object propertyValue, boolean includeInherited)
   {
-    if (obj == null)
-      throw new NullPointerException("obj");
-    if (propertyName == null)
-      throw new NullPointerException("propertyName");
-
     // find property
-    PropertyInfo pi = getProperty(obj.getClass(), propertyName, includeInherited);
+    val pi = getProperty(obj.getClass(), propertyName, includeInherited);
     if (pi == null)
       throw new IllegalArgumentException("The object of type " + obj.getClass().getName() + " does not have a property named '"
           + propertyName + "'");
@@ -1298,13 +1215,9 @@ public final class ReflectionUtils
    * 
    * @throws NullPointerException When an argument is null
    */
-  public static boolean instanceOf(Class<?> type, Class<?> baseClassOrInterfaceType)
+  @Validate
+  public static boolean instanceOf(@NotNull final Class<?> type, @NotNull final Class<?> baseClassOrInterfaceType)
   {
-    if (type == null)
-      throw new NullPointerException("type");
-    if (baseClassOrInterfaceType == null)
-      throw new NullPointerException("baseClassOrInterfaceType");
-
     if (baseClassOrInterfaceType.isInterface())
       return isImplementing(type, baseClassOrInterfaceType);
     else
@@ -1317,12 +1230,9 @@ public final class ReflectionUtils
    * 
    * @throws NullPointerException When an argument is null
    */
-  public static boolean isExtending(Class<?> type, Class<?> baseClassType)
+  @Validate
+  public static boolean isExtending(@NotNull Class<?> type, @NotNull final Class<?> baseClassType)
   {
-    if (type == null)
-      throw new NullPointerException("type");
-    if (baseClassType == null)
-      throw new NullPointerException("baseClassType");
     if (baseClassType.isInterface())
       throw new IllegalArgumentException("The type '" + baseClassType.getName() + "' is an interface.");
 
@@ -1350,16 +1260,12 @@ public final class ReflectionUtils
    * other types. Note: even if this returns true, it does not mean that you can perform casting. You may specify whether all or only
    * declared methods are to be checked.
    */
-  public static boolean isLookingLike(final Class<?> type, Class<?> interfaceType, final boolean includeTypeInherited,
+  @Validate
+  public static boolean isLookingLike(@NotNull final Class<?> type, @NotNull final Class<?> interfaceType, boolean includeTypeInherited,
                                       boolean includeInterfaceTypeInherited)
   {
-    if (type == null)
-      throw new NullPointerException("type");
-    if (interfaceType == null)
-      throw new NullPointerException("interfaceType");
-
     // get methods we are looking for
-    Method[] methods = getMethods(interfaceType, includeInterfaceTypeInherited);
+    val methods = getMethods(interfaceType, includeInterfaceTypeInherited);
 
     // must find all these methods in the given type
     return Linq.all(methods, methodHasMethod(type, includeTypeInherited));
@@ -1377,17 +1283,14 @@ public final class ReflectionUtils
    * 
    * @throws NullPointerException When an argument is null
    */
-  public static boolean isImplementing(Class<?> type, Class<?> interfaceType)
+  @Validate
+  public static boolean isImplementing(@NotNull final Class<?> type, @NotNull final Class<?> interfaceType)
   {
-    if (type == null)
-      throw new NullPointerException("type");
-    if (interfaceType == null)
-      throw new NullPointerException("interfaceType");
     if (!interfaceType.isInterface())
       throw new IllegalArgumentException("The type '" + interfaceType.getName() + "' is not an interface.");
 
-    List<Class<?>> processed = new ArrayList<Class<?>>();
-    LinkedList<Class<?>> typeStack = new LinkedList<Class<?>>();
+    val processed = new ArrayList<Class<?>>();
+    val typeStack = new LinkedList<Class<?>>();
 
     // populate initially with type's implementing interfaces
     for (Class<?> iface : type.getInterfaces())
@@ -1430,11 +1333,9 @@ public final class ReflectionUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static boolean isNested(Class<?> type)
+  @Validate
+  public static boolean isNested(@NotNull final Class<?> type)
   {
-    if (type == null)
-      throw new NullPointerException("type");
-
     return type.getName().contains(CONSTANT.DOLLAR_SIGN);
   }
 
@@ -1443,13 +1344,10 @@ public final class ReflectionUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static boolean isOverridable(Method methodInfo)
+  @Validate
+  public static boolean isOverridable(@NotNull final Method methodInfo)
   {
-    if (methodInfo == null)
-      throw new NullPointerException("methodInfo");
-
-    int mod = methodInfo.getModifiers();
-
+    val mod = methodInfo.getModifiers();
     return Modifier.isAbstract(mod) || !(Modifier.isFinal(mod) || Modifier.isStatic(mod));
   }
 
@@ -1459,11 +1357,9 @@ public final class ReflectionUtils
    * @throws NullPointerException An argument is null.
    * @throws SecurityException Cannot perform reflection operations in this context.
    */
-  public static boolean isOverridable(Class<?> type)
+  @Validate
+  public static boolean isOverridable(@NotNull final Class<?> type)
   {
-    if (type == null)
-      throw new NullPointerException("type");
-
     if (type.isPrimitive())
       return false;
     if (type.isEnum())
@@ -1494,12 +1390,10 @@ public final class ReflectionUtils
    * Returns true if the type specified is a primitive type such as int, boolean, etc. This cannot be used for arrays, see the ReifiedArray
    * class for that.
    */
-  public static PrimitiveType getPrimitiveType(Class<?> type)
+  @Validate
+  public static PrimitiveType getPrimitiveType(@NotNull final Class<?> type)
   {
-    if (type == null)
-      throw new NullPointerException("type");
-
-    String name = type.getName();
+    val name = type.getName();
     if ("byte".equals(name))
       return PrimitiveType.Byte;
     if ("int".equals(name))
@@ -1526,14 +1420,12 @@ public final class ReflectionUtils
    * @throws NullPointerException An argument is null.
    * @throws ClassNotFoundException The class was not found.
    */
-  public static Class<?> parse(String value)
+  @Validate
+  public static Class<?> parse(@NotNull final String value)
       throws ClassNotFoundException
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
     // parse
-    Class<?> clazz = Class.forName(value);
+    val clazz = Class.forName(value);
 
     return clazz;
   }
@@ -1544,16 +1436,12 @@ public final class ReflectionUtils
    * @throws NullPointerException An argument is null.
    * @throws ClassNotFoundException The class was not found.
    */
+  @Validate
   @SuppressWarnings("unchecked")
-  public static <T> Class<T> parse(String value, Class<T> baseType)
+  public static <T> Class<T> parse(@NotNull final String value, @NotNull final Class<T> baseType)
       throws ClassNotFoundException
   {
-    if (value == null)
-      throw new NullPointerException("value");
-    if (baseType == null)
-      throw new NullPointerException("baseType");
-
-    Class<?> result = parse(value);
+    val result = parse(value);
     if (!isExtending(result, baseType))
       throw new ClassCastException("The type " + value + " is not derived from " + baseType.getName());
 
@@ -1642,17 +1530,17 @@ public final class ReflectionUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  private static Method findDeclaredMethod(Class<?> type, Method method)
+  @Validate
+  private static Method findDeclaredMethod(@NotNull final Class<?> type, @NotNull final Method method)
   {
-    if (type == null)
-      throw new NullPointerException("type");
-    if (method == null)
-      throw new NullPointerException("method");
-
-    for (Method m : type.getDeclaredMethods())
+    for (val m : type.getDeclaredMethods())
       if (equal(m, method))
         return m;
 
     return null;
+  }
+
+  private ReflectionUtils()
+  {
   }
 }

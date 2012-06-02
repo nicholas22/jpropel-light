@@ -18,6 +18,14 @@
 // /////////////////////////////////////////////////////////
 package propel.core.collections.maps.combinational;
 
+import static propel.core.functional.projections.Tuples.kvpKeySelector;
+import static propel.core.functional.projections.Tuples.kvpValueSelector;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import lombok.Functions.Function1;
+import lombok.Validate;
+import lombok.Validate.NotNull;
 import propel.core.collections.KeyNotFoundException;
 import propel.core.collections.KeyValuePair;
 import propel.core.collections.lists.ReifiedArrayList;
@@ -25,10 +33,6 @@ import propel.core.collections.maps.ReifiedMap;
 import propel.core.utils.Linq;
 import propel.core.utils.SuperTypeToken;
 import propel.core.utils.SuperTypeTokenException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import lombok.Functions.Function1;
 
 /**
  * A type-aware list-backed map holding values which are accessible by key as well as a list-style index. This map does not allow null keys
@@ -43,6 +47,11 @@ public class ListMap<TKey extends Comparable<TKey>, TValue>
   private final ReifiedArrayList<TKey> keyStore;
   // values stored here
   private final ReifiedArrayList<TValue> valueStore;
+
+  @SuppressWarnings("rawtypes")
+  private static Function1 keySelector = kvpKeySelector();
+  @SuppressWarnings("rawtypes")
+  private static Function1 valueSelector = kvpValueSelector();
 
   /**
    * Default constructor.
@@ -93,26 +102,14 @@ public class ListMap<TKey extends Comparable<TKey>, TValue>
    * 
    * @throws NullPointerException When the argument is null.
    */
-  public ListMap(ReifiedMap<TKey, TValue> map)
+  @Validate
+  @SuppressWarnings("unchecked")
+  public ListMap(@NotNull final ReifiedMap<TKey, TValue> map)
   {
-    if (map == null)
-      throw new NullPointerException("map");
-
-    keyStore = new ReifiedArrayList<TKey>(Linq.select(map, new Function1<KeyValuePair<TKey, TValue>, TKey>() {
-      @Override
-      public TKey apply(KeyValuePair<TKey, TValue> arg)
-      {
-        return arg.getKey();
-      }
-    }), map.getGenericTypeParameterKey());
-
-    valueStore = new ReifiedArrayList<TValue>(Linq.select(map, new Function1<KeyValuePair<TKey, TValue>, TValue>() {
-      @Override
-      public TValue apply(KeyValuePair<TKey, TValue> arg)
-      {
-        return arg.getValue();
-      }
-    }), map.getGenericTypeParameterValue());
+    keyStore = new ReifiedArrayList<TKey>(Linq.select(map, (Function1<KeyValuePair<TKey, TValue>, TKey>) keySelector),
+        map.getGenericTypeParameterKey());
+    valueStore = new ReifiedArrayList<TValue>(Linq.select(map, (Function1<KeyValuePair<TKey, TValue>, TValue>) valueSelector),
+        map.getGenericTypeParameterValue());
   }
 
   /**
@@ -121,11 +118,9 @@ public class ListMap<TKey extends Comparable<TKey>, TValue>
    * @throws SuperTypeTokenException When called without using anonymous class semantics.
    * @throws NullPointerException When the argument is null.
    */
-  public ListMap(Map<? extends TKey, ? extends TValue> map)
+  @Validate
+  public ListMap(@NotNull final Map<? extends TKey, ? extends TValue> map)
   {
-    if (map == null)
-      throw new NullPointerException("map");
-
     int size = map.size();
 
     keyStore = new ReifiedArrayList<TKey>(size, SuperTypeToken.getClazz(this.getClass(), 0));
@@ -143,15 +138,10 @@ public class ListMap<TKey extends Comparable<TKey>, TValue>
    * 
    * @throws NullPointerException When an argument is null.
    */
-  public ListMap(Map<? extends TKey, ? extends TValue> map, Class<?> genericTypeParameterKey, Class<?> genericTypeParameterValue)
+  @Validate
+  public ListMap(@NotNull final Map<? extends TKey, ? extends TValue> map, @NotNull final Class<?> genericTypeParameterKey,
+                 @NotNull final Class<?> genericTypeParameterValue)
   {
-    if (map == null)
-      throw new NullPointerException("map");
-    if (genericTypeParameterKey == null)
-      throw new NullPointerException("genericTypeParameterKey");
-    if (genericTypeParameterValue == null)
-      throw new NullPointerException("genericTypeParameterValue");
-
     int size = map.size();
 
     keyStore = new ReifiedArrayList<TKey>(size, genericTypeParameterKey);
@@ -170,11 +160,9 @@ public class ListMap<TKey extends Comparable<TKey>, TValue>
    * @throws NullPointerException If the key is null.
    */
   @Override
-  public boolean add(TKey key, TValue value)
+  @Validate
+  public boolean add(@NotNull final TKey key, TValue value)
   {
-    if (key == null)
-      throw new NullPointerException("key");
-
     keyStore.add(key);
     valueStore.add(value);
 
@@ -187,11 +175,9 @@ public class ListMap<TKey extends Comparable<TKey>, TValue>
    * @throws NullPointerException If the key/value pair or the key is null.
    */
   @Override
-  public boolean add(KeyValuePair<? extends TKey, ? extends TValue> kvp)
+  @Validate
+  public boolean add(@NotNull final KeyValuePair<? extends TKey, ? extends TValue> kvp)
   {
-    if (kvp == null)
-      throw new NullPointerException("kvp");
-
     TKey key = kvp.getKey();
     if (key == null)
       throw new NullPointerException("key");
@@ -218,11 +204,9 @@ public class ListMap<TKey extends Comparable<TKey>, TValue>
    * @throws NullPointerException If the key is null.
    */
   @Override
-  public boolean contains(TKey key)
+  @Validate
+  public boolean contains(@NotNull final TKey key)
   {
-    if (key == null)
-      throw new NullPointerException("key");
-
     int size = keyStore.size();
     for (int i = 0; i < size; i++)
       if (keyStore.get(i).equals(key))
@@ -238,11 +222,9 @@ public class ListMap<TKey extends Comparable<TKey>, TValue>
    * @throws KeyNotFoundException The key was not found.
    */
   @Override
-  public TValue get(TKey key)
+  @Validate
+  public TValue get(@NotNull final TKey key)
   {
-    if (key == null)
-      throw new NullPointerException("key");
-
     int size = keyStore.size();
     for (int i = 0; i < size; i++)
       if (keyStore.get(i).equals(key))
@@ -308,11 +290,9 @@ public class ListMap<TKey extends Comparable<TKey>, TValue>
    * @throws NullPointerException If the key is null.
    */
   @Override
-  public int indexOf(TKey key)
+  @Validate
+  public int indexOf(@NotNull final TKey key)
   {
-    if (key == null)
-      throw new NullPointerException("key");
-
     int size = keyStore.size();
     for (int i = 0; i < size; i++)
       if (keyStore.get(i).equals(key))
@@ -336,11 +316,9 @@ public class ListMap<TKey extends Comparable<TKey>, TValue>
    * @throws NullPointerException If the key is null.
    */
   @Override
-  public boolean remove(TKey key)
+  @Validate
+  public boolean remove(@NotNull final TKey key)
   {
-    if (key == null)
-      throw new NullPointerException("key");
-
     int size = keyStore.size();
     for (int i = 0; i < size; i++)
       if (keyStore.get(i).equals(key))
@@ -374,11 +352,9 @@ public class ListMap<TKey extends Comparable<TKey>, TValue>
    * @throws NullPointerException If the key is null.
    */
   @Override
-  public boolean replace(TKey key, TValue newValue)
+  @Validate
+  public boolean replace(@NotNull final TKey key, TValue newValue)
   {
-    if (key == null)
-      throw new NullPointerException("key");
-
     int size = keyStore.size();
     for (int i = 0; i < size; i++)
       if (keyStore.get(i).equals(key))

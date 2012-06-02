@@ -25,32 +25,28 @@ import propel.core.utils.ReflectionUtils;
 import lombok.Predicate;
 
 /**
- * Some common, re-usable predicates
+ * Some common, re-usable predicates for objects
  */
 public final class Objects
 {
-  private Objects()
-  {
-  }
-
   /**
    * Predicate returning true when the function argument's toString() contains some string
    * 
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean contains(Object element, String _part)
+  public static boolean contains(final Object element, final String _part)
   {
     return StringUtils.contains(element.toString(), _part, StringComparison.Ordinal);
   }
-
+  
   /**
    * Predicate returning true when the function argument's toString() contains some string
    * 
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean contains(Object element, String _part, StringComparison _comparison)
+  public static boolean contains(final Object element, final String _part, final StringComparison _comparison)
   {
     return StringUtils.contains(element.toString(), _part, _comparison);
   }
@@ -59,27 +55,27 @@ public final class Objects
    * Predicate returning true if an element is contained in the function argument (Array)
    */
   @Predicate
-  public static <T> boolean containedIn(T element, T[] _elements)
+  public static <T> boolean containedIn(final T element, final T[] _elements)
   {
     return Linq.contains(_elements, element);
   }
-
+  
   /**
    * Predicate returning true if an element is contained in the function argument (Iterable)
    */
   @Predicate
-  public static <T> boolean containedBy(T element, Iterable<T> _elements)
+  public static boolean containedBy(final Object element, final Iterable _elements)
   {
     return Linq.contains(_elements, element);
   }
-
+  
   /**
    * Predicate returning true when the function argument's toString() ends with a suffix
    * 
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean endsWith(Object element, String _suffix)
+  public static boolean endsWith(final Object element, final String _suffix)
   {
     return StringUtils.endsWith(element.toString(), _suffix, StringComparison.Ordinal);
   }
@@ -90,7 +86,7 @@ public final class Objects
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean endsWith(Object element, String _suffix, StringComparison _comparison)
+  public static boolean endsWith(final Object element, final String _suffix, final StringComparison _comparison)
   {
     return StringUtils.endsWith(element.toString(), _suffix, _comparison);
   }
@@ -99,7 +95,7 @@ public final class Objects
    * Predicate returning true when the function argument is equal to a value
    */
   @Predicate
-  public static boolean equal(Object element, Object _value)
+  public static boolean equal(final Object element, final Object _value)
   {
     if (element == null)
     {
@@ -122,7 +118,7 @@ public final class Objects
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static <T extends Comparable<T>> boolean greaterThan(T element, T _value)
+  public static <T extends Comparable<T>> boolean greaterThan(final T element, final T _value)
   {
     return element.compareTo(_value) > 0;
   }
@@ -133,7 +129,7 @@ public final class Objects
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static <T extends Comparable<T>> boolean greaterThanOrEqual(T element, T _value)
+  public static <T extends Comparable<T>> boolean greaterThanOrEqual(final T element, final T _value)
   {
     return element.compareTo(_value) >= 0;
   }
@@ -144,7 +140,7 @@ public final class Objects
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean isEqual(Object element, String _other)
+  public static boolean isEqual(final Object element, final String _other)
   {
     return StringUtils.equal(element.toString(), _other, StringComparison.Ordinal);
   }
@@ -155,7 +151,7 @@ public final class Objects
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean isEqual(Object element, String _other, StringComparison _comparison)
+  public static boolean isEqual(final Object element, final String _other, final StringComparison _comparison)
   {
     return StringUtils.equal(element.toString(), _other, _comparison);
   }
@@ -167,7 +163,7 @@ public final class Objects
    * @throws IllegalArgumentException When a non-class (e.g. interface) was provided
    */
   @Predicate
-  public static boolean isExtending(Object obj, Class<?> _class)
+  public static boolean isExtending(final Object obj, final Class<?> _class)
   {
     return ReflectionUtils.isExtending(obj.getClass(), _class);
   }
@@ -179,11 +175,11 @@ public final class Objects
    * @throws IllegalArgumentException When a non-interface (e.g. class) was provided
    */
   @Predicate
-  public static boolean isImplementing(Object obj, Class<?> _class)
+  public static boolean isImplementing(final Object obj, final Class<?> _class)
   {
     return ReflectionUtils.isImplementing(obj.getClass(), _class);
   }
-  
+
   /**
    * Predicate that returns true if the function argument is not a subclass of the class specified
    * 
@@ -191,11 +187,11 @@ public final class Objects
    * @throws IllegalArgumentException When a non-class (e.g. interface) was provided
    */
   @Predicate
-  public static boolean isNotExtending(Object obj, Class<?> _class)
+  public static boolean isNotExtending(final Object obj, final Class<?> _class)
   {
     return !ReflectionUtils.isExtending(obj.getClass(), _class);
   }
-  
+
   /**
    * Predicate that returns true if the function argument is not an instance of the interface specified
    * 
@@ -203,18 +199,18 @@ public final class Objects
    * @throws IllegalArgumentException When a non-interface (e.g. class) was provided
    */
   @Predicate
-  public static boolean isNotImplementing(Object obj, Class<?> _class)
+  public static boolean isNotImplementing(final Object obj, final Class<?> _class)
   {
     return !ReflectionUtils.isImplementing(obj.getClass(), _class);
   }
-  
+
   /**
    * Predicate that returns true if the function argument is an instance of the class specified
    * 
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean instanceOf(Object obj, Class<?> _class)
+  public static boolean instanceOf(final Object obj, final Class<?> _class)
   {
     return ReflectionUtils.instanceOf(obj.getClass(), _class);
   }
@@ -223,7 +219,7 @@ public final class Objects
    * Predicate returning true when the function argument is null
    */
   @Predicate
-  public static boolean isNull(Object element)
+  public static boolean isNull(final Object element)
   {
     return element == null;
   }
@@ -232,7 +228,7 @@ public final class Objects
    * Predicate returning true when the function argument is not null
    */
   @Predicate
-  public static boolean isNotNull(Object element)
+  public static boolean isNotNull(final Object element)
   {
     return element != null;
   }
@@ -243,7 +239,7 @@ public final class Objects
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean println(Object element)
+  public static boolean println(final Object element)
   {
     System.out.println(element);
     return true;
@@ -255,19 +251,19 @@ public final class Objects
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean print(Object element)
+  public static boolean print(final Object element)
   {
     System.out.print(element);
     return true;
   }
-
+  
   /**
    * Predicate returning true when the function argument is less than a value
    * 
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static <T extends Comparable<T>> boolean lessThan(T element, T _value)
+  public static <T extends Comparable<T>> boolean lessThan(final T element, final T _value)
   {
     return element.compareTo(_value) < 0;
   }
@@ -278,38 +274,38 @@ public final class Objects
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static <T extends Comparable<T>> boolean lessThanOrEqual(T element, T _value)
+  public static <T extends Comparable<T>> boolean lessThanOrEqual(final T element, final T _value)
   {
     return element.compareTo(_value) <= 0;
   }
-  
+
   /**
    * Predicate returning true when the function argument's toString() does not contain some string
    * 
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean notContains(Object element, String _part)
+  public static boolean notContains(final Object element, final String _part)
   {
     return !StringUtils.contains(element.toString(), _part, StringComparison.Ordinal);
   }
-  
+
   /**
    * Predicate returning true when the function argument's toString() does not contain some string
    * 
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean notContains(Object element, String _part, StringComparison _comparison)
+  public static boolean notContains(final Object element, final String _part, final StringComparison _comparison)
   {
     return !StringUtils.contains(element.toString(), _part, _comparison);
   }
-  
+
   /**
    * Predicate returning true if an element is not contained in the function argument (Array)
    */
   @Predicate
-  public static <T> boolean notContainedIn(T element, T[] _elements)
+  public static <T> boolean notContainedIn(final T element, final T[] _elements)
   {
     return !Linq.contains(_elements, element);
   }
@@ -318,18 +314,18 @@ public final class Objects
    * Predicate returning true if an element is not contained in the function argument (Iterable)
    */
   @Predicate
-  public static <T> boolean notContainedBy(T element, Iterable<T> _elements)
+  public static boolean notContainedBy(final Object element, final Iterable _elements)
   {
     return !Linq.contains(_elements, element);
   }
-  
+
   /**
    * Predicate returning true when the function argument's toString() does not end with a suffix
    * 
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean notEndsWith(Object element, String _suffix)
+  public static boolean notEndsWith(final Object element, final String _suffix)
   {
     return !StringUtils.endsWith(element.toString(), _suffix, StringComparison.Ordinal);
   }
@@ -340,7 +336,7 @@ public final class Objects
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean notEndsWith(Object element, String _suffix, StringComparison _comparison)
+  public static boolean notEndsWith(final Object element, final String _suffix, final StringComparison _comparison)
   {
     return !StringUtils.endsWith(element.toString(), _suffix, _comparison);
   }
@@ -349,7 +345,7 @@ public final class Objects
    * Predicate returning true when the function argument is not equal to a value
    */
   @Predicate
-  public static boolean notEqual(Object element, Object _value)
+  public static boolean notEqual(final Object element, final Object _value)
   {
     if (element == null)
     {
@@ -365,25 +361,25 @@ public final class Objects
         return !element.equals(_value);
     }
   }
-  
+
   /**
    * Predicate that returns true if the function argument is not an instance of the class specified
    * 
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean notInstanceOf(Object obj, Class<?> _class)
+  public static boolean notInstanceOf(final Object obj, final Class<?> _class)
   {
     return !ReflectionUtils.instanceOf(obj.getClass(), _class);
   }
-  
+
   /**
    * Predicate returning true when the function argument's toString() does not start with a prefix
    * 
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean notStartsWith(Object element, String _prefix)
+  public static boolean notStartsWith(final Object element, final String _prefix)
   {
     return !StringUtils.startsWith(element.toString(), _prefix, StringComparison.Ordinal);
   }
@@ -394,7 +390,7 @@ public final class Objects
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean notStartsWith(Object element, String _prefix, StringComparison _comparison)
+  public static boolean notStartsWith(final Object element, final String _prefix, final StringComparison _comparison)
   {
     return !StringUtils.startsWith(element.toString(), _prefix, _comparison);
   }
@@ -405,7 +401,7 @@ public final class Objects
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean startsWith(Object element, String _prefix)
+  public static boolean startsWith(final Object element, final String _prefix)
   {
     return StringUtils.startsWith(element.toString(), _prefix, StringComparison.Ordinal);
   }
@@ -416,9 +412,12 @@ public final class Objects
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean startsWith(Object element, String _prefix, StringComparison _comparison)
+  public static boolean startsWith(final Object element, final String _prefix, final StringComparison _comparison)
   {
     return StringUtils.startsWith(element.toString(), _prefix, _comparison);
   }
 
+  private Objects()
+  {
+  }
 }

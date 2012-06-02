@@ -23,7 +23,7 @@ import propel.core.utils.Linq;
 import java.util.NoSuchElementException;
 
 /**
- * Some common, re-usable predicates
+ * Some common, re-usable predicates for Iterables
  */
 public final class Iterables
 {
@@ -33,7 +33,7 @@ public final class Iterables
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static <T> boolean contains(Iterable<T> element, T _item)
+  public static boolean contains(final Iterable element, final Object _item)
   {
     return Linq.contains(element, _item);
   }
@@ -44,7 +44,7 @@ public final class Iterables
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static <T> boolean containsAll(Iterable<T> element, Iterable<T> _items)
+  public static boolean containsAll(final Iterable element, final Iterable _items)
   {
     return Linq.containsAll(element, _items);
   }
@@ -55,7 +55,7 @@ public final class Iterables
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static <T> boolean containsAny(Iterable<T> element, Iterable<T> _items)
+  public static boolean containsAny(final Iterable element, final Iterable _items)
   {
     return Linq.containsAny(element, _items);
   }
@@ -64,7 +64,7 @@ public final class Iterables
    * Predicate returning true when the function argument is equal to another array
    */
   @Predicate
-  public static <T> boolean equal(Iterable<T> element, Iterable<T> _value)
+  public static boolean equal(final Iterable element, final Iterable _value)
   {
     if (element == null)
     {
@@ -87,9 +87,17 @@ public final class Iterables
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean isEmpty(Iterable<?> element)
+  public static boolean isEmpty(final Iterable element)
   {
-    return Linq.firstOrDefault(element) == null;
+    try
+    {
+      Linq.first(element);
+      return false;
+    }
+    catch(NoSuchElementException e)
+    {
+      return true;
+    }
   }
 
   /**
@@ -98,7 +106,7 @@ public final class Iterables
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean isNotEmpty(Iterable<?> element)
+  public static boolean isNotEmpty(final Iterable element)
   {
     try
     {
@@ -117,7 +125,7 @@ public final class Iterables
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean lengthEquals(Iterable<?> element, int _len)
+  public static boolean lengthEquals(final Iterable element, final int _len)
   {
     return _len >= 0 && Linq.count(element) == _len;
   }
@@ -128,7 +136,7 @@ public final class Iterables
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean lengthGreaterThan(Iterable<?> element, int _len)
+  public static boolean lengthGreaterThan(final Iterable element, final int _len)
   {
     return _len >= 0 && Linq.count(element) > _len;
   }
@@ -139,7 +147,7 @@ public final class Iterables
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean lengthGreaterThanOrEqual(Iterable<?> element, int _len)
+  public static boolean lengthGreaterThanOrEqual(final Iterable element, final int _len)
   {
     return _len >= 0 && Linq.count(element) >= _len;
   }
@@ -150,7 +158,7 @@ public final class Iterables
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean lengthLessThan(Iterable<?> element, int _len)
+  public static boolean lengthLessThan(final Iterable element, final int _len)
   {
     return _len >= 0 && Linq.count(element) < _len;
   }
@@ -161,7 +169,7 @@ public final class Iterables
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean lengthLessThanOrEqual(Iterable<?> element, int _len)
+  public static boolean lengthLessThanOrEqual(final Iterable element, final int _len)
   {
     return _len >= 0 && Linq.count(element) <= _len;
   }
@@ -172,7 +180,7 @@ public final class Iterables
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean lengthNotEqual(Iterable<?> element, int _len)
+  public static boolean lengthNotEqual(final Iterable element, final int _len)
   {
     return _len >= 0 && Linq.count(element) != _len;
   }
@@ -181,7 +189,7 @@ public final class Iterables
    * Predicate returning true when the function argument is not equal to another array
    */
   @Predicate
-  public static <T> boolean notEqual(Iterable<T> element, Iterable<T> _value)
+  public static boolean notEqual(final Iterable element, final Iterable _value)
   {
     if (element == null)
     {
@@ -197,14 +205,14 @@ public final class Iterables
         return !Linq.sequenceEqual(element, _value);
     }
   }
-  
+
   /**
    * Predicate returning true when the function argument does not contain an item
    * 
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static <T> boolean notContains(Iterable<T> element, T _item)
+  public static boolean notContains(final Iterable element, final Object _item)
   {
     return !Linq.contains(element, _item);
   }
@@ -215,7 +223,7 @@ public final class Iterables
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static <T> boolean notContainsAll(Iterable<T> element, Iterable<T> _items)
+  public static boolean notContainsAll(final Iterable element, final Iterable _items)
   {
     return !Linq.containsAll(element, _items);
   }
@@ -226,7 +234,7 @@ public final class Iterables
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static <T> boolean notContainsAny(Iterable<T> element, Iterable<T> _items)
+  public static boolean notContainsAny(final Iterable element, final Iterable _items)
   {
     return !Linq.containsAny(element, _items);
   }

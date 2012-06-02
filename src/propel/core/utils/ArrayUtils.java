@@ -18,7 +18,6 @@
 // /////////////////////////////////////////////////////////
 package propel.core.utils;
 
-import propel.core.collections.ReifiedIterable;
 import propel.core.collections.lists.ReifiedArrayList;
 import propel.core.collections.lists.ReifiedLinkedList;
 import propel.core.collections.lists.ReifiedList;
@@ -30,32 +29,25 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import lombok.Validate;
+import lombok.Validate.NotNull;
+import lombok.val;
 
 /**
  * Provides utility functionality for array manipulations
  */
 public final class ArrayUtils
 {
-
-  /**
-   * Private constructor prevents instantiation
-   */
-  private ArrayUtils()
-  {
-  }
-
   /**
    * Adds an element to the given array
    * 
    * @throws NullPointerException Array is null.
    */
+  @Validate
   @SuppressWarnings("unchecked")
-  public static <T> T[] add(T[] array, T element)
+  public static <T> T[] add(@NotNull final T[] array, T element)
   {
-    if (array == null)
-      throw new NullPointerException("array");
-
-    T[] result = (T[]) Array.newInstance(array.getClass().getComponentType(), array.length + 1);
+    val result = (T[]) Array.newInstance(array.getClass().getComponentType(), array.length + 1);
     System.arraycopy(array, 0, result, 0, array.length);
     result[array.length] = element;
     return result;
@@ -66,12 +58,10 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static Boolean[] box(boolean[] booleans)
+  @Validate
+  public static Boolean[] box(@NotNull final boolean[] booleans)
   {
-    if (booleans == null)
-      throw new NullPointerException("booleans");
-
-    ReifiedList<Boolean> result = new ReifiedArrayList<Boolean>(booleans.length, Boolean.class);
+    val result = new ReifiedArrayList<Boolean>(booleans.length, Boolean.class);
     for (boolean val : booleans)
       result.add(val);
 
@@ -83,12 +73,10 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static Byte[] box(byte[] bytes)
+  @Validate
+  public static Byte[] box(@NotNull final byte[] bytes)
   {
-    if (bytes == null)
-      throw new NullPointerException("bytes");
-
-    ReifiedList<Byte> result = new ReifiedArrayList<Byte>(bytes.length, Byte.class);
+    val result = new ReifiedArrayList<Byte>(bytes.length, Byte.class);
     for (byte val : bytes)
       result.add(val);
 
@@ -100,12 +88,10 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static Character[] box(char[] chars)
+  @Validate
+  public static Character[] box(@NotNull final char[] chars)
   {
-    if (chars == null)
-      throw new NullPointerException("chars");
-
-    ReifiedList<Character> result = new ReifiedArrayList<Character>(chars.length, Character.class);
+    val result = new ReifiedArrayList<Character>(chars.length, Character.class);
     for (char val : chars)
       result.add(val);
 
@@ -117,12 +103,10 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static Short[] box(short[] shorts)
+  @Validate
+  public static Short[] box(@NotNull final short[] shorts)
   {
-    if (shorts == null)
-      throw new NullPointerException("shorts");
-
-    ReifiedList<Short> result = new ReifiedArrayList<Short>(shorts.length, Short.class);
+    val result = new ReifiedArrayList<Short>(shorts.length, Short.class);
     for (short val : shorts)
       result.add(val);
 
@@ -134,12 +118,10 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static Integer[] box(int[] ints)
+  @Validate
+  public static Integer[] box(@NotNull final int[] ints)
   {
-    if (ints == null)
-      throw new NullPointerException("ints");
-
-    ReifiedList<Integer> result = new ReifiedArrayList<Integer>(ints.length, Integer.class);
+    val result = new ReifiedArrayList<Integer>(ints.length, Integer.class);
     for (int val : ints)
       result.add(val);
 
@@ -151,12 +133,10 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static Long[] box(long[] longs)
+  @Validate
+  public static Long[] box(@NotNull final long[] longs)
   {
-    if (longs == null)
-      throw new NullPointerException("longs");
-
-    ReifiedList<Long> result = new ReifiedArrayList<Long>(longs.length, Long.class);
+    val result = new ReifiedArrayList<Long>(longs.length, Long.class);
     for (long val : longs)
       result.add(val);
 
@@ -168,12 +148,10 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static Float[] box(float[] floats)
+  @Validate
+  public static Float[] box(@NotNull final float[] floats)
   {
-    if (floats == null)
-      throw new NullPointerException("floats");
-
-    ReifiedList<Float> result = new ReifiedArrayList<Float>(floats.length, Float.class);
+    val result = new ReifiedArrayList<Float>(floats.length, Float.class);
     for (float val : floats)
       result.add(val);
 
@@ -185,12 +163,10 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static Double[] box(double[] doubles)
+  @Validate
+  public static Double[] box(@NotNull final double[] doubles)
   {
-    if (doubles == null)
-      throw new NullPointerException("doubles");
-
-    ReifiedList<Double> result = new ReifiedArrayList<Double>(doubles.length, Double.class);
+    val result = new ReifiedArrayList<Double>(doubles.length, Double.class);
     for (double val : doubles)
       result.add(val);
 
@@ -202,12 +178,10 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static List<Boolean> boxBools(boolean[] booleans)
+  @Validate
+  public static List<Boolean> boxBools(@NotNull final boolean[] booleans)
   {
-    if (booleans == null)
-      throw new NullPointerException("booleans");
-
-    List<Boolean> result = new ArrayList<Boolean>(booleans.length);
+    val result = new ArrayList<Boolean>(booleans.length);
     for (boolean val : booleans)
       result.add(val);
 
@@ -219,12 +193,10 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static List<Byte> boxBytes(byte[] bytes)
+  @Validate
+  public static List<Byte> boxBytes(@NotNull final byte[] bytes)
   {
-    if (bytes == null)
-      throw new NullPointerException("bytes");
-
-    List<Byte> result = new ArrayList<Byte>(bytes.length);
+    val result = new ArrayList<Byte>(bytes.length);
     for (byte val : bytes)
       result.add(val);
 
@@ -236,12 +208,10 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static List<Character> boxChars(char[] chars)
+  @Validate
+  public static List<Character> boxChars(@NotNull final char[] chars)
   {
-    if (chars == null)
-      throw new NullPointerException("chars");
-
-    List<Character> result = new ArrayList<Character>(chars.length);
+    val result = new ArrayList<Character>(chars.length);
     for (char val : chars)
       result.add(val);
 
@@ -253,12 +223,10 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static List<Short> boxShorts(short[] shorts)
+  @Validate
+  public static List<Short> boxShorts(@NotNull final short[] shorts)
   {
-    if (shorts == null)
-      throw new NullPointerException("shorts");
-
-    List<Short> result = new ArrayList<Short>(shorts.length);
+    val result = new ArrayList<Short>(shorts.length);
     for (short val : shorts)
       result.add(val);
 
@@ -270,12 +238,10 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static List<Integer> boxInts(int[] ints)
+  @Validate
+  public static List<Integer> boxInts(@NotNull final int[] ints)
   {
-    if (ints == null)
-      throw new NullPointerException("ints");
-
-    List<Integer> result = new ArrayList<Integer>(ints.length);
+    val result = new ArrayList<Integer>(ints.length);
     for (int val : ints)
       result.add(val);
 
@@ -287,12 +253,10 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static List<Long> boxLongs(long[] longs)
+  @Validate
+  public static List<Long> boxLongs(@NotNull final long[] longs)
   {
-    if (longs == null)
-      throw new NullPointerException("longs");
-
-    List<Long> result = new ArrayList<Long>(longs.length);
+    val result = new ArrayList<Long>(longs.length);
     for (long val : longs)
       result.add(val);
 
@@ -304,12 +268,10 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static List<Float> boxFloats(float[] floats)
+  @Validate
+  public static List<Float> boxFloats(@NotNull final float[] floats)
   {
-    if (floats == null)
-      throw new NullPointerException("floats");
-
-    List<Float> result = new ArrayList<Float>(floats.length);
+    val result = new ArrayList<Float>(floats.length);
     for (float val : floats)
       result.add(val);
 
@@ -321,12 +283,10 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static List<Double> boxDoubles(double[] doubles)
+  @Validate
+  public static List<Double> boxDoubles(@NotNull final double[] doubles)
   {
-    if (doubles == null)
-      throw new NullPointerException("doubles");
-
-    List<Double> result = new ArrayList<Double>(doubles.length);
+    val result = new ArrayList<Double>(doubles.length);
     for (double val : doubles)
       result.add(val);
 
@@ -348,11 +308,9 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException Array is null.
    */
-  public static <T> void clear(T[] array, T element)
+  @Validate
+  public static <T> void clear(@NotNull final T[] array, T element)
   {
-    if (array == null)
-      throw new NullPointerException("array");
-
     // set to default value
     for (int i = 0; i < array.length; i++)
       array[i] = element;
@@ -363,11 +321,9 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException Array is null.
    */
-  public static <T> T[] clone(T[] array)
+  @Validate
+  public static <T> T[] clone(@NotNull final T[] array)
   {
-    if (array == null)
-      throw new NullPointerException("array");
-
     return Arrays.copyOf(array, array.length);
   }
 
@@ -377,11 +333,9 @@ public final class ArrayUtils
    * @throws NullPointerException An argument is null.
    * @throws IllegalArgumentException The argument is not a primitive or object array
    */
-  public static int count(Object array)
+  @Validate
+  public static int count(@NotNull final Object array)
   {
-    if (array == null)
-      throw new NullPointerException("array");
-
     // get the array type
     PrimitiveArrayType arrayType = getType(array);
 
@@ -412,18 +366,19 @@ public final class ArrayUtils
 
   /**
    * Creates a generic array
-   *
+   * 
    * @throws NullPointerException An argument is null
    * @throws IllegalArgumentException If componentType is {@link Void#TYPE}
    * @throws ClassCastException An invalid type parameter was specified
    * @throws NegativeArraySizeException If the specified size is negative
    */
+  @Validate
   @SuppressWarnings("unchecked")
-  public static <T> T[] create(final Class<?> componentType, final int size)
+  public static <T> T[] create(@NotNull final Class<?> componentType, final int size)
   {
     return (T[]) Array.newInstance(componentType, size);
   }
-  
+
   /**
    * Creates a 1-dimensional array populated with the specified element in all places
    * 
@@ -431,16 +386,14 @@ public final class ArrayUtils
    * @throws IllegalArgumentException Value is null, or length is out of range.
    * @throws OutOfMemoryError No enough memory to allocate array
    */
+  @Validate
   @SuppressWarnings("unchecked")
-  public static <T> T[] create(T value, int length)
+  public static <T> T[] create(@NotNull final T value, int length)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
     if (length < 0)
       throw new IllegalArgumentException("length=" + length);
 
-    T[] result = (T[]) Array.newInstance(value.getClass(), length);
+    val result = (T[]) Array.newInstance(value.getClass(), length);
     for (int i = 0; i < length; i++)
       result[i] = value;
 
@@ -454,19 +407,18 @@ public final class ArrayUtils
    * @throws IllegalArgumentException A dimension is out of range.
    * @throws OutOfMemoryError No enough memory to allocate array
    */
+  @Validate
   @SuppressWarnings("unchecked")
-  public static <T> T[][] create(T value, int lengthX, int lengthY)
+  public static <T> T[][] create(@NotNull final T value, int lengthX, int lengthY)
   {
-    if (value == null)
-      throw new NullPointerException("value");
     if (lengthX < 0)
       throw new IllegalArgumentException("lengthX=" + lengthX);
     if (lengthY < 0)
       throw new IllegalArgumentException("lengthY=" + lengthY);
 
-    Class<?> valueType = value.getClass();
-    T[] array = (T[]) Array.newInstance(valueType, 0);
-    T[][] result = (T[][]) Array.newInstance(array.getClass(), lengthX);
+    val valueType = value.getClass();
+    val array = (T[]) Array.newInstance(valueType, 0);
+    val result = (T[][]) Array.newInstance(array.getClass(), lengthX);
 
     for (int x = 0; x < lengthX; x++)
     {
@@ -487,15 +439,13 @@ public final class ArrayUtils
    *           occurred
    * @throws NullPointerException Array is null.
    */
+  @Validate
   @SuppressWarnings("unchecked")
-  public static <T> T[] deepClone(T[] array)
+  public static <T> T[] deepClone(@NotNull final T[] array)
   {
-    if (array == null)
-      throw new NullPointerException("array");
-
     try
     {
-      T[] result = (T[]) Array.newInstance(array.getClass().getComponentType(), array.length);
+      val result = (T[]) Array.newInstance(array.getClass().getComponentType(), array.length);
 
       for (int i = 0; i < array.length; i++)
         if (array[i] != null)
@@ -505,22 +455,8 @@ public final class ArrayUtils
     }
     catch(Exception e)
     {
-      throw new IllegalArgumentException(e);
+      throw new IllegalArgumentException("Could not perform a deep-clone operation", e);
     }
-  }
-
-  /**
-   * Creates an array from an Iterable.
-   * 
-   * @throws NullPointerException Iterable is null.
-   */
-  public static <T> T[] from(ReifiedIterable<T> iterable)
-  {
-    if (iterable == null)
-      throw new NullPointerException("iterable");
-
-    // count items
-    return new ReifiedArrayList<T>(iterable).toArray();
   }
 
   /**
@@ -529,11 +465,9 @@ public final class ArrayUtils
    * @throws NullPointerException An argument is null
    * @throws IllegalArgumentException The argument is not a primitive or object array
    */
-  public static PrimitiveArrayType getType(Object array)
+  @Validate
+  public static PrimitiveArrayType getType(@NotNull final Object array)
   {
-    if (array == null)
-      throw new NullPointerException("array");
-
     String className = array.getClass().getName();
     if (className.charAt(0) != CONSTANT.BRACKET_OPEN_CHAR)
       throw new IllegalArgumentException("The provided object is not an array: " + array.getClass());
@@ -573,11 +507,9 @@ public final class ArrayUtils
    * @throws NullPointerException An argument is null
    * @throws IllegalArgumentException The argument is not a primitive or object array
    */
-  public static int getDimensions(Object array)
+  @Validate
+  public static int getDimensions(@NotNull final Object array)
   {
-    if (array == null)
-      throw new NullPointerException("array");
-
     String className = array.getClass().getName();
     if (className.charAt(0) != CONSTANT.BRACKET_OPEN_CHAR)
       throw new IllegalArgumentException("The provided object is not an array: " + array.getClass());
@@ -599,13 +531,9 @@ public final class ArrayUtils
    * @throws NullPointerException Array collection is null
    * @throws IllegalStateException Component type cannot be determined.
    */
-  public static <T> T[] join(T[] first, T[] second)
+  @Validate
+  public static <T> T[] join(@NotNull T[] first, @NotNull final T[] second)
   {
-    if (first == null)
-      throw new NullPointerException("first");
-    if (second == null)
-      throw new NullPointerException("second");
-
     if (second.length == 0)
       return first;
     else if (first.length == 0)
@@ -627,12 +555,10 @@ public final class ArrayUtils
    * @throws NullPointerException Array collection is null
    * @throws IllegalStateException Component type cannot be determined.
    */
+  @Validate
   @SuppressWarnings("unchecked")
-  public static <T> T[] join(Iterable<T[]> arrays)
+  public static <T> T[] join(@NotNull final Iterable<T[]> arrays)
   {
-    if (arrays == null)
-      throw new NullPointerException("arrays");
-
     Class<?> componentType = null;
 
     // determine full length
@@ -670,30 +596,26 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException Array is null.
    */
+  @Validate
   @SuppressWarnings("unchecked")
-  public static <T> T[] prepend(T[] array, T element)
+  public static <T> T[] prepend(@NotNull final T[] array, T element)
   {
-    if (array == null)
-      throw new NullPointerException("array");
-
-    T[] result = (T[]) Array.newInstance(array.getClass().getComponentType(), array.length + 1);
+    val result = (T[]) Array.newInstance(array.getClass().getComponentType(), array.length + 1);
     System.arraycopy(array, 0, result, 1, array.length);
     result[0] = element;
     return result;
   }
-  
+
   /**
    * Removes the first encounter of element from the given array, returning an new array if found. Otherwise returns a copy of the array
    * containing all original items.
    * 
    * @throws NullPointerException Array is null.
    */
-  public static <T> T[] remove(T[] array, T element)
+  @Validate
+  public static <T> T[] remove(@NotNull final T[] array, T element)
   {
-    if (array == null)
-      throw new NullPointerException("array");
-
-    ReifiedArrayList<T> list = new ReifiedArrayList<T>(array);
+    val list = new ReifiedArrayList<T>(array);
     list.remove(element);
     return list.toArray();
   }
@@ -704,12 +626,10 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException Array is null.
    */
-  public static <T> T[] removeAll(T[] array, T element)
+  @Validate
+  public static <T> T[] removeAll(@NotNull final T[] array, T element)
   {
-    if (array == null)
-      throw new NullPointerException("array");
-
-    ReifiedArrayList<T> list = new ReifiedArrayList<T>(array.length, array.getClass().getComponentType());
+    val list = new ReifiedArrayList<T>(array.length, array.getClass().getComponentType());
 
     int i = 0;
     if (element == null)
@@ -732,18 +652,18 @@ public final class ArrayUtils
    * @throws NullPointerException Array is null
    * @throws IndexOutOfBoundsException Index is out of range
    */
-  public static <T> T[] remove(T[] array, int index)
+  @Validate
+  public static <T> T[] remove(@NotNull final T[] array, int index)
   {
-    if (array == null)
-      throw new NullPointerException("array");
-
     if (index < 0 || index >= array.length)
       throw new IndexOutOfBoundsException("index=" + index + " length=" + array.length);
 
-    ReifiedArrayList<T> list = new ReifiedArrayList<T>(array);
-    list.remove(index);
-
-    return list.toArray();
+    val result = (T[]) ArrayUtils.create(array.getClass().getComponentType(), array.length - 1);
+    if (index > 0)
+      System.arraycopy(array, 0, result, 0, index);
+    if (index != array.length - 1)
+      System.arraycopy(array, index + 1, result, index, array.length - index - 1);
+    return result;
   }
 
   /**
@@ -754,12 +674,10 @@ public final class ArrayUtils
    * @throws NullPointerException Array is null
    * @throws IllegalArgumentException Length is out of range
    */
+  @Validate
   @SuppressWarnings("unchecked")
-  public static <T> T[] resize(T[] array, int length)
+  public static <T> T[] resize(@NotNull final T[] array, int length)
   {
-    if (array == null)
-      throw new NullPointerException("array");
-
     // validate new size
     if (length < 0)
       throw new IllegalArgumentException("length=" + length);
@@ -789,19 +707,25 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException Array is null.
    */
-  public static <T> T[] reverse(T[] array)
+  @Validate
+  public static <T> T[] reverse(@NotNull final T[] array)
   {
-    if (array == null)
-      throw new NullPointerException("array");
-
-    T item = null;
-    int index = 0;
-    for (int i = 0; i < array.length; i++)
+    if (array.length > 1)
     {
-      item = array[i];
-      index = array.length - i - 1;
-      array[i] = array[index];
-      array[index] = item;
+      int left = 0; // index of leftmost element
+      int right = array.length - 1; // index of rightmost element
+
+      while (left < right)
+      {
+        // exchange the left and right elements
+        val temp = array[left];
+        array[left] = array[right];
+        array[right] = temp;
+
+        // move the bounds toward the center
+        left++;
+        right--;
+      }
     }
 
     return array;
@@ -812,67 +736,17 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException Array is null.
    */
+  @Validate
   @SuppressWarnings("unchecked")
-  public static <T> T[] reverseCopy(T[] array)
+  public static <T> T[] reverseCopy(@NotNull final T[] array)
   {
-    if (array == null)
-      throw new NullPointerException("array");
-
-    int length = array.length;
-    T[] result = (T[]) Array.newInstance(array.getClass().getComponentType(), length);
+    val length = array.length;
+    val result = (T[]) Array.newInstance(array.getClass().getComponentType(), length);
 
     for (int i = 0; i < length; i++)
-      result[length - i - 1] = array[i];
+      result[i] = array[length - 1 - i];
 
     return result;
-  }
-
-  /**
-   * Returns true if the item sequences within two arrays are equal. Arrays may contain null elements.
-   * 
-   * @throws NullPointerException An array is null
-   * @throws IllegalArgumentException Length is out of range.
-   * @throws IndexOutOfBoundsException Offsets are out of range.
-   * @throws ArithmeticException When very large numbers are used and overflow occurs.
-   */
-  public static <T> boolean sequenceEqual(T[] a, int offsetA, T[] b, int offsetB, int count)
-  {
-    if (a == null)
-      throw new NullPointerException("array1");
-    if (b == null)
-      throw new NullPointerException("array2");
-
-    if (count == 0)
-      return true;
-    if (offsetA < 0)
-      throw new IndexOutOfBoundsException("offsetA=" + offsetA);
-    if (offsetB < 0)
-      throw new IndexOutOfBoundsException("offsetB=" + offsetB);
-
-    if (count < 0)
-      throw new IllegalArgumentException("count=" + count);
-
-    if (offsetA + count > a.length || offsetA + count < 0)
-      throw new IndexOutOfBoundsException("offsetA=" + offsetA + " count=" + count + " length=" + a.length);
-    if (offsetB + count > b.length || offsetB + count < 0)
-      throw new IndexOutOfBoundsException("offsetB=" + offsetB + " count=" + count + " length=" + b.length);
-
-    // comparisons
-    for (int i = 0; i < count; i++)
-    {
-      T elemA = a[offsetA + i];
-      T elemB = b[offsetB + i];
-
-      // check not null to use Equals
-      if (elemA != null && elemB != null)
-      {
-        if (!elemA.equals(elemB))
-          return false;
-      } else if (elemA != null || elemB != null)
-        return false;
-    }
-
-    return true;
   }
 
   /**
@@ -881,143 +755,19 @@ public final class ArrayUtils
    * @throws NullPointerException Array is null.
    * @throws IndexOutOfBoundsException Start index / end index are out of range.
    */
+  @Validate
   @SuppressWarnings("unchecked")
-  public static <T> T[] subArray(T[] array, int startIndex, int endIndex)
+  public static <T> T[] subArray(@NotNull final T[] array, int startIndex, int endIndex)
   {
-    if (array == null)
-      throw new NullPointerException("array");
-
     if (startIndex < 0 || startIndex > endIndex)
       throw new IndexOutOfBoundsException("startIndex=" + startIndex + " endIndex=" + endIndex);
     if (endIndex > array.length)
       throw new IndexOutOfBoundsException("endIndex=" + endIndex + " length=" + array.length);
 
-    T[] result = (T[]) Array.newInstance(array.getClass().getComponentType(), endIndex - startIndex);
+    val result = (T[]) Array.newInstance(array.getClass().getComponentType(), endIndex - startIndex);
     System.arraycopy(array, startIndex, result, 0, endIndex - startIndex);
 
     return result;
-  }
-
-  /**
-   * Swaps two elements in an array.
-   * 
-   * @throws NullPointerException Array is null
-   * @throws IndexOutOfBoundsException Array indices are out of range.
-   */
-  public static <T> void swap(T[] array, int a, int b)
-  {
-    if (array == null)
-      throw new NullPointerException("array");
-
-    if (a < 0 || a >= array.length)
-      throw new IndexOutOfBoundsException("a=" + a + " length=" + array.length);
-
-    if (b < 0 || b >= array.length)
-      throw new IndexOutOfBoundsException("b=" + b + " length=" + array.length);
-
-    if (a == b)
-      return;
-
-    T value = array[a];
-    array[a] = array[b];
-    array[b] = value;
-  }
-
-  /**
-   * Swaps two elements in an array.
-   * 
-   * @throws NullPointerException List is null
-   * @throws IndexOutOfBoundsException List indices are out of range.
-   */
-  public static <T> void swap(List<T> list, int a, int b)
-  {
-    if (list == null)
-      throw new NullPointerException("list");
-
-    if (a < 0 || a >= list.size())
-      throw new IndexOutOfBoundsException("a=" + a + " size=" + list.size());
-
-    if (b < 0 || b >= list.size())
-      throw new IndexOutOfBoundsException("b=" + b + " size=" + list.size());
-
-    if (a == b)
-      return;
-
-    T value = list.get(a);
-    list.set(a, list.get(b));
-    list.set(b, value);
-  }
-
-  /**
-   * Swaps two or more elements in an array.
-   * 
-   * @throws NullPointerException Array is null
-   * @throws IllegalArgumentException The length of index arrays are not equal.
-   * @throws IndexOutOfBoundsException An array index in the indices is out of range
-   */
-  public static <T> void swap(T[] array, int[] a, int[] b)
-  {
-    if (array == null)
-      throw new NullPointerException("array");
-    if (a == null)
-      throw new NullPointerException("a");
-    if (b == null)
-      throw new NullPointerException("b");
-
-    if (a.length != b.length)
-      throw new IllegalArgumentException("a=" + a.length + " b=" + b.length);
-
-    for (int i = 0; i < a.length; i++)
-    {
-      int posA = a[i];
-      int posB = b[i];
-
-      if (posA < 0 || posA >= array.length)
-        throw new IndexOutOfBoundsException("posA=" + posA + " length=" + array.length);
-      if (posB < 0 || posB >= array.length)
-        throw new IndexOutOfBoundsException("posB=" + posB + " length=" + array.length);
-
-      T value = array[posA];
-      array[posA] = array[posB];
-      array[posB] = value;
-    }
-  }
-
-  /**
-   * Swaps two or more elements in an array
-   * 
-   * @throws NullPointerException An argument is null
-   * @throws IllegalArgumentException The length of index arrays are not equal.
-   * @throws IndexOutOfBoundsException An array index in the indices is out of range
-   */
-  public static <T> void swap(List<T> list, int[] a, int[] b)
-  {
-    if (list == null)
-      throw new NullPointerException("list");
-
-    if (a == null)
-      throw new NullPointerException("a");
-
-    if (b == null)
-      throw new NullPointerException("b");
-
-    if (a.length != b.length)
-      throw new IllegalArgumentException("a=" + a.length + " b=" + b.length);
-
-    for (int i = 0; i < a.length; i++)
-    {
-      int posA = a[i];
-      int posB = b[i];
-
-      if (posA < 0 || posA >= list.size())
-        throw new IndexOutOfBoundsException("posA=" + posA + " length=" + list.size());
-      if (posB < 0 || posB >= list.size())
-        throw new IndexOutOfBoundsException("posB=" + posB + " length=" + list.size());
-
-      T value = list.get(posA);
-      list.set(posA, list.get(posB));
-      list.set(posB, value);
-    }
   }
 
   /**
@@ -1025,13 +775,9 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static <T> void toCollection(T[] from, Collection<T> to)
+  @Validate
+  public static <T> void toCollection(@NotNull final T[] from, @NotNull final Collection<T> to)
   {
-    if (from == null)
-      throw new NullPointerException("from");
-    if (to == null)
-      throw new NullPointerException("to");
-
     for (T item : from)
       to.add(item);
   }
@@ -1041,11 +787,9 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException The array is null.
    */
-  public static <T> ReifiedList<T> toList(T[] array)
+  @Validate
+  public static <T> ReifiedList<T> toList(@NotNull final T[] array)
   {
-    if (array == null)
-      throw new NullPointerException("array");
-
     return new ReifiedArrayList<T>(array);
   }
 
@@ -1054,12 +798,10 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException The array is null.
    */
-  public static <T extends Comparable<T>> SortedList<T> toSortedList(T[] array)
+  @Validate
+  public static <T extends Comparable<T>> SortedList<T> toSortedList(@NotNull final T[] array)
   {
-    if (array == null)
-      throw new NullPointerException("array");
-
-    SortedList<T> result = new SortedList<T>(array.getClass().getComponentType());
+    val result = new SortedList<T>(array.getClass().getComponentType());
     for (T element : array)
       result.add(element);
 
@@ -1071,12 +813,10 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException The array is null.
    */
-  public static <T extends Comparable<T>> SortedList<T> toSortedList(T[] array, Comparator<? super T> comparator)
+  @Validate
+  public static <T extends Comparable<T>> SortedList<T> toSortedList(@NotNull final T[] array, Comparator<? super T> comparator)
   {
-    if (array == null)
-      throw new NullPointerException("array");
-
-    SortedList<T> result = new SortedList<T>(comparator, array.getClass().getComponentType());
+    val result = new SortedList<T>(comparator, array.getClass().getComponentType());
     for (T element : array)
       result.add(element);
 
@@ -1088,12 +828,10 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException The array is null.
    */
-  public static <T> ReifiedLinkedList<T> toLinkedList(T[] array)
+  @Validate
+  public static <T> ReifiedLinkedList<T> toLinkedList(@NotNull final T[] array)
   {
-    if (array == null)
-      throw new NullPointerException("array");
-
-    ReifiedLinkedList<T> result = new ReifiedLinkedList<T>(array);
+    val result = new ReifiedLinkedList<T>(array);
 
     for (T item : array)
       result.addLast(item);
@@ -1106,12 +844,10 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static boolean[] unboxBools(Iterable<Boolean> booleans)
+  @Validate
+  public static boolean[] unboxBools(@NotNull final Iterable<Boolean> booleans)
   {
-    if (booleans == null)
-      throw new NullPointerException("booleans");
-
-    boolean[] result = new boolean[Linq.count(booleans)];
+    val result = new boolean[Linq.count(booleans)];
 
     int index = 0;
     for (Boolean val : booleans)
@@ -1128,12 +864,10 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static boolean[] unbox(Boolean[] booleans)
+  @Validate
+  public static boolean[] unbox(@NotNull final Boolean[] booleans)
   {
-    if (booleans == null)
-      throw new NullPointerException("booleans");
-
-    boolean[] result = new boolean[booleans.length];
+    val result = new boolean[booleans.length];
     for (int i = 0; i < result.length; i++)
       result[i] = booleans[i] != null ? booleans[i] : false;
 
@@ -1145,12 +879,10 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static byte[] unboxBytes(Iterable<Byte> bytes)
+  @Validate
+  public static byte[] unboxBytes(@NotNull final Iterable<Byte> bytes)
   {
-    if (bytes == null)
-      throw new NullPointerException("bytes");
-
-    byte[] result = new byte[Linq.count(bytes)];
+    val result = new byte[Linq.count(bytes)];
 
     int index = 0;
     for (Byte val : bytes)
@@ -1167,12 +899,10 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static byte[] unbox(Byte[] bytes)
+  @Validate
+  public static byte[] unbox(@NotNull final Byte[] bytes)
   {
-    if (bytes == null)
-      throw new NullPointerException("bytes");
-
-    byte[] result = new byte[bytes.length];
+    val result = new byte[bytes.length];
     for (int i = 0; i < result.length; i++)
       result[i] = bytes[i] != null ? bytes[i] : 0;
 
@@ -1184,12 +914,10 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static char[] unboxChars(Iterable<Character> characters)
+  @Validate
+  public static char[] unboxChars(@NotNull final Iterable<Character> characters)
   {
-    if (characters == null)
-      throw new NullPointerException("characters");
-
-    char[] result = new char[Linq.count(characters)];
+    val result = new char[Linq.count(characters)];
 
     int index = 0;
     for (Character val : characters)
@@ -1206,12 +934,10 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static char[] unbox(Character[] characters)
+  @Validate
+  public static char[] unbox(@NotNull final Character[] characters)
   {
-    if (characters == null)
-      throw new NullPointerException("characters");
-
-    char[] result = new char[characters.length];
+    val result = new char[characters.length];
     for (int i = 0; i < result.length; i++)
       result[i] = characters[i] != null ? characters[i] : 0;
 
@@ -1223,12 +949,10 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static short[] unboxShorts(Iterable<Short> shorts)
+  @Validate
+  public static short[] unboxShorts(@NotNull final Iterable<Short> shorts)
   {
-    if (shorts == null)
-      throw new NullPointerException("shorts");
-
-    short[] result = new short[Linq.count(shorts)];
+    val result = new short[Linq.count(shorts)];
 
     int index = 0;
     for (Short val : shorts)
@@ -1245,12 +969,10 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static short[] unbox(Short[] shorts)
+  @Validate
+  public static short[] unbox(@NotNull final Short[] shorts)
   {
-    if (shorts == null)
-      throw new NullPointerException("shorts");
-
-    short[] result = new short[shorts.length];
+    val result = new short[shorts.length];
     for (int i = 0; i < result.length; i++)
       result[i] = shorts[i] != null ? shorts[i] : 0;
 
@@ -1262,12 +984,10 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static int[] unboxInts(Iterable<Integer> ints)
+  @Validate
+  public static int[] unboxInts(@NotNull final Iterable<Integer> ints)
   {
-    if (ints == null)
-      throw new NullPointerException("ints");
-
-    int[] result = new int[Linq.count(ints)];
+    val result = new int[Linq.count(ints)];
 
     int index = 0;
     for (Integer val : ints)
@@ -1284,12 +1004,10 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static int[] unbox(Integer[] ints)
+  @Validate
+  public static int[] unbox(@NotNull final Integer[] ints)
   {
-    if (ints == null)
-      throw new NullPointerException("ints");
-
-    int[] result = new int[ints.length];
+    val result = new int[ints.length];
     for (int i = 0; i < result.length; i++)
       result[i] = ints[i] != null ? ints[i] : 0;
 
@@ -1301,12 +1019,10 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static long[] unboxLongs(Iterable<Long> longs)
+  @Validate
+  public static long[] unboxLongs(@NotNull final Iterable<Long> longs)
   {
-    if (longs == null)
-      throw new NullPointerException("longs");
-
-    long[] result = new long[Linq.count(longs)];
+    val result = new long[Linq.count(longs)];
 
     int index = 0;
     for (Long val : longs)
@@ -1323,12 +1039,10 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static long[] unbox(Long[] longs)
+  @Validate
+  public static long[] unbox(@NotNull final Long[] longs)
   {
-    if (longs == null)
-      throw new NullPointerException("longs");
-
-    long[] result = new long[longs.length];
+    val result = new long[longs.length];
     for (int i = 0; i < result.length; i++)
       result[i] = longs[i] != null ? longs[i] : 0;
 
@@ -1340,12 +1054,10 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static float[] unboxFloats(Iterable<Float> floats)
+  @Validate
+  public static float[] unboxFloats(@NotNull final Iterable<Float> floats)
   {
-    if (floats == null)
-      throw new NullPointerException("floats");
-
-    float[] result = new float[Linq.count(floats)];
+    val result = new float[Linq.count(floats)];
 
     int index = 0;
     for (Float val : floats)
@@ -1362,12 +1074,10 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static float[] unbox(Float[] longs)
+  @Validate
+  public static float[] unbox(@NotNull final Float[] longs)
   {
-    if (longs == null)
-      throw new NullPointerException("longs");
-
-    float[] result = new float[longs.length];
+    val result = new float[longs.length];
     for (int i = 0; i < result.length; i++)
       result[i] = longs[i] != null ? longs[i] : 0.0f;
 
@@ -1379,12 +1089,10 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static double[] unboxDoubles(Iterable<Double> doubles)
+  @Validate
+  public static double[] unboxDoubles(@NotNull final Iterable<Double> doubles)
   {
-    if (doubles == null)
-      throw new NullPointerException("doubles");
-
-    double[] result = new double[Linq.count(doubles)];
+    val result = new double[Linq.count(doubles)];
 
     int index = 0;
     for (Double val : doubles)
@@ -1401,15 +1109,17 @@ public final class ArrayUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static double[] unbox(Double[] doubles)
+  @Validate
+  public static double[] unbox(@NotNull final Double[] doubles)
   {
-    if (doubles == null)
-      throw new NullPointerException("doubles");
-
-    double[] result = new double[doubles.length];
+    val result = new double[doubles.length];
     for (int i = 0; i < result.length; i++)
       result[i] = doubles[i] != null ? doubles[i] : 0.0d;
 
     return result;
+  }
+
+  private ArrayUtils()
+  {
   }
 }

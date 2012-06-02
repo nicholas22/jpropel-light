@@ -27,16 +27,15 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import lombok.Validate;
+import lombok.Validate.NotNull;
+import lombok.val;
 
 /**
  * Provides utility functionality for byte array manipulations
  */
 public final class ByteArrayUtils
 {
-  private ByteArrayUtils()
-  {
-  }
-
   /**
    * Whether the machine is little endian
    */
@@ -47,11 +46,9 @@ public final class ByteArrayUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static void clear(byte[] array)
+  @Validate
+  public static void clear(@NotNull final byte[] array)
   {
-    if (array == null)
-      throw new NullPointerException("array");
-
     for (int i = 0; i < array.length; i++)
       array[i] = 0;
   }
@@ -72,15 +69,11 @@ public final class ByteArrayUtils
    * @throws NullPointerException An argument is null.
    * @throws IllegalArgumentException An argument is out of range.
    */
-  public static int count(byte[] data, int startIndex, byte[] value)
+  @Validate
+  public static int count(@NotNull final byte[] data, int startIndex, @NotNull final byte[] value)
   {
-    if (data == null)
-      throw new NullPointerException("data");
-    if (value == null)
-      throw new NullPointerException("value");
-
-    int dataLen = data.length;
-    int valueLen = value.length;
+    val dataLen = data.length;
+    val valueLen = value.length;
 
     if (startIndex > dataLen)
       throw new IllegalAccessError("startIndex=" + startIndex + " dataLen=" + dataLen);
@@ -128,15 +121,11 @@ public final class ByteArrayUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static boolean endsWith(byte[] data, byte[] value)
+  @Validate
+  public static boolean endsWith(@NotNull final byte[] data, @NotNull final byte[] value)
   {
-    if (data == null)
-      throw new NullPointerException("data");
-    if (value == null)
-      throw new NullPointerException("value");
-
-    int dataLen = data.length;
-    int valueLen = value.length;
+    val dataLen = data.length;
+    val valueLen = value.length;
 
     if (valueLen == 0)
       return true;
@@ -158,7 +147,7 @@ public final class ByteArrayUtils
    */
   public static byte[] getBytes(short value)
   {
-    byte[] ba = new byte[] {(byte) (0xff & (value >> 8)), (byte) (0xff & value)};
+    val ba = new byte[] {(byte) (0xff & (value >> 8)), (byte) (0xff & value)};
 
     return LITTLE_ENDIAN ? reverse(ba) : ba;
   }
@@ -166,11 +155,12 @@ public final class ByteArrayUtils
   /**
    * Similar to BitConverter.GetBytes() of .NET.
    */
-  public static byte[] getBytes(UnsignedShort value)
+  @Validate
+  public static byte[] getBytes(@NotNull final UnsignedShort value)
   {
-    BigInteger bi = value.bigIntegerValue();
+    val bi = value.bigIntegerValue();
 
-    byte[] ba = new byte[] {(byte) (0xff & ((bi.shiftRight(8).intValue()))), (byte) (0xff & bi.intValue())};
+    val ba = new byte[] {(byte) (0xff & ((bi.shiftRight(8).intValue()))), (byte) (0xff & bi.intValue())};
 
     return LITTLE_ENDIAN ? reverse(ba) : ba;
   }
@@ -180,8 +170,7 @@ public final class ByteArrayUtils
    */
   public static byte[] getBytes(int value)
   {
-    byte[] ba = new byte[] {(byte) (0xff & (value >> 24)), (byte) (0xff & (value >> 16)), (byte) (0xff & (value >> 8)),
-      (byte) (0xff & value)};
+    val ba = new byte[] {(byte) (0xff & (value >> 24)), (byte) (0xff & (value >> 16)), (byte) (0xff & (value >> 8)), (byte) (0xff & value)};
 
     return LITTLE_ENDIAN ? reverse(ba) : ba;
   }
@@ -189,9 +178,10 @@ public final class ByteArrayUtils
   /**
    * Similar to BitConverter.GetBytes() of .NET.
    */
-  public static byte[] getBytes(UnsignedInteger value)
+  @Validate
+  public static byte[] getBytes(@NotNull final UnsignedInteger value)
   {
-    BigInteger bi = value.bigIntegerValue();
+    val bi = value.bigIntegerValue();
 
     byte[] ba = new byte[] {(byte) (0xff & ((bi.shiftRight(24).intValue()))), (byte) (0xff & ((bi.shiftRight(16).intValue()))),
       (byte) (0xff & ((bi.shiftRight(8).intValue()))), (byte) (0xff & bi.intValue())};
@@ -204,7 +194,7 @@ public final class ByteArrayUtils
    */
   public static byte[] getBytes(long value)
   {
-    byte[] ba = new byte[] {(byte) (0xff & (value >> 56)), (byte) (0xff & (value >> 48)), (byte) (0xff & (value >> 40)),
+    val ba = new byte[] {(byte) (0xff & (value >> 56)), (byte) (0xff & (value >> 48)), (byte) (0xff & (value >> 40)),
       (byte) (0xff & (value >> 32)), (byte) (0xff & (value >> 24)), (byte) (0xff & (value >> 16)), (byte) (0xff & (value >> 8)),
       (byte) (0xff & value)};
 
@@ -214,11 +204,12 @@ public final class ByteArrayUtils
   /**
    * Similar to BitConverter.GetBytes() of .NET.
    */
-  public static byte[] getBytes(UnsignedLong value)
+  @Validate
+  public static byte[] getBytes(@NotNull final UnsignedLong value)
   {
-    BigInteger bi = value.bigIntegerValue();
+    val bi = value.bigIntegerValue();
 
-    byte[] ba = new byte[] {(byte) (0xff & (bi.shiftRight(56).intValue())), (byte) (0xff & ((bi.shiftRight(48).intValue()))),
+    val ba = new byte[] {(byte) (0xff & (bi.shiftRight(56).intValue())), (byte) (0xff & ((bi.shiftRight(48).intValue()))),
       (byte) (0xff & ((bi.shiftRight(40).intValue()))), (byte) (0xff & ((bi.shiftRight(32).intValue()))),
       (byte) (0xff & ((bi.shiftRight(24).intValue()))), (byte) (0xff & ((bi.shiftRight(16).intValue()))),
       (byte) (0xff & ((bi.shiftRight(8).intValue()))), (byte) (0xff & bi.intValue())};
@@ -229,16 +220,14 @@ public final class ByteArrayUtils
   /**
    * Converts a UUID to a byte array.
    */
-  public static byte[] getBytes(UUID uuid)
+  @Validate
+  public static byte[] getBytes(@NotNull final UUID uuid)
   {
-    if (uuid == null)
-      throw new NullPointerException("uuid");
+    val msb = uuid.getMostSignificantBits();
+    val lsb = uuid.getLeastSignificantBits();
 
-    long msb = uuid.getMostSignificantBits();
-    long lsb = uuid.getLeastSignificantBits();
-
-    byte[] msB = getBytes(msb);
-    byte[] lsB = getBytes(lsb);
+    val msB = getBytes(msb);
+    val lsB = getBytes(lsb);
 
     byte[] result = new byte[16];
     for (int i = 0; i < msB.length; i++)
@@ -266,15 +255,11 @@ public final class ByteArrayUtils
    * @throws NullPointerException An argument is null.
    * @throws IndexOutOfBoundsException An index is out of range.
    */
-  public static int indexOf(byte[] data, int startIndex, byte[] value)
+  @Validate
+  public static int indexOf(@NotNull final byte[] data, int startIndex, byte[] value)
   {
-    if (data == null)
-      throw new NullPointerException("data");
-    if (value == null)
-      throw new NullPointerException("value");
-
-    int dataLen = data.length;
-    int valueLen = value.length;
+    val dataLen = data.length;
+    val valueLen = value.length;
 
     if (startIndex > dataLen)
       throw new IndexOutOfBoundsException("startIndex=" + startIndex + " dataLen=" + dataLen);
@@ -324,12 +309,9 @@ public final class ByteArrayUtils
    * @throws NullPointerException An argument is null.
    * @throws IllegalArgumentException An argument is out of range.
    */
-  public static int indexOf(byte[] data, byte[] value, int occurrence)
+  @Validate
+  public static int indexOf(@NotNull final byte[] data, @NotNull final byte[] value, int occurrence)
   {
-    if (data == null)
-      throw new NullPointerException("data");
-    if (value == null)
-      throw new NullPointerException("value");
     if (data.length <= 0 || value.length <= 0)
       return 0;
     if (occurrence <= 0)
@@ -357,13 +339,9 @@ public final class ByteArrayUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static byte[] join(byte[] a, byte[] b)
+  @Validate
+  public static byte[] join(@NotNull final byte[] a, @NotNull final byte[] b)
   {
-    if (a == null)
-      throw new NullPointerException("a");
-    if (b == null)
-      throw new NullPointerException("b");
-
     byte[] result = new byte[a.length + b.length];
     for (int i = 0; i < a.length; i++)
       result[i] = a[i];
@@ -378,18 +356,16 @@ public final class ByteArrayUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static byte[] join(Iterable<byte[]> arrays)
+  @Validate
+  public static byte[] join(@NotNull final Iterable<byte[]> arrays)
   {
-    if (arrays == null)
-      throw new NullPointerException("arrays");
-
     int length = 0;
 
     for (byte[] array : arrays)
       if (array != null)
         length += array.length;
 
-    byte[] result = new byte[length];
+    val result = new byte[length];
 
     int pos = 0;
     for (byte[] array : arrays)
@@ -412,11 +388,9 @@ public final class ByteArrayUtils
    * @throws NullPointerException An argument is null.
    * @throws IllegalArgumentException An argument is out of range.
    */
-  public static int lastIndexOf(byte[] data, byte[] value)
+  @Validate
+  public static int lastIndexOf(@NotNull final byte[] data, byte[] value)
   {
-    if (data == null)
-      throw new NullPointerException("data");
-
     return lastIndexOf(data, data.length, value);
   }
 
@@ -426,15 +400,11 @@ public final class ByteArrayUtils
    * @throws NullPointerException An argument is null.
    * @throws IndexOutOfBoundsException An index is out of range.
    */
-  public static int lastIndexOf(byte[] data, int startIndex, byte[] value)
+  @Validate
+  public static int lastIndexOf(@NotNull final byte[] data, int startIndex, @NotNull final byte[] value)
   {
-    if (data == null)
-      throw new NullPointerException("data");
-    if (value == null)
-      throw new NullPointerException("value");
-
-    int dataLen = data.length;
-    int valueLen = value.length;
+    val dataLen = data.length;
+    val valueLen = value.length;
 
     if (dataLen == 0 && (startIndex == -1 || startIndex == 0))
     {
@@ -466,11 +436,9 @@ public final class ByteArrayUtils
    * @throws NullPointerException An argument is null.
    * @throws IllegalArgumentException An argument is out of range.
    */
-  public static int lastIndexOf(byte[] data, byte value)
+  @Validate
+  public static int lastIndexOf(@NotNull final byte[] data, byte value)
   {
-    if (data == null)
-      throw new NullPointerException("data");
-
     return lastIndexOf(data, data.length, new byte[] {value});
   }
 
@@ -491,12 +459,9 @@ public final class ByteArrayUtils
    * @throws NullPointerException An argument is null.
    * @throws IllegalArgumentException An argument is out of range.
    */
-  public static int lastIndexOf(byte[] data, byte[] value, int occurrence)
+  @Validate
+  public static int lastIndexOf(@NotNull final byte[] data, @NotNull final byte[] value, int occurrence)
   {
-    if (data == null)
-      throw new NullPointerException("data");
-    if (value == null)
-      throw new NullPointerException("value");
     if (data.length <= 0 || value.length <= 0)
       return 0;
     if (occurrence <= 0)
@@ -527,13 +492,9 @@ public final class ByteArrayUtils
    * @throws NullPointerException An argument is null.
    * @throws IllegalArgumentException An argument is out of range.
    */
-  public static boolean match(byte[] a, MatchType byteMatch, byte[] b)
+  @Validate
+  public static boolean match(@NotNull final byte[] a, MatchType byteMatch, @NotNull final byte[] b)
   {
-    if (a == null)
-      throw new NullPointerException("a");
-    if (b == null)
-      throw new NullPointerException("b");
-
     switch(byteMatch)
     {
       case Equals:
@@ -557,11 +518,9 @@ public final class ByteArrayUtils
    * @throws NullPointerException Array is null
    * @throws IllegalArgumentException Length is out of range
    */
-  public static byte[] resize(byte[] array, int length)
+  @Validate
+  public static byte[] resize(@NotNull final byte[] array, int length)
   {
-    if (array == null)
-      throw new NullPointerException("array");
-
     // validate new size
     if (length < 0)
       throw new IllegalArgumentException("length=" + length);
@@ -573,7 +532,7 @@ public final class ByteArrayUtils
       return array;
 
     // create new array
-    byte[] newArray = new byte[length];
+    val newArray = new byte[length];
 
     // select strategy based on given scenario
     if (length > oldLength)
@@ -597,19 +556,25 @@ public final class ByteArrayUtils
    * 
    * @throws NullPointerException Array is null.
    */
-  public static byte[] reverse(byte[] array)
+  @Validate
+  public static byte[] reverse(@NotNull final byte[] array)
   {
-    if (array == null)
-      throw new NullPointerException("array");
-
-    byte item;
-    int index = 0;
-    for (int i = 0; i < array.length; i++)
+    if (array.length > 1)
     {
-      item = array[i];
-      index = array.length - i - 1;
-      array[i] = array[index];
-      array[index] = item;
+      int left = 0; // index of leftmost element
+      int right = array.length - 1; // index of rightmost element
+
+      while (left < right)
+      {
+        // exchange the left and right elements
+        val temp = array[left];
+        array[left] = array[right];
+        array[right] = temp;
+
+        // move the bounds toward the center
+        left++;
+        right--;
+      }
     }
 
     return array;
@@ -620,11 +585,9 @@ public final class ByteArrayUtils
    * 
    * @throws NullPointerException Array is null.
    */
-  public static byte[] reverseCopy(byte[] array)
+  @Validate
+  public static byte[] reverseCopy(@NotNull final byte[] array)
   {
-    if (array == null)
-      throw new NullPointerException("array");
-
     byte[] result = new byte[array.length];
     for (int i = 0; i < array.length; i++)
       result[array.length - i - 1] = array[i];
@@ -636,13 +599,9 @@ public final class ByteArrayUtils
    * Returns true if the byte sequences within two arrays are equal. Also returns true if both arrays are null. Returns false if only one
    * array is null.
    */
-  public static boolean sequenceEqual(byte[] a, byte[] b)
+  @Validate
+  public static boolean sequenceEqual(@NotNull final byte[] a, @NotNull final byte[] b)
   {
-    if (a == null && b == null)
-      return true;
-    if (a == null || b == null)
-      return false;
-
     // if lengths are not equal then arrays cannot be equal
     if (a.length != b.length)
       return false;
@@ -662,13 +621,9 @@ public final class ByteArrayUtils
    * @throws IndexOutOfBoundsException An index is out of bounds.
    * @throws IllegalArgumentException An argument is out of range.
    */
-  public static boolean sequenceEqual(byte[] a, int startIndexA, byte[] b, int startIndexB, int count)
+  @Validate
+  public static boolean sequenceEqual(@NotNull final byte[] a, int startIndexA, @NotNull final byte[] b, int startIndexB, int count)
   {
-    if (a == null)
-      throw new NullPointerException("a");
-    if (b == null)
-      throw new NullPointerException("b");
-
     if (count == 0)
       return true;
     if (startIndexA < 0 || startIndexA > a.length)
@@ -695,11 +650,9 @@ public final class ByteArrayUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static byte[] shiftRight(byte[] data, int count)
+  @Validate
+  public static byte[] shiftRight(@NotNull final byte[] data, int count)
   {
-    if (data == null)
-      throw new NullPointerException("data");
-
     // shift right all bytes by count positions
     byte[] result = new byte[data.length];
     for (int i = 0; i < data.length; i++)
@@ -713,11 +666,9 @@ public final class ByteArrayUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static byte[] shiftLeft(byte[] data, int count)
+  @Validate
+  public static byte[] shiftLeft(@NotNull final byte[] data, int count)
   {
-    if (data == null)
-      throw new NullPointerException("data");
-
     // shift right all bytes by count positions
     byte[] result = new byte[data.length];
     for (int i = 0; i < data.length; i++)
@@ -731,14 +682,10 @@ public final class ByteArrayUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static List<byte[]> split(byte[] data, byte[] separator)
+  @Validate
+  public static List<byte[]> split(@NotNull final byte[] data, @NotNull final byte[] separator)
   {
-    if (data == null)
-      throw new NullPointerException("data");
-    if (separator == null)
-      throw new NullPointerException("separator");
-
-    List<byte[]> result = new ArrayList<byte[]>(16);
+    val result = new ArrayList<byte[]>(16);
 
     if (separator.length == 0)
       result.add(data);
@@ -767,9 +714,10 @@ public final class ByteArrayUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static List<byte[]> split(byte[] data, byte[] separator, StringSplitOptions options)
+  @Validate
+  public static List<byte[]> split(@NotNull final byte[] data, @NotNull final byte[] separator, StringSplitOptions options)
   {
-    List<byte[]> result = split(data, separator);
+    val result = split(data, separator);
 
     switch(options)
     {
@@ -800,13 +748,9 @@ public final class ByteArrayUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static boolean startsWith(byte[] data, byte[] value)
+  @Validate
+  public static boolean startsWith(@NotNull final byte[] data, @NotNull final byte[] value)
   {
-    if (data == null)
-      throw new NullPointerException("data");
-    if (value == null)
-      throw new NullPointerException("value");
-
     int dataLen = data.length;
     int valueLen = value.length;
 
@@ -834,9 +778,6 @@ public final class ByteArrayUtils
    */
   public static byte[] subarray(byte[] buffer, int startIndex)
   {
-    if (buffer == null)
-      throw new NullPointerException("buffer");
-
     return subarray(buffer, startIndex, buffer.length - startIndex);
   }
 
@@ -847,10 +788,9 @@ public final class ByteArrayUtils
    * @throws IndexOutOfBoundsException An index is out of bounds.
    * @throws IllegalArgumentException An argument is out of range.
    */
-  public static byte[] subarray(byte[] buffer, int startIndex, int length)
+  @Validate
+  public static byte[] subarray(@NotNull final byte[] buffer, int startIndex, int length)
   {
-    if (buffer == null)
-      throw new NullPointerException("buffer");
     if (startIndex < 0 || startIndex > buffer.length)
       throw new IndexOutOfBoundsException("startIndex=" + startIndex + " bufferLen=" + buffer.length);
     if (length < 0)
@@ -873,11 +813,9 @@ public final class ByteArrayUtils
    * @throws NullPointerException Array is null
    * @throws IndexOutOfBoundsException Array indices are out of range.
    */
-  public static void swap(byte[] array, int a, int b)
+  @Validate
+  public static void swap(@NotNull final byte[] array, int a, int b)
   {
-    if (array == null)
-      throw new NullPointerException("array");
-
     if (a < 0 || a >= array.length)
       throw new IndexOutOfBoundsException("a=" + a + " length=" + array.length);
 
@@ -895,10 +833,9 @@ public final class ByteArrayUtils
   /**
    * Inverse function of GetBytes(short)
    */
-  public static short toInt16(byte[] value)
+  @Validate
+  public static short toInt16(@NotNull byte[] value)
   {
-    if (value == null)
-      throw new NullPointerException("value");
     if (value.length != 2)
       throw new IllegalArgumentException("length=" + value.length);
 
@@ -916,10 +853,9 @@ public final class ByteArrayUtils
    * @throws NullPointerException An argument is null.
    * @throws IllegalArgumentException An argument is out of range.
    */
-  public static UnsignedShort toUInt16(byte[] value)
+  @Validate
+  public static UnsignedShort toUInt16(@NotNull byte[] value)
   {
-    if (value == null)
-      throw new NullPointerException("value");
     if (value.length != 2)
       throw new IllegalArgumentException("length=" + value.length);
 
@@ -935,10 +871,9 @@ public final class ByteArrayUtils
   /**
    * Inverse function of GetBytes(int)
    */
-  public static int toInt32(byte[] value)
+  @Validate
+  public static int toInt32(@NotNull byte[] value)
   {
-    if (value == null)
-      throw new NullPointerException("value");
     if (value.length != 4)
       throw new IllegalArgumentException("length=" + value.length);
 
@@ -954,10 +889,9 @@ public final class ByteArrayUtils
    * @throws NullPointerException An argument is null.
    * @throws IllegalArgumentException An argument is out of range.
    */
-  public static UnsignedInteger toUInt32(byte[] value)
+  @Validate
+  public static UnsignedInteger toUInt32(@NotNull byte[] value)
   {
-    if (value == null)
-      throw new NullPointerException("value");
     if (value.length != 4)
       throw new IllegalArgumentException("length=" + value.length);
 
@@ -977,10 +911,9 @@ public final class ByteArrayUtils
    * @throws NullPointerException An argument is null.
    * @throws IllegalArgumentException An argument is out of range.
    */
-  public static long toInt64(byte[] value)
+  @Validate
+  public static long toInt64(@NotNull byte[] value)
   {
-    if (value == null)
-      throw new NullPointerException("value");
     if (value.length != 8)
       throw new IllegalArgumentException("length=" + value.length);
 
@@ -997,10 +930,9 @@ public final class ByteArrayUtils
    * @throws NullPointerException An argument is null.
    * @throws IllegalArgumentException An argument is out of range.
    */
-  public static UnsignedLong toUInt64(byte[] value)
+  @Validate
+  public static UnsignedLong toUInt64(@NotNull byte[] value)
   {
-    if (value == null)
-      throw new NullPointerException("value");
     if (value.length != 8)
       throw new IllegalArgumentException("length=" + value.length);
 
@@ -1014,5 +946,9 @@ public final class ByteArrayUtils
             | ((value[5] & 0xff) << 16) | ((value[6] & 0xff) << 8) | (value[7] & 0xff))));
 
     return new UnsignedLong(result);
+  }
+
+  private ByteArrayUtils()
+  {
   }
 }

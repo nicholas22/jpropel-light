@@ -1,3 +1,4 @@
+// /////////////////////////////////////////////////////////
 // This file is part of Propel.
 //
 // Propel is free software: you can redistribute it and/or modify
@@ -18,33 +19,10 @@
 package propel.core.utils;
 
 /**
- * Class with null value related utilities
+ * 
+ * TODO: implement
  */
-public final class Nullable
+public class MapUtils
 {
-  /**
-   * Null coalescing extension method, similar to the ?? operator of C#
-   */
-  public static <T> T orElse(T value, T _elseValue)
-  {
-    if (value != null)
-      return value;
 
-    return _elseValue;
-  }
-
-  /**
-   * Null coalescing extension method, similar to the ?? operator of C#
-   */
-  public static Object orElseObj(Object value, Object _elseValue)
-  {
-    if (value != null)
-      return value;
-
-    return _elseValue;
-  }
-
-  private Nullable()
-  {
-  }
 }

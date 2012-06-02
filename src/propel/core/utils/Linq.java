@@ -18,9 +18,11 @@
 // /////////////////////////////////////////////////////////
 package propel.core.utils;
 
+import static propel.core.functional.projections.MiscProjections.argToResult;
+import static propel.core.functional.predicates.Iterables.isNotEmpty;
+import static lombok.Yield.yield;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -33,6 +35,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import lombok.Predicates.Predicate1;
+import lombok.Actions.Action1;
 import lombok.Functions.Function1;
 import lombok.Functions.Function2;
 import lombok.Validate;
@@ -43,15 +46,15 @@ import propel.core.collections.lists.ReifiedArrayList;
 import propel.core.collections.lists.ReifiedList;
 import propel.core.collections.maps.ReifiedMap;
 import propel.core.collections.maps.avl.AvlHashtable;
+import propel.core.common.CONSTANT;
 import propel.core.counters.ModuloCounter;
 import propel.core.functional.tuples.Pair;
 import java.lang.SuppressWarnings;
-import static lombok.Yield.yield;
+import lombok.val;
 
 /**
- * Provides similar functionality to .NET language integrated queries (LINQ). There are usually two versions of each function, one for
- * operating on Iterables (such as collections) and one with arrays. This is because in Java, arrays are subclasses of Object and not of
- * Iterable, Collection, List, etc.
+ * Provides similar functionality to .NET language integrated query (LINQ). There are usually two versions of each function, one for
+ * operating on Iterables (such as collections) which uses deferred execution and one for arrays which does not.
  */
 @SuppressWarnings({"unchecked"})
 public final class Linq
@@ -59,14 +62,12 @@ public final class Linq
   /**
    * The default list size to use for collecting results when the result size is unknown
    */
-  public static final int DEFAULT_LIST_SIZE = 64;
+  public static final int DEFAULT_LIST_SIZE = 32;
 
-  /**
-   * Private constructor prevents instantiation.
-   */
-  private Linq()
-  {
-  }
+  @SuppressWarnings("rawtypes")
+  private static Function1 argToResult = argToResult();
+  @SuppressWarnings("rawtypes")
+  private static Predicate1 isNotEmpty = isNotEmpty();
 
   /**
    * Applies an accumulator function over a sequence. The specified seed value is used as the initial accumulator value.
@@ -77,15 +78,7 @@ public final class Linq
   public static <TSource, TAccumulate> TAccumulate aggregate(@NotNull final Iterable<TSource> values, @NotNull final TAccumulate seed,
                                                              @NotNull final Function2<TAccumulate, ? super TSource, TAccumulate> function)
   {
-    return aggregate(values, seed, function, new Function1<TAccumulate, TAccumulate>() {
-
-      @Override
-      public TAccumulate apply(TAccumulate arg0)
-      {
-        return arg0;
-      }
-
-    });
+    return aggregate(values, seed, function, (Function1<TAccumulate, TAccumulate>) argToResult);
   }
 
   /**
@@ -97,15 +90,7 @@ public final class Linq
   public static <TSource, TAccumulate> TAccumulate aggregate(@NotNull final TSource[] values, @NotNull final TAccumulate seed,
                                                              @NotNull final Function2<TAccumulate, ? super TSource, TAccumulate> function)
   {
-    return aggregate(values, seed, function, new Function1<TAccumulate, TAccumulate>() {
-
-      @Override
-      public TAccumulate apply(TAccumulate arg0)
-      {
-        return arg0;
-      }
-
-    });
+    return aggregate(values, seed, function, (Function1<TAccumulate, TAccumulate>) argToResult);
   }
 
   /**
@@ -156,8 +141,8 @@ public final class Linq
   @Validate
   public static <T> boolean all(@NotNull final Iterable<T> values, @NotNull final Predicate1<? super T> predicate)
   {
-    for (T val : values)
-      if (!predicate.apply(val))
+    for (T v : values)
+      if (!predicate.apply(v))
         return false;
 
     return true;
@@ -186,8 +171,8 @@ public final class Linq
   @Validate
   public static <T> boolean any(@NotNull final Iterable<T> values, @NotNull final Predicate1<? super T> predicate)
   {
-    for (T val : values)
-      if (predicate.apply(val))
+    for (T v : values)
+      if (predicate.apply(v))
         return true;
 
     return false;
@@ -201,7 +186,7 @@ public final class Linq
   @Validate
   public static <T> boolean any(@NotNull final T[] values, @NotNull final Predicate1<? super T> predicate)
   {
-    int count = values.length;
+    val count = values.length;
     for (int i = 0; i < count; i++)
       if (predicate.apply(values[i]))
         return true;
@@ -264,12 +249,11 @@ public final class Linq
    * @throws NullPointerException When an argument is null.
    * @throws IllegalArgumentException Unrecognized cast behaviour.
    */
-  public static <TSource, TDest> TDest[] cast(TSource[] values, Class<TDest> destClass, InvalidCastBehaviour castBehaviour)
+  @Validate
+  public static <TSource, TDest> TDest[] cast(@NotNull final TSource[] values, @NotNull final Class<TDest> destClass,
+                                              InvalidCastBehaviour castBehaviour)
   {
-    if (values == null)
-      throw new NullPointerException("values");
-
-    ReifiedArrayList<TDest> list = new ReifiedArrayList<TDest>(values.length, destClass);
+    val list = new ReifiedArrayList<TDest>(values.length, destClass);
 
     switch(castBehaviour)
     {
@@ -315,15 +299,13 @@ public final class Linq
    * 
    * @throws NullPointerException When the values or one of its elements is null.
    */
-  public static <T> T[] concat(T[]... values)
+  @Validate
+  public static <T> T[] concat(@NotNull final T[]... values)
   {
-    if (values == null)
-      throw new NullPointerException("values");
-
     Class<?> componentType = null;
-    List<T> result = new ArrayList<T>(DEFAULT_LIST_SIZE);
+    val result = new ArrayList<T>(DEFAULT_LIST_SIZE);
 
-    for (T[] vals : values)
+    for (val vals : values)
     {
       if (vals == null)
         throw new NullPointerException("Item of values");
@@ -342,11 +324,9 @@ public final class Linq
    * 
    * @throws NullPointerException When the values argument is null.
    */
-  public static <T> boolean contains(Iterable<T> values, T item)
+  @Validate
+  public static <T> boolean contains(@NotNull final Iterable<T> values, final T item)
   {
-    if (values == null)
-      throw new NullPointerException("values");
-
     if (item == null)
       return containsNull(values);
     else
@@ -373,7 +353,7 @@ public final class Linq
    * @throws NullPointerException When the values argument is null.
    */
   @Validate
-  public static <T> boolean contains(@NotNull final T[] values, T item)
+  public static <T> boolean contains(@NotNull final T[] values, final T item)
   {
     if (item == null)
       return containsNull(values);
@@ -451,7 +431,7 @@ public final class Linq
    * @throws NullPointerException When an argument is null.
    */
   @Validate
-  public static <T> boolean containsAny(@NotNull final T[] values, @NotNull final T[] items, Comparator<? super T> comparer)
+  public static <T> boolean containsAny(@NotNull final T[] values, @NotNull final T[] items, final Comparator<? super T> comparer)
   {
     for (T item : items)
       if (contains(values, item, comparer))
@@ -483,8 +463,8 @@ public final class Linq
    * @throws NullPointerException When an argument is null.
    */
   @Validate
-  public static <T> boolean
-      containsAll(@NotNull final Iterable<T> values, @NotNull final Iterable<T> items, Comparator<? super T> comparer)
+  public static <T> boolean containsAll(@NotNull final Iterable<T> values, @NotNull final Iterable<T> items,
+                                        final Comparator<? super T> comparer)
   {
     for (T item : items)
       if (!contains(values, item, comparer))
@@ -535,16 +515,6 @@ public final class Linq
   @Validate
   public static <T> int count(@NotNull final Iterable<T> values)
   {
-    if (values instanceof ReifiedList<?>)
-    {
-      ReifiedList<?> list = (ReifiedList<?>) values;
-      return list.size();
-    }
-    if (values instanceof ReifiedMap<?, ?>)
-    {
-      ReifiedMap<?, ?> map = (ReifiedMap<?, ?>) values;
-      return map.size();
-    }
     if (values instanceof Collection<?>)
     {
       Collection<?> list = (Collection<?>) values;
@@ -553,6 +523,16 @@ public final class Linq
     if (values instanceof Map<?, ?>)
     {
       Map<?, ?> map = (Map<?, ?>) values;
+      return map.size();
+    }
+    if (values instanceof ReifiedList<?>)
+    {
+      ReifiedList<?> list = (ReifiedList<?>) values;
+      return list.size();
+    }
+    if (values instanceof ReifiedMap<?, ?>)
+    {
+      ReifiedMap<?, ?> map = (ReifiedMap<?, ?>) values;
       return map.size();
     }
 
@@ -581,7 +561,7 @@ public final class Linq
    * @throws NullPointerException When the values argument is null.
    */
   @Validate
-  public static <T> int count(@NotNull final Iterable<T> values, T item)
+  public static <T> int count(@NotNull final Iterable<T> values, final T item)
   {
     if (item == null)
       return countNulls(values);
@@ -696,7 +676,7 @@ public final class Linq
   @Validate
   public static <T> T[] defaultIfEmpty(@NotNull final T[] values)
   {
-    List<T> result = new ArrayList<T>(DEFAULT_LIST_SIZE);
+    val result = new ArrayList<T>(DEFAULT_LIST_SIZE);
     for (T item : values)
       result.add(item);
 
@@ -704,6 +684,88 @@ public final class Linq
       result.add(null);
 
     return toArray(result, values.getClass().getComponentType());
+  }
+
+  /**
+   * Concatenates the given values using their toString() method and appending the given delimiter between all values. Returns String.Empty
+   * if an empty or null collection was provided. Ignores null collection items.
+   * 
+   * @throws NullPointerException An argument is null.
+   */
+  public static <T> String delimit(Iterable<T> values, String delimiter)
+  {
+    return delimit(values, delimiter, null);
+  }
+
+  /**
+   * Concatenates the given values using their ToString method and appending the given delimiter between all values. Returns String.Empty if
+   * an empty or null collection was provided. Substitutes null items with a null-replacement value, if provided and is not null.
+   * 
+   * @throws NullPointerException An argument is null.
+   */
+  @Validate
+  public static <T> String delimit(@NotNull final Iterable<T> values, @NotNull final String delimiter, String nullReplacementValue)
+  {
+    val sb = new StringBuilder(256);
+
+    for (T value : values)
+      if (value != null)
+      {
+        sb.append(value.toString());
+        sb.append(delimiter);
+      } else
+      // append null replacement
+      if (nullReplacementValue != null)
+      {
+        sb.append(nullReplacementValue);
+        sb.append(delimiter);
+      }
+
+    if (sb.length() > 0)
+      return sb.subSequence(0, sb.length() - delimiter.length()).toString();
+
+    return CONSTANT.EMPTY_STRING;
+  }
+
+  /**
+   * Concatenates the given values using their toString() method and appending the given delimiter between all values. Returns String.Empty
+   * if an empty or null collection was provided. Ignores null collection items.
+   * 
+   * @throws NullPointerException An argument is null.
+   */
+  public static <T> String delimit(T[] values, String delimiter)
+  {
+    return delimit(values, delimiter, null);
+  }
+
+  /**
+   * Concatenates the given values using their ToString method and appending the given delimiter between all values. Returns String.Empty if
+   * an empty or null collection was provided. Substitutes null items with a null-replacement value, if provided and is not null.
+   * 
+   * @throws NullPointerException An argument is null.
+   */
+  @Validate
+  public static <T> String delimit(@NotNull final T[] values, @NotNull final String delimiter, String nullReplacementValue)
+  {
+    val sb = new StringBuilder(256);
+
+    for (T value : values)
+      if (value != null)
+      {
+        sb.append(value.toString());
+        sb.append(delimiter);
+      } else
+      // append null replacement
+      if (nullReplacementValue != null)
+      {
+        sb.append(nullReplacementValue);
+        sb.append(delimiter);
+      }
+
+    if (sb.length() > 0)
+      return sb.subSequence(0, sb.length() - delimiter.length()).toString();
+
+    return CONSTANT.EMPTY_STRING;
   }
 
   /**
@@ -756,9 +818,9 @@ public final class Linq
    * @throws NullPointerException When the values argument is null.
    */
   @Validate
-  public static <T> T[] distinct(@NotNull final T[] values, Comparator<? super T> comparer)
+  public static <T> T[] distinct(@NotNull final T[] values, final Comparator<? super T> comparer)
   {
-    ReifiedList<T> list = new ReifiedArrayList<T>(DEFAULT_LIST_SIZE, values.getClass().getComponentType());
+    val list = new ReifiedArrayList<T>(DEFAULT_LIST_SIZE, values.getClass().getComponentType());
     Set<T> set;
     if (comparer != null)
       set = new TreeSet<T>(comparer);
@@ -782,7 +844,7 @@ public final class Linq
    * @throws IndexOutOfBoundsException When the index is out of range.
    */
   @Validate
-  public static <T> T elementAt(@NotNull final Iterable<T> values, int index)
+  public static <T> T elementAt(@NotNull final Iterable<T> values, final int index)
   {
     if (index < 0)
       throw new IndexOutOfBoundsException("index=" + index);
@@ -804,7 +866,7 @@ public final class Linq
    * @throws NullPointerException When the values argument is null.
    */
   @Validate
-  public static <T> T elementAtOrDefault(@NotNull final Iterable<T> values, int index)
+  public static <T> T elementAtOrDefault(@NotNull final Iterable<T> values, final int index)
   {
     if (index >= 0)
     {
@@ -826,7 +888,7 @@ public final class Linq
    * @throws NullPointerException When the values argument is null.
    */
   @Validate
-  public static <T> T elementAtOrDefault(@NotNull final T[] values, int index)
+  public static <T> T elementAtOrDefault(@NotNull final T[] values, final int index)
   {
     if (index >= 0 && index < values.length)
       return values[index];
@@ -1044,13 +1106,41 @@ public final class Linq
   }
 
   /**
+   * Executes an action against all elements, returning them
+   * 
+   * @throws NullPointerException When an argument is null.
+   */
+  @Validate
+  public static <T> T[] forAll(@NotNull final T[] values, @NotNull final Action1<T> action)
+  {
+    for (val value : values)
+      action.apply(value);
+
+    return values;
+  }
+
+  /**
+   * Executes an action against all elements, returning them
+   * 
+   * @throws NullPointerException When an argument is null.
+   */
+  @Validate
+  public static <T> Iterable<T> forAll(@NotNull final Iterable<T> values, @NotNull final Action1<T> action)
+  {
+    for (val value : values)
+      action.apply(value);
+
+    return values;
+  }
+
+  /**
    * Groups elements by a specified key.
    * 
    * @throws NullPointerException When an argument is null.
    */
   @Validate
   public static <TKey, TResult> Iterable<TResult> groupBy(@NotNull final Iterable<TResult> values,
-                                                          @NotNull final Function1<TResult, TKey> keySelector)
+                                                          @NotNull final Function1<? super TResult, TKey> keySelector)
   {
     return groupBy(values, keySelector, null);
   }
@@ -1073,7 +1163,7 @@ public final class Linq
    */
   @Validate
   public static <TKey, TResult> Iterable<TResult> groupBy(@NotNull final Iterable<TResult> values,
-                                                          @NotNull final Function1<TResult, TKey> keySelector,
+                                                          @NotNull final Function1<? super TResult, TKey> keySelector,
                                                           final Comparator<? super TKey> comparer)
   {
     TreeMap<TKey, TResult> lookup;
@@ -1221,7 +1311,7 @@ public final class Linq
   @Validate
   public static <T> T[] intersect(@NotNull final T[] first, @NotNull final T[] second, final Comparator<? super T> comparer)
   {
-    List<T> result = new ArrayList<T>(DEFAULT_LIST_SIZE);
+    val result = new ArrayList<T>(DEFAULT_LIST_SIZE);
 
     T[] distinctFirst;
     T[] distinctSecond;
@@ -1251,7 +1341,7 @@ public final class Linq
   @Validate
   public static <T> boolean isEmpty(@NotNull final Iterable<T> values)
   {
-    for (T val : values)
+    for (T v : values)
       return false;
 
     return true;
@@ -1314,8 +1404,8 @@ public final class Linq
            @NotNull final Function1<TOuter, TKey> outerKeySelector, @NotNull final Function1<TInner, TKey> innerKeySelector,
            @NotNull final Function2<TOuter, TInner, TResult> resultSelector)
   {
-    List<TResult> result = new ArrayList<TResult>(DEFAULT_LIST_SIZE);
-    AvlHashtable<TKey, TOuter> lookup = new AvlHashtable<TKey, TOuter>(outerKeySelector.getReturnType(), outerKeySelector.getReturnType());
+    val result = new ArrayList<TResult>(DEFAULT_LIST_SIZE);
+    val lookup = new AvlHashtable<TKey, TOuter>(outerKeySelector.getReturnType(), outerKeySelector.getReturnType());
 
     for (TOuter value : outerValues)
     {
@@ -1509,7 +1599,7 @@ public final class Linq
    * @throws NullPointerException If the values argument is null.
    */
   @Validate
-  public static <T> int lastIndexOf(@NotNull final Iterable<? super T> values, T element)
+  public static <T> int lastIndexOf(@NotNull final Iterable<? super T> values, final T element)
   {
     return element == null ? lastIndexOfNull(values) : lastIndexOfNotNull(values, element);
   }
@@ -1681,12 +1771,12 @@ public final class Linq
    * @throws NullPointerException An argument is null
    */
   @Validate
-  public static <T> T maxOccurring(@NotNull final T[] items, Comparator<T> comparator)
+  public static <T> T maxOccurring(@NotNull final T[] items, final Comparator<? super T> comparator)
   {
     if (items.length <= 0)
       return null;
 
-    Map<T, ModuloCounter> lookup = new TreeMap<T, ModuloCounter>(comparator);
+    val lookup = new TreeMap<T, ModuloCounter>(comparator);
     for (T item : items)
       if (!lookup.containsKey(item))
         lookup.put(item, new ModuloCounter(Long.MAX_VALUE - 1));
@@ -1696,7 +1786,7 @@ public final class Linq
 
     long max = -1;
     T result = null;
-    for (Map.Entry<T, ModuloCounter> kvp : lookup.entrySet())
+    for (val kvp : lookup.entrySet())
     {
       if (kvp.getValue().getValue() > max)
       {
@@ -1726,9 +1816,9 @@ public final class Linq
    * @throws NullPointerException An argument is null
    */
   @Validate
-  public static <T> T maxOccurring(@NotNull final Iterable<T> items, Comparator<T> comparator)
+  public static <T> T maxOccurring(@NotNull final Iterable<T> items, final Comparator<? super T> comparator)
   {
-    Map<T, ModuloCounter> lookup = new TreeMap<T, ModuloCounter>(comparator);
+    val lookup = new TreeMap<T, ModuloCounter>(comparator);
     for (T item : items)
       if (!lookup.containsKey(item))
         lookup.put(item, new ModuloCounter(Long.MAX_VALUE - 1));
@@ -1740,7 +1830,7 @@ public final class Linq
 
     long max = -1;
     T result = null;
-    for (Map.Entry<T, ModuloCounter> kvp : lookup.entrySet())
+    for (val kvp : lookup.entrySet())
     {
       if (kvp.getValue().getValue() > max)
       {
@@ -1770,12 +1860,12 @@ public final class Linq
    * @throws NullPointerException An argument is null
    */
   @Validate
-  public static <T> T minOccurring(@NotNull final T[] items, Comparator<T> comparator)
+  public static <T> T minOccurring(@NotNull final T[] items, final Comparator<? super T> comparator)
   {
     if (items.length <= 0)
       return null;
 
-    Map<T, ModuloCounter> lookup = new TreeMap<T, ModuloCounter>(comparator);
+    val lookup = new TreeMap<T, ModuloCounter>(comparator);
     for (T item : items)
       if (!lookup.containsKey(item))
         lookup.put(item, new ModuloCounter(Long.MAX_VALUE - 1));
@@ -1784,7 +1874,7 @@ public final class Linq
 
     long min = Long.MAX_VALUE;
     T result = null;
-    for (Map.Entry<T, ModuloCounter> kvp : lookup.entrySet())
+    for (val kvp : lookup.entrySet())
     {
       if (kvp.getValue().getValue() < min)
       {
@@ -1814,9 +1904,9 @@ public final class Linq
    * @throws NullPointerException An argument is null
    */
   @Validate
-  public static <T> T minOccurring(@NotNull final Iterable<T> items, Comparator<T> comparator)
+  public static <T> T minOccurring(@NotNull final Iterable<T> items, final Comparator<? super T> comparator)
   {
-    Map<T, ModuloCounter> lookup = new TreeMap<T, ModuloCounter>(comparator);
+    val lookup = new TreeMap<T, ModuloCounter>(comparator);
 
     for (T item : items)
       if (!lookup.containsKey(item))
@@ -1829,7 +1919,7 @@ public final class Linq
 
     long min = Long.MAX_VALUE;
     T result = null;
-    for (Map.Entry<T, ModuloCounter> kvp : lookup.entrySet())
+    for (val kvp : lookup.entrySet())
     {
       if (kvp.getValue().getValue() < min)
       {
@@ -1875,7 +1965,7 @@ public final class Linq
   @Validate
   public static <TSource, TDest> TDest[] ofType(@NotNull final TSource[] values, @NotNull final Class<TDest> destinationClass)
   {
-    ReifiedList<TDest> result = new ReifiedArrayList<TDest>(DEFAULT_LIST_SIZE, destinationClass);
+    val result = new ReifiedArrayList<TDest>(DEFAULT_LIST_SIZE, destinationClass);
 
     for (TSource item : values)
     {
@@ -1897,8 +1987,8 @@ public final class Linq
    * @throws NullPointerException When an argument is null.
    */
   @Validate
-  public static <TKey extends Comparable<TKey>, TResult> Iterable<TResult> orderBy(@NotNull final Iterable<TResult> values,
-                                                                                   @NotNull final Function1<TResult, TKey> keySelector)
+  public static <TKey extends Comparable<TKey>, TResult> Iterable<TResult>
+      orderBy(@NotNull final Iterable<TResult> values, @NotNull final Function1<? super TResult, TKey> keySelector)
   {
     return orderBy(values, keySelector, null);
   }
@@ -1909,9 +1999,9 @@ public final class Linq
    * @throws NullPointerException When the values or keySelector argument is null.
    */
   @Validate
-  public static <TKey extends Comparable<TKey>, TResult> ReifiedList<TResult> orderBy(@NotNull final Iterable<TResult> values,
-                                                                                      @NotNull final Function1<TResult, TKey> keySelector,
-                                                                                      @NotNull final Comparator<? super TKey> comparer)
+  public static <TKey extends Comparable<TKey>, TResult> ReifiedList<TResult>
+      orderBy(@NotNull final Iterable<TResult> values, @NotNull final Function1<? super TResult, TKey> keySelector,
+              final Comparator<? super TKey> comparer)
   {
     TreeMap<TKey, List<TResult>> dict;
     if (comparer == null)
@@ -1926,13 +2016,13 @@ public final class Linq
         dict.get(key).add(item);
       else
       {
-        List<TResult> val = new ArrayList<TResult>();
-        val.add(item);
-        dict.put(key, val);
+        List<TResult> v = new ArrayList<TResult>();
+        v.add(item);
+        dict.put(key, v);
       }
     }
 
-    ReifiedList<TResult> result = new ReifiedArrayList<TResult>(DEFAULT_LIST_SIZE, keySelector.getParameterType1());
+    val result = new ReifiedArrayList<TResult>(DEFAULT_LIST_SIZE, keySelector.getParameterType1());
     for (List<TResult> list : dict.values())
       result.addAll(list);
 
@@ -1946,7 +2036,7 @@ public final class Linq
    */
   @Validate
   public static <TKey, TResult> TResult[] orderBy(@NotNull final TResult[] values, @NotNull final Function1<TResult, TKey> keySelector,
-                                                  @NotNull final Comparator<? super TKey> comparer)
+                                                  final Comparator<? super TKey> comparer)
   {
     TreeMap<TKey, List<TResult>> dict;
     if (comparer == null)
@@ -1961,13 +2051,13 @@ public final class Linq
         dict.get(key).add(item);
       else
       {
-        List<TResult> val = new ArrayList<TResult>();
-        val.add(item);
-        dict.put(key, val);
+        List<TResult> v = new ArrayList<TResult>();
+        v.add(item);
+        dict.put(key, v);
       }
     }
 
-    ReifiedList<TResult> result = new ReifiedArrayList<TResult>(DEFAULT_LIST_SIZE, keySelector.getParameterType1());
+    val result = new ReifiedArrayList<TResult>(DEFAULT_LIST_SIZE, keySelector.getParameterType1());
     for (List<TResult> list : dict.values())
       result.addAll(list);
 
@@ -1993,8 +2083,8 @@ public final class Linq
    */
   @Validate
   public static <TKey extends Comparable<TKey>, TKey2 extends Comparable<TKey2>, TResult> Iterable<TResult>
-      orderByThenBy(@NotNull final Iterable<TResult> values, @NotNull final Function1<TResult, TKey> keySelector,
-                    @NotNull final Function1<TResult, TKey2> keySelector2)
+      orderByThenBy(@NotNull final Iterable<TResult> values, @NotNull final Function1<? super TResult, TKey> keySelector,
+                    @NotNull final Function1<? super TResult, TKey2> keySelector2)
   {
     return orderByThenBy(values, keySelector, null, keySelector2, null);
   }
@@ -2019,10 +2109,10 @@ public final class Linq
    */
   @Validate
   public static <TKey, TKey2, TResult> Iterable<TResult> orderByThenBy(@NotNull final Iterable<TResult> values,
-                                                                       @NotNull final Function1<TResult, TKey> keySelector,
-                                                                       @NotNull final Comparator<? super TKey> comparer,
-                                                                       @NotNull final Function1<TResult, TKey2> keySelector2,
-                                                                       @NotNull final Comparator<? super TKey2> comparer2)
+                                                                       @NotNull final Function1<? super TResult, TKey> keySelector,
+                                                                       final Comparator<? super TKey> comparer,
+                                                                       @NotNull final Function1<? super TResult, TKey2> keySelector2,
+                                                                       final Comparator<? super TKey2> comparer2)
   {
     TreeMap<TKey, TreeMap<TKey2, List<TResult>>> dict;
     if (comparer == null)
@@ -2062,7 +2152,7 @@ public final class Linq
     }
 
     // get all lists and combine into one resultant list
-    ReifiedList<TResult> result = new ReifiedArrayList<TResult>(DEFAULT_LIST_SIZE, keySelector2.getReturnType());
+    val result = new ReifiedArrayList<TResult>(DEFAULT_LIST_SIZE, keySelector2.getReturnType());
     // get all secondary dictionaries
     for (TreeMap<TKey2, List<TResult>> tree : dict.values())
       for (List<TResult> list : tree.values())
@@ -2079,9 +2169,9 @@ public final class Linq
   @Validate
   public static <TKey, TKey2, TResult> TResult[] orderByThenBy(@NotNull final TResult[] values,
                                                                @NotNull final Function1<TResult, TKey> keySelector,
-                                                               @NotNull final Comparator<? super TKey> comparer,
+                                                               final Comparator<? super TKey> comparer,
                                                                @NotNull final Function1<TResult, TKey2> keySelector2,
-                                                               @NotNull final Comparator<? super TKey2> comparer2)
+                                                               final Comparator<? super TKey2> comparer2)
   {
     TreeMap<TKey, TreeMap<TKey2, List<TResult>>> dict;
     if (comparer == null)
@@ -2121,7 +2211,7 @@ public final class Linq
     }
 
     // get all lists and combine into one resultant list
-    ReifiedList<TResult> result = new ReifiedArrayList<TResult>(DEFAULT_LIST_SIZE, keySelector2.getReturnType());
+    val result = new ReifiedArrayList<TResult>(DEFAULT_LIST_SIZE, keySelector2.getReturnType());
     // get all secondary dictionaries
     for (TreeMap<TKey2, List<TResult>> tree : dict.values())
       for (List<TResult> list : tree.values())
@@ -2135,10 +2225,12 @@ public final class Linq
    * 
    * @throws NullPointerException The values argument is null.
    */
-  public static <T> Pair<Iterable<T>, Iterable<T>> partition(@NotNull final Iterable<T> values, @NotNull final Predicate1<T> predicate)
+  @Validate
+  public static <T> Pair<Iterable<T>, Iterable<T>> partition(@NotNull final Iterable<T> values,
+                                                             @NotNull final Predicate1<? super T> predicate)
   {
-    List<T> matching = new ArrayList<T>(DEFAULT_LIST_SIZE);
-    List<T> nonMatching = new ArrayList<T>(DEFAULT_LIST_SIZE);
+    val matching = new ArrayList<T>(DEFAULT_LIST_SIZE);
+    val nonMatching = new ArrayList<T>(DEFAULT_LIST_SIZE);
 
     for (T item : values)
       if (predicate.evaluate(item))
@@ -2154,10 +2246,11 @@ public final class Linq
    * 
    * @throws NullPointerException The values argument is null.
    */
+  @Validate
   public static <T> Pair<T[], T[]> partition(@NotNull final T[] values, @NotNull final Predicate1<T> predicate)
   {
-    ReifiedList<T> matching = new ReifiedArrayList<T>(DEFAULT_LIST_SIZE, values.getClass().getComponentType());
-    ReifiedList<T> nonMatching = new ReifiedArrayList<T>(DEFAULT_LIST_SIZE, values.getClass().getComponentType());
+    val matching = new ReifiedArrayList<T>(DEFAULT_LIST_SIZE, values.getClass().getComponentType());
+    val nonMatching = new ReifiedArrayList<T>(DEFAULT_LIST_SIZE, values.getClass().getComponentType());
 
     for (T item : values)
       if (predicate.evaluate(item))
@@ -2177,8 +2270,6 @@ public final class Linq
   @Validate
   public static <T> Iterable<T> range(@NotNull final Iterable<T> values, final int start, final int finish)
   {
-    if (values == null)
-      throw new NullPointerException("values");
     if (start < 0)
       throw new IndexOutOfBoundsException("start=" + start);
     if (finish < start)
@@ -2299,7 +2390,7 @@ public final class Linq
   @Validate
   public static <T> Iterable<T> reverse(@NotNull final Iterable<T> values)
   {
-    List<T> result = new ArrayList<T>(DEFAULT_LIST_SIZE);
+    val result = new ArrayList<T>(DEFAULT_LIST_SIZE);
     for (T item : values)
       result.add(item);
 
@@ -2316,7 +2407,7 @@ public final class Linq
   @Validate
   public static <T> ReifiedList<T> reverse(@NotNull final ReifiedIterable<T> values)
   {
-    ReifiedList<T> result = new ReifiedArrayList<T>(values);
+    val result = new ReifiedArrayList<T>(values);
     Collections.reverse(result);
 
     return result;
@@ -2330,10 +2421,7 @@ public final class Linq
   @Validate
   public static <T> T[] reverse(@NotNull final T[] values)
   {
-    List<T> result = Arrays.asList(values);
-    Collections.reverse(result);
-
-    return toArray(result, values.getClass().getComponentType());
+    return ArrayUtils.reverse(values);
   }
 
   /**
@@ -2343,7 +2431,7 @@ public final class Linq
    */
   @Validate
   public static <TSource, TResult> Iterable<TResult> select(@NotNull final Iterable<TSource> values,
-                                                            @NotNull final Function1<TSource, TResult> selector)
+                                                            @NotNull final Function1<? super TSource, TResult> selector)
   {
     for (TSource item : values)
       yield(selector.apply(item));
@@ -2357,7 +2445,7 @@ public final class Linq
   @Validate
   public static <TSource, TResult> TResult[] select(@NotNull final TSource[] values, @NotNull final Function1<TSource, TResult> selector)
   {
-    List<TResult> result = new ArrayList<TResult>(values.length);
+    val result = new ArrayList<TResult>(values.length);
 
     for (TSource item : values)
       result.add(selector.apply(item));
@@ -2372,11 +2460,11 @@ public final class Linq
    */
   @Validate
   public static <TSource, TResult> Iterable<TResult> selectMany(@NotNull final Iterable<TSource> values,
-                                                                @NotNull final Function1<TSource, ReifiedList<TResult>> selector)
+                                                                @NotNull final Function1<? super TSource, List<TResult>> selector)
   {
     for (TSource item : values)
     {
-      ReifiedList<TResult> subItems = selector.apply(item);
+      List<TResult> subItems = selector.apply(item);
       if (subItems != null)
       {
         for (TResult subItem : subItems)
@@ -2394,7 +2482,7 @@ public final class Linq
   @Validate
   public static <TSource, TResult> TResult[] selectMany(@NotNull final TSource[] values, Function1<TSource, ReifiedList<TResult>> selector)
   {
-    List<TResult> result = new ArrayList<TResult>(DEFAULT_LIST_SIZE);
+    val result = new ArrayList<TResult>(DEFAULT_LIST_SIZE);
     Class<?> resultClass = null;
 
     for (TSource item : values)
@@ -2452,6 +2540,50 @@ public final class Linq
   }
 
   /**
+   * Returns true if the item sequences within two arrays are equal. Arrays may contain null elements.
+   * 
+   * @throws NullPointerException An array is null
+   * @throws IllegalArgumentException Length is out of range.
+   * @throws IndexOutOfBoundsException Offsets are out of range.
+   * @throws ArithmeticException When very large numbers are used and overflow occurs.
+   */
+  @Validate
+  public static <T> boolean sequenceEqual(@NotNull final List<T> a, int offsetA, @NotNull final List<T> b, int offsetB, int count)
+  {
+    if (count == 0)
+      return true;
+    if (offsetA < 0)
+      throw new IndexOutOfBoundsException("offsetA=" + offsetA);
+    if (offsetB < 0)
+      throw new IndexOutOfBoundsException("offsetB=" + offsetB);
+
+    if (count < 0)
+      throw new IllegalArgumentException("count=" + count);
+
+    if (offsetA + count > a.size() || offsetA + count < 0)
+      throw new IndexOutOfBoundsException("offsetA=" + offsetA + " count=" + count + " length=" + a.size());
+    if (offsetB + count > b.size() || offsetB + count < 0)
+      throw new IndexOutOfBoundsException("offsetB=" + offsetB + " count=" + count + " length=" + b.size());
+
+    // comparisons
+    for (int i = 0; i < count; i++)
+    {
+      T elemA = a.get(offsetA + i);
+      T elemB = b.get(offsetB + i);
+
+      // check not null to use Equals
+      if (elemA != null && elemB != null)
+      {
+        if (!elemA.equals(elemB))
+          return false;
+      } else if (elemA != null || elemB != null)
+        return false;
+    }
+
+    return true;
+  }
+
+  /**
    * Returns true if both iterables have the same values in the exact same positions.
    * 
    * @throws NullPointerException An argument is null
@@ -2482,6 +2614,50 @@ public final class Linq
 
       return true;
     }
+  }
+
+  /**
+   * Returns true if the item sequences within two arrays are equal. Arrays may contain null elements.
+   * 
+   * @throws NullPointerException An array is null
+   * @throws IllegalArgumentException Length is out of range.
+   * @throws IndexOutOfBoundsException Offsets are out of range.
+   * @throws ArithmeticException When very large numbers are used and overflow occurs.
+   */
+  @Validate
+  public static <T> boolean sequenceEqual(@NotNull final T[] a, int offsetA, @NotNull final T[] b, int offsetB, int count)
+  {
+    if (count == 0)
+      return true;
+    if (offsetA < 0)
+      throw new IndexOutOfBoundsException("offsetA=" + offsetA);
+    if (offsetB < 0)
+      throw new IndexOutOfBoundsException("offsetB=" + offsetB);
+
+    if (count < 0)
+      throw new IllegalArgumentException("count=" + count);
+
+    if (offsetA + count > a.length || offsetA + count < 0)
+      throw new IndexOutOfBoundsException("offsetA=" + offsetA + " count=" + count + " length=" + a.length);
+    if (offsetB + count > b.length || offsetB + count < 0)
+      throw new IndexOutOfBoundsException("offsetB=" + offsetB + " count=" + count + " length=" + b.length);
+
+    // comparisons
+    for (int i = 0; i < count; i++)
+    {
+      T elemA = a[offsetA + i];
+      T elemB = b[offsetB + i];
+
+      // check not null to use Equals
+      if (elemA != null && elemB != null)
+      {
+        if (!elemA.equals(elemB))
+          return false;
+      } else if (elemA != null || elemB != null)
+        return false;
+    }
+
+    return true;
   }
 
   /**
@@ -2608,9 +2784,9 @@ public final class Linq
    * @throws NullPointerException When an argument is null
    */
   @Validate
-  public static <T> T[] skipWhile(@NotNull final T[] values, @NotNull final Predicate1<? super T> predicate)
+  public static <T> T[] skipWhile(@NotNull final T[] values, @NotNull final Predicate1<T> predicate)
   {
-    List<T> result = new ArrayList<T>(DEFAULT_LIST_SIZE);
+    val result = new ArrayList<T>(DEFAULT_LIST_SIZE);
     boolean skipping = true;
 
     for (T item : values)
@@ -2661,7 +2837,7 @@ public final class Linq
   @Validate
   public static <T extends Comparable<T>> List<T> sort(@NotNull final Iterable<T> values)
   {
-    List<T> result = new ArrayList<T>(DEFAULT_LIST_SIZE);
+    val result = new ArrayList<T>(DEFAULT_LIST_SIZE);
 
     for (T item : values)
       result.add(item);
@@ -2678,7 +2854,7 @@ public final class Linq
   @Validate
   public static <T extends Comparable<T>> ReifiedList<T> sort(@NotNull final ReifiedIterable<T> values)
   {
-    ReifiedList<T> result = new ReifiedArrayList<T>(values);
+    val result = new ReifiedArrayList<T>(values);
     Collections.sort(result);
     return result;
   }
@@ -2691,7 +2867,7 @@ public final class Linq
   @Validate
   public static <T> List<T> sort(@NotNull final Iterable<T> values, @NotNull final Comparator<? super T> comparator)
   {
-    List<T> result = new ArrayList<T>(DEFAULT_LIST_SIZE);
+    val result = new ArrayList<T>(DEFAULT_LIST_SIZE);
     for (T item : values)
       result.add(item);
 
@@ -2708,7 +2884,7 @@ public final class Linq
   @Validate
   public static <T> List<T>[] split(@NotNull final Iterable<? extends T> values, @NotNull final T delimiter)
   {
-    ReifiedList<List<T>> parts = new ReifiedArrayList<List<T>>() {};
+    val parts = new ReifiedArrayList<List<T>>() {};
     parts.add(new ArrayList<T>(DEFAULT_LIST_SIZE));
 
     for (T item : values)
@@ -2719,7 +2895,7 @@ public final class Linq
         parts.add(new ArrayList<T>(DEFAULT_LIST_SIZE));
     }
 
-    return where(parts.toArray(), elementsExist());
+    return where(parts.toArray(), isNotEmpty);
   }
 
   /**
@@ -2730,7 +2906,7 @@ public final class Linq
   @Validate
   public static <T> List<T>[] split(@NotNull final T[] values, @NotNull final T delimiter)
   {
-    ReifiedList<List<T>> parts = new ReifiedArrayList<List<T>>() {};
+    val parts = new ReifiedArrayList<List<T>>() {};
     parts.add(new ArrayList<T>(DEFAULT_LIST_SIZE));
 
     for (T item : values)
@@ -2741,7 +2917,7 @@ public final class Linq
         parts.add(new ArrayList<T>(DEFAULT_LIST_SIZE));
     }
 
-    return where(parts.toArray(), elementsExist());
+    return where(parts.toArray(), isNotEmpty);
   }
 
   /**
@@ -2750,9 +2926,9 @@ public final class Linq
    * @throws NullPointerException When an argument is null, or an item in the iterable is null and the comparer does not handle this case.
    */
   @Validate
-  public static <T> List<T>[] split(@NotNull final Iterable<T> values, @NotNull final T delimiter, Comparator<? super T> comparer)
+  public static <T> List<T>[] split(@NotNull final Iterable<T> values, @NotNull final T delimiter, final Comparator<? super T> comparer)
   {
-    ReifiedList<List<T>> parts = new ReifiedArrayList<List<T>>() {};
+    val parts = new ReifiedArrayList<List<T>>() {};
     parts.add(new ArrayList<T>(DEFAULT_LIST_SIZE));
 
     for (T item : values)
@@ -2764,7 +2940,7 @@ public final class Linq
         parts.add(new ArrayList<T>(DEFAULT_LIST_SIZE));
     }
 
-    return where(parts.toArray(), elementsExist());
+    return where(parts.toArray(), isNotEmpty);
   }
 
   /**
@@ -2773,9 +2949,9 @@ public final class Linq
    * @throws NullPointerException When an argument is null, or an item in the iterable is null and the comparer does not handle this case.
    */
   @Validate
-  public static <T> List<T>[] split(@NotNull final T[] values, @NotNull final T delimiter, Comparator<? super T> comparer)
+  public static <T> List<T>[] split(@NotNull final T[] values, @NotNull final T delimiter, final Comparator<? super T> comparer)
   {
-    ReifiedList<List<T>> parts = new ReifiedArrayList<List<T>>() {};
+    val parts = new ReifiedArrayList<List<T>>() {};
     parts.add(new ArrayList<T>(DEFAULT_LIST_SIZE));
 
     for (T item : values)
@@ -2788,7 +2964,111 @@ public final class Linq
 
     List<T> result = new ArrayList<T>(DEFAULT_LIST_SIZE);
 
-    return where(parts.toArray(), elementsExist());
+    return where(parts.toArray(), isNotEmpty);
+  }
+
+  /**
+   * Swaps two elements in an array.
+   * 
+   * @throws NullPointerException Array is null
+   * @throws IndexOutOfBoundsException Array indices are out of range.
+   */
+  @Validate
+  public static <T> void swap(@NotNull final T[] array, int a, int b)
+  {
+    if (a < 0 || a >= array.length)
+      throw new IndexOutOfBoundsException("a=" + a + " length=" + array.length);
+
+    if (b < 0 || b >= array.length)
+      throw new IndexOutOfBoundsException("b=" + b + " length=" + array.length);
+
+    if (a == b)
+      return;
+
+    T value = array[a];
+    array[a] = array[b];
+    array[b] = value;
+  }
+
+  /**
+   * Swaps two elements in a list
+   * 
+   * @throws NullPointerException List is null
+   * @throws IndexOutOfBoundsException List indices are out of range.
+   */
+  @Validate
+  public static <T> void swap(@NotNull final List<T> list, int a, int b)
+  {
+    if (a < 0 || a >= list.size())
+      throw new IndexOutOfBoundsException("a=" + a + " size=" + list.size());
+
+    if (b < 0 || b >= list.size())
+      throw new IndexOutOfBoundsException("b=" + b + " size=" + list.size());
+
+    if (a == b)
+      return;
+
+    T value = list.get(a);
+    list.set(a, list.get(b));
+    list.set(b, value);
+  }
+
+  /**
+   * Swaps two or more elements in an array.
+   * 
+   * @throws NullPointerException Array is null
+   * @throws IllegalArgumentException The length of index arrays are not equal.
+   * @throws IndexOutOfBoundsException An array index in the indices is out of range
+   */
+  @Validate
+  public static <T> void swap(@NotNull final T[] array, @NotNull final int[] a, @NotNull final int[] b)
+  {
+    if (a.length != b.length)
+      throw new IllegalArgumentException("a=" + a.length + " b=" + b.length);
+
+    for (int i = 0; i < a.length; i++)
+    {
+      int posA = a[i];
+      int posB = b[i];
+
+      if (posA < 0 || posA >= array.length)
+        throw new IndexOutOfBoundsException("posA=" + posA + " length=" + array.length);
+      if (posB < 0 || posB >= array.length)
+        throw new IndexOutOfBoundsException("posB=" + posB + " length=" + array.length);
+
+      T value = array[posA];
+      array[posA] = array[posB];
+      array[posB] = value;
+    }
+  }
+
+  /**
+   * Swaps two or more elements in an array
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IllegalArgumentException The length of index arrays are not equal.
+   * @throws IndexOutOfBoundsException An array index in the indices is out of range
+   */
+  @Validate
+  public static <T> void swap(@NotNull final List<T> list, @NotNull final int[] a, @NotNull final int[] b)
+  {
+    if (a.length != b.length)
+      throw new IllegalArgumentException("a=" + a.length + " b=" + b.length);
+
+    for (int i = 0; i < a.length; i++)
+    {
+      int posA = a[i];
+      int posB = b[i];
+
+      if (posA < 0 || posA >= list.size())
+        throw new IndexOutOfBoundsException("posA=" + posA + " length=" + list.size());
+      if (posB < 0 || posB >= list.size())
+        throw new IndexOutOfBoundsException("posB=" + posB + " length=" + list.size());
+
+      T value = list.get(posA);
+      list.set(posA, list.get(posB));
+      list.set(posB, value);
+    }
   }
 
   /**
@@ -2815,7 +3095,7 @@ public final class Linq
   @Validate
   public static <T> T[] take(@NotNull final T[] values, final int count)
   {
-    List<T> result = new ArrayList<T>(count);
+    val result = new ArrayList<T>(count);
     for (int i = 0; i < count && i < values.length; i++)
       result.add(values[i]);
 
@@ -2845,9 +3125,9 @@ public final class Linq
   @Validate
   public static <T> T[] takeWhile(@NotNull final T[] values, @NotNull final Predicate1<? super T> predicate)
   {
-    List<T> result = new ArrayList<T>(DEFAULT_LIST_SIZE);
+    val result = new ArrayList<T>(DEFAULT_LIST_SIZE);
 
-    int count = values.length;
+    val count = values.length;
     for (int i = 0; i < count; i++)
     {
       T item = values[i];
@@ -2868,7 +3148,7 @@ public final class Linq
   @Validate
   public static <T> T[] toArray(@NotNull final Enumeration<T> enumeration, @NotNull final Class<?> componentType)
   {
-    ReifiedList<T> result = new ReifiedArrayList<T>(componentType);
+    val result = new ReifiedArrayList<T>(componentType);
     while (enumeration.hasMoreElements())
       result.add(enumeration.nextElement());
 
@@ -2906,11 +3186,11 @@ public final class Linq
   public static <T> T[] toArray(@NotNull final Iterable<T> values, @NotNull final Class<?> componentType)
   {
     // count items
-    int count = count(values);
+    val count = count(values);
 
-    T[] result = (T[]) Array.newInstance(componentType, count);
+    val result = (T[]) Array.newInstance(componentType, count);
 
-    Iterator<T> iterator = values.iterator();
+    val iterator = values.iterator();
 
     for (int i = 0; i < count; i++)
       result[i] = iterator.next();
@@ -2927,10 +3207,10 @@ public final class Linq
   public static <T> T[] toArray(@NotNull final Collection<T> list, @NotNull final Class<?> componentType)
   {
     // count items
-    int size = list.size();
-    T[] result = (T[]) Array.newInstance(componentType, size);
+    val size = list.size();
+    val result = (T[]) Array.newInstance(componentType, size);
 
-    Iterator<T> iterator = list.iterator();
+    val iterator = list.iterator();
 
     for (int i = 0; i < size; i++)
       result[i] = iterator.next();
@@ -2949,7 +3229,7 @@ public final class Linq
       toAvlHashtable(@NotNull final Iterable<T> values, @NotNull final Function1<T, TKey> keySelector,
                      @NotNull final Function1<T, TValue> valueSelector)
   {
-    AvlHashtable<TKey, TValue> result = new AvlHashtable<TKey, TValue>(keySelector.getReturnType(), valueSelector.getReturnType());
+    val result = new AvlHashtable<TKey, TValue>(keySelector.getReturnType(), valueSelector.getReturnType());
     for (T item : values)
       result.add(keySelector.apply(item), valueSelector.apply(item));
 
@@ -2967,8 +3247,8 @@ public final class Linq
       toAvlHashtable(@NotNull final T[] values, @NotNull final Function1<T, TKey> keySelector,
                      @NotNull final Function1<T, TValue> valueSelector)
   {
-    AvlHashtable<TKey, TValue> result = new AvlHashtable<TKey, TValue>(keySelector.getReturnType(), valueSelector.getReturnType());
-    int count = values.length;
+    val result = new AvlHashtable<TKey, TValue>(keySelector.getReturnType(), valueSelector.getReturnType());
+    val count = values.length;
     for (int i = 0; i < count; i++)
       result.add(keySelector.apply(values[i]), valueSelector.apply(values[i]));
 
@@ -2983,7 +3263,7 @@ public final class Linq
   @Validate
   public static <T> List<T> toList(@NotNull final Enumeration<? extends T> enumeration)
   {
-    List<T> result = new ArrayList<T>();
+    val result = new ArrayList<T>();
     while (enumeration.hasMoreElements())
       result.add(enumeration.nextElement());
 
@@ -2998,7 +3278,7 @@ public final class Linq
   @Validate
   public static <T> ReifiedList<T> toList(@NotNull final Enumeration<T> enumeration, @NotNull final Class<?> genericTypeParameter)
   {
-    ReifiedList<T> result = new ReifiedArrayList<T>(genericTypeParameter);
+    val result = new ReifiedArrayList<T>(genericTypeParameter);
     while (enumeration.hasMoreElements())
       result.add(enumeration.nextElement());
 
@@ -3013,7 +3293,7 @@ public final class Linq
   @Validate
   public static <T> List<T> toList(@NotNull final Iterable<? extends T> values)
   {
-    List<T> result = new ArrayList<T>(DEFAULT_LIST_SIZE);
+    val result = new ArrayList<T>(DEFAULT_LIST_SIZE);
     for (T item : values)
       result.add(item);
 
@@ -3071,7 +3351,7 @@ public final class Linq
    */
   @Validate
   public static <T> Iterable<T> union(@NotNull final Iterable<T> first, @NotNull final Iterable<T> second,
-                                      @NotNull final Comparator<? super T> comparer)
+                                      final Comparator<? super T> comparer)
   {
     Iterable<T> firstDistinct;
     Iterable<T> secondDistinct;
@@ -3106,7 +3386,7 @@ public final class Linq
    * @throws NullPointerException When the first or second argument is null.
    */
   @Validate
-  public static <T> T[] union(@NotNull final T[] first, @NotNull final T[] second, @NotNull final Comparator<? super T> comparer)
+  public static <T> T[] union(@NotNull final T[] first, @NotNull final T[] second, final Comparator<? super T> comparer)
   {
     T[] firstDistinct;
     T[] secondDistinct;
@@ -3133,9 +3413,9 @@ public final class Linq
    */
   @Validate
   public static <T, TResult1, TResult2> Iterable<Pair<TResult1, TResult2>>
-      unzip(@NotNull final Iterable<T> values, @NotNull final Function1<T, Pair<TResult1, TResult2>> func)
+      unzip(@NotNull final Iterable<T> values, @NotNull final Function1<? super T, Pair<TResult1, TResult2>> func)
   {
-    List<Pair<TResult1, TResult2>> result = new ArrayList<Pair<TResult1, TResult2>>(DEFAULT_LIST_SIZE);
+    val result = new ArrayList<Pair<TResult1, TResult2>>(DEFAULT_LIST_SIZE);
 
     for (T item : values)
       result.add(func.apply(item));
@@ -3152,7 +3432,7 @@ public final class Linq
   public static <T, TResult1, TResult2> Pair<TResult1, TResult2>[] unzip(@NotNull final T[] values,
                                                                          @NotNull final Function1<T, Pair<TResult1, TResult2>> func)
   {
-    ReifiedList<Pair<TResult1, TResult2>> result = new ReifiedArrayList<Pair<TResult1, TResult2>>(DEFAULT_LIST_SIZE, Pair.class);
+    val result = new ReifiedArrayList<Pair<TResult1, TResult2>>(DEFAULT_LIST_SIZE, Pair.class);
 
     for (T item : values)
       result.add(func.apply(item));
@@ -3183,7 +3463,7 @@ public final class Linq
   @Validate
   public static <T> T[] where(@NotNull final T[] values, @NotNull final Predicate1<? super T> predicate)
   {
-    List<T> result = new ArrayList<T>(DEFAULT_LIST_SIZE);
+    val result = new ArrayList<T>(DEFAULT_LIST_SIZE);
 
     for (T element : values)
       if (predicate.apply(element))
@@ -3218,9 +3498,9 @@ public final class Linq
   public static <TFirst, TSecond, TResult> TResult[] zip(@NotNull final TFirst[] first, @NotNull final TSecond[] second,
                                                          @NotNull final Function2<TFirst, TSecond, TResult> function)
   {
-    List<TResult> result = new ArrayList<TResult>(DEFAULT_LIST_SIZE);
+    val result = new ArrayList<TResult>(DEFAULT_LIST_SIZE);
 
-    int count = Math.min(first.length, second.length);
+    val count = Math.min(first.length, second.length);
 
     for (int i = 0; i < count; i++)
       result.add(function.apply(first[i], second[i]));
@@ -3234,9 +3514,9 @@ public final class Linq
    */
   private static <TSource, TDest> Iterable<TDest> castThrow(final Iterable<TSource> values, final Class<TDest> destinationClass)
   {
-    for (TSource val : values)
+    for (TSource v : values)
     {
-      TDest castVal = (TDest) destinationClass.cast(val);
+      TDest castVal = (TDest) destinationClass.cast(v);
       yield(castVal);
     }
   }
@@ -3247,10 +3527,10 @@ public final class Linq
    */
   private static <TSource, TDest> void castThrow(TSource[] values, ReifiedList<TDest> list)
   {
-    Class<?> destinationClass = list.getGenericTypeParameter();
-    for (TSource val : values)
+    val destinationClass = list.getGenericTypeParameter();
+    for (TSource v : values)
     {
-      TDest castVal = (TDest) destinationClass.cast(val);
+      TDest castVal = (TDest) destinationClass.cast(v);
       list.add(castVal);
     }
   }
@@ -3260,13 +3540,13 @@ public final class Linq
    */
   private static <TSource, TDest> Iterable<TDest> castRemove(final Iterable<TSource> values, final Class<TDest> destinationClass)
   {
-    for (TSource val : values)
+    for (TSource v : values)
     {
       boolean cce = false;
       TDest castVal;
       try
       {
-        castVal = (TDest) destinationClass.cast(val);
+        castVal = (TDest) destinationClass.cast(v);
       }
       catch(ClassCastException e)
       {
@@ -3282,13 +3562,13 @@ public final class Linq
    */
   private static <TSource, TDest> void castRemove(final TSource[] values, final ReifiedList<TDest> list)
   {
-    Class<?> destinationClass = list.getGenericTypeParameter();
-    for (TSource val : values)
+    val destinationClass = list.getGenericTypeParameter();
+    for (TSource v : values)
     {
       TDest castVal;
       try
       {
-        castVal = (TDest) destinationClass.cast(val);
+        castVal = (TDest) destinationClass.cast(v);
       }
       catch(ClassCastException e)
       {
@@ -3306,12 +3586,12 @@ public final class Linq
    */
   private static <TSource, TDest> Iterable<TDest> castUseDefault(final Iterable<TSource> values, final Class<TDest> destinationClass)
   {
-    for (TSource val : values)
+    for (TSource v : values)
     {
       TDest castVal = null;
       try
       {
-        castVal = (TDest) destinationClass.cast(val);
+        castVal = (TDest) destinationClass.cast(v);
       }
       catch(ClassCastException e)
       {}
@@ -3328,9 +3608,9 @@ public final class Linq
    */
   private static <TSource, TDest> void castUseDefault(final TSource[] values, final ReifiedList<TDest> list)
   {
-    Class<?> destinationClass = list.getGenericTypeParameter();
+    val destinationClass = list.getGenericTypeParameter();
 
-    int count = values.length;
+    val count = values.length;
     for (int i = 0; i < count; i++)
     {
       TDest castVal;
@@ -3352,10 +3632,10 @@ public final class Linq
    */
   private static <T> boolean containsNonNull(final Iterable<T> values, final T item)
   {
-    for (T val : values)
+    for (T v : values)
       // if a value is null, we cannot use equals
-      if (val != null)
-        if (val.equals(item))
+      if (v != null)
+        if (v.equals(item))
           return true;
 
     return false;
@@ -3366,10 +3646,10 @@ public final class Linq
    */
   private static <T> boolean containsNonNull(final Iterable<T> values, final T item, final Comparator<? super T> comparer)
   {
-    for (T val : values)
+    for (T v : values)
       // if a value is null, we cannot use equals
-      if (val != null)
-        if (comparer.compare(val, item) == 0)
+      if (v != null)
+        if (comparer.compare(v, item) == 0)
           return true;
 
     return false;
@@ -3392,13 +3672,13 @@ public final class Linq
    */
   private static <T> boolean containsNonNull(final T[] values, final T item)
   {
-    int count = values.length;
+    val count = values.length;
     for (int i = 0; i < count; i++)
     {
-      T val = values[i];
+      T v = values[i];
       // if a value is null, we cannot use equals
-      if (val != null)
-        if (val.equals(item))
+      if (v != null)
+        if (v.equals(item))
           return true;
     }
 
@@ -3410,13 +3690,13 @@ public final class Linq
    */
   private static <T> boolean containsNonNull(final T[] values, final T item, final Comparator<? super T> comparer)
   {
-    int count = values.length;
+    val count = values.length;
     for (int i = 0; i < count; i++)
     {
-      T val = values[i];
+      T v = values[i];
       // if a value is null, we cannot use equals
-      if (val != null)
-        if (comparer.compare(val, item) == 0)
+      if (v != null)
+        if (comparer.compare(v, item) == 0)
           return true;
     }
 
@@ -3428,7 +3708,7 @@ public final class Linq
    */
   private static <T> boolean containsNull(final T[] values)
   {
-    int count = values.length;
+    val count = values.length;
     for (int i = 0; i < count; i++)
       if (values[i] == null)
         return true;
@@ -3445,8 +3725,8 @@ public final class Linq
     int result = 0;
 
     // the values is confirmed to be a non-null IEnumerable prior to this
-    for (T val : values)
-      if (val == null)
+    for (T v : values)
+      if (v == null)
         result++;
 
     return result;
@@ -3461,7 +3741,7 @@ public final class Linq
     int result = 0;
 
     // the values is confirmed to be a non-null IEnumerable prior to this
-    int count = values.length;
+    val count = values.length;
     for (int i = 0; i < count; i++)
       if (values[i] == null)
         result++;
@@ -3478,9 +3758,9 @@ public final class Linq
     int result = 0;
 
     // the values is confirmed to be a non-null IEnumerable prior to this
-    for (T val : values)
-      if (val != null)
-        if (val.equals(value))
+    for (T v : values)
+      if (v != null)
+        if (v.equals(value))
           result++;
 
     return result;
@@ -3495,9 +3775,9 @@ public final class Linq
     int result = 0;
 
     // the values is confirmed to be a non-null IEnumerable prior to this
-    for (T val : values)
-      if (val != null)
-        if (comparer.compare(val, value) == 0)
+    for (T v : values)
+      if (v != null)
+        if (comparer.compare(v, value) == 0)
           result++;
 
     return result;
@@ -3512,12 +3792,12 @@ public final class Linq
     int result = 0;
 
     // the values is confirmed to be a non-null IEnumerable prior to this
-    int count = values.length;
+    val count = values.length;
     for (int i = 0; i < count; i++)
     {
-      T val = values[i];
-      if (val != null)
-        if (val.equals(value))
+      T v = values[i];
+      if (v != null)
+        if (v.equals(value))
           result++;
     }
 
@@ -3533,12 +3813,12 @@ public final class Linq
     int result = 0;
 
     // the values is confirmed to be a non-null IEnumerable prior to this
-    int count = values.length;
+    val count = values.length;
     for (int i = 0; i < count; i++)
     {
-      T val = values[i];
-      if (val != null)
-        if (comparer.compare(val, value) == 0)
+      T v = values[i];
+      if (v != null)
+        if (comparer.compare(v, value) == 0)
           result++;
     }
 
@@ -3613,7 +3893,7 @@ public final class Linq
    */
   private static <T> int indexOfNotNull(final T[] values, final T element)
   {
-    int count = values.length;
+    val count = values.length;
     for (int i = 0; i < count; i++)
     {
       if (element.equals(values[i]))
@@ -3628,7 +3908,7 @@ public final class Linq
    */
   private static <T> int indexOfNotNull(final T[] values, final T element, final Comparator<? super T> comparer)
   {
-    int count = values.length;
+    val count = values.length;
     for (int i = 0; i < count; i++)
     {
       if (comparer.compare(element, values[i]) == 0)
@@ -3709,7 +3989,7 @@ public final class Linq
    */
   private static <T> int lastIndexOfNotNull(final T[] values, final T element)
   {
-    int count = values.length;
+    val count = values.length;
     for (int i = count - 1; i >= 0; i--)
     {
       if (element.equals(values[i]))
@@ -3724,7 +4004,7 @@ public final class Linq
    */
   private static <T> int lastIndexOfNotNull(final T[] values, final T element, final Comparator<? super T> comparer)
   {
-    int count = values.length;
+    val count = values.length;
     for (int i = count - 1; i >= 0; i--)
     {
       if (comparer.compare(element, values[i]) == 0)
@@ -3734,15 +4014,7 @@ public final class Linq
     return -1;
   }
 
-  @SuppressWarnings("rawtypes")
-  private static <T> Predicate1<List> elementsExist()
+  private Linq()
   {
-    return new Predicate1<List>() {
-      public boolean evaluate(List list)
-      {
-        return list.size() > 0;
-      }
-    };
   }
-
 }

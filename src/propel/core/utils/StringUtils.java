@@ -18,20 +18,9 @@
 // /////////////////////////////////////////////////////////
 package propel.core.utils;
 
-import lombok.Predicate;
-import lombok.Function;
-import lombok.Validate;
-import lombok.Validate.NotNull;
-import lombok.val;
-import org.joda.time.Duration;
-import org.joda.time.LocalDateTime;
-import org.joda.time.format.*;
-import propel.core.TryResult;
-import propel.core.collections.lists.ReifiedArrayList;
-import propel.core.collections.lists.ReifiedList;
-import propel.core.common.CONSTANT;
-import propel.core.functional.predicates.Strings;
-import propel.core.userTypes.*;
+import static propel.core.functional.predicates.Strings.isNotNullOrEmpty;
+import static propel.core.functional.predicates.Strings.lengthEquals;
+import static propel.core.functional.projections.Strings.charAt;
 import java.math.BigDecimal;
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -39,14 +28,37 @@ import java.text.Collator;
 import java.text.DateFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
+import lombok.Validate;
+import lombok.Validate.NotNull;
+import lombok.val;
+import org.joda.time.Duration;
+import org.joda.time.LocalDateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.DateTimeFormatterBuilder;
+import org.joda.time.format.DateTimeParser;
+import org.joda.time.format.ISODateTimeFormat;
+import propel.core.TryResult;
+import propel.core.collections.lists.ReifiedArrayList;
+import propel.core.collections.lists.ReifiedList;
+import propel.core.common.CONSTANT;
+import propel.core.userTypes.Int128;
+import propel.core.userTypes.UnsignedByte;
+import propel.core.userTypes.UnsignedInteger;
+import propel.core.userTypes.UnsignedLong;
+import propel.core.userTypes.UnsignedShort;
 
 /**
  * Provides helper functionality for Strings and char arrays.
  */
 public final class StringUtils
 {
-
   /**
    * The current locale of the JVM
    */
@@ -81,10 +93,6 @@ public final class StringUtils
    */
   public static final DateTimeFormatter STANDARD_FORMATTERS = (new DateTimeFormatterBuilder()).append(null, createCommonDateTimeParsers())
       .toFormatter();
-
-  private StringUtils()
-  {
-  }
 
   /**
    * Returns a character range from start (inclusive) to end (exclusive).
@@ -131,13 +139,9 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static int compare(String a, String b, StringComparison stringComparison)
+  @Validate
+  public static int compare(@NotNull final String a, @NotNull final String b, StringComparison stringComparison)
   {
-    if (a == null)
-      throw new NullPointerException("a");
-    if (b == null)
-      throw new NullPointerException("b");
-
     switch(stringComparison)
     {
       case CurrentLocale:
@@ -162,13 +166,9 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static int compare(String a, String b, Locale locale, Collator collator, boolean caseSensitive)
+  @Validate
+  public static int compare(@NotNull final String a, @NotNull final String b, Locale locale, Collator collator, boolean caseSensitive)
   {
-    if (a == null)
-      throw new NullPointerException("a");
-    if (b == null)
-      throw new NullPointerException("b");
-
     return compareLocaleSensitive(a, b, locale, collator, caseSensitive);
   }
 
@@ -177,13 +177,10 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  private static int compareLocaleSensitive(String a, String b, Locale locale, Collator collator, boolean caseSensitive)
+  @Validate
+  private static int compareLocaleSensitive(String a, String b, @NotNull final Locale locale, @NotNull final Collator collator,
+                                            boolean caseSensitive)
   {
-    if (locale == null)
-      throw new NullPointerException("locale");
-    if (collator == null)
-      throw new NullPointerException("collator");
-
     if (!caseSensitive)
     {
       a = a.toLowerCase(locale);
@@ -281,11 +278,9 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static String concat(char[] values)
+  @Validate
+  public static String concat(@NotNull final char[] values)
   {
-    if (values == null)
-      throw new NullPointerException("values");
-
     return new String(values);
   }
 
@@ -294,11 +289,9 @@ public final class StringUtils
    * 
    * @throws NullPointerException When the values or one of its arguments is null.
    */
-  public static char[] concat(char[]... values)
+  @Validate
+  public static char[] concat(@NotNull final char[]... values)
   {
-    if (values == null)
-      throw new NullPointerException("values");
-
     int count = 0;
     for (char[] arr : values)
     {
@@ -325,11 +318,9 @@ public final class StringUtils
    * 
    * @throws NullPointerException When the sequence is null.
    */
-  public static boolean contains(char[] sequence, char ch)
+  @Validate
+  public static boolean contains(@NotNull final char[] sequence, char ch)
   {
-    if (sequence == null)
-      throw new NullPointerException("sequence");
-
     for (char c : sequence)
       if (c == ch)
         return true;
@@ -342,11 +333,9 @@ public final class StringUtils
    * 
    * @throws NullPointerException When the sequence is null.
    */
-  public static boolean contains(String value, char ch)
+  @Validate
+  public static boolean contains(@NotNull final String value, char ch)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
     for (char c : value.toCharArray())
       if (c == ch)
         return true;
@@ -389,11 +378,9 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static boolean contains(Iterable<String> values, String value, StringComparison stringComparison)
+  @Validate
+  public static boolean contains(@NotNull final Iterable<String> values, String value, StringComparison stringComparison)
   {
-    if (values == null)
-      throw new NullPointerException("values");
-
     if (value == null)
       return Linq.contains(values, null);
     else
@@ -409,11 +396,10 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static boolean contains(Iterable<String> values, String value, Locale locale, Collator collator, boolean caseSensitive)
+  @Validate
+  public static boolean contains(@NotNull final Iterable<String> values, String value, Locale locale, Collator collator,
+                                 boolean caseSensitive)
   {
-    if (values == null)
-      throw new NullPointerException("values");
-
     if (value == null)
       return Linq.contains(values, null);
     else
@@ -429,11 +415,9 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static boolean contains(String[] values, String value, StringComparison stringComparison)
+  @Validate
+  public static boolean contains(@NotNull final String[] values, String value, StringComparison stringComparison)
   {
-    if (values == null)
-      throw new NullPointerException("values");
-
     if (value == null)
       return Linq.contains(values, null);
     else
@@ -449,11 +433,9 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static boolean contains(String[] values, String value, Locale locale, Collator collator, boolean caseSensitive)
+  @Validate
+  public static boolean contains(@NotNull final String[] values, String value, Locale locale, Collator collator, boolean caseSensitive)
   {
-    if (values == null)
-      throw new NullPointerException("values");
-
     if (value == null)
       return Linq.contains(values, null);
     else
@@ -469,13 +451,9 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static boolean containsAll(String value, char[] characters)
+  @Validate
+  public static boolean containsAll(@NotNull final String value, @NotNull final char[] characters)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-    if (characters == null)
-      throw new NullPointerException("characters");
-
     for (char ch : characters)
       if (value.indexOf(ch) < 0)
         return false;
@@ -500,13 +478,9 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static boolean containsAll(String value, Iterable<String> parts, StringComparison stringComparison)
+  @Validate
+  public static boolean containsAll(@NotNull final String value, @NotNull final Iterable<String> parts, StringComparison stringComparison)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-    if (parts == null)
-      throw new NullPointerException("parts");
-
     // check that all exist
     for (String part : parts)
       if (part == null)
@@ -523,13 +497,10 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static boolean containsAll(String value, Iterable<String> parts, Locale locale, Collator collator, boolean caseSensitive)
+  @Validate
+  public static boolean containsAll(@NotNull final String value, @NotNull final Iterable<String> parts, Locale locale, Collator collator,
+                                    boolean caseSensitive)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-    if (parts == null)
-      throw new NullPointerException("parts");
-
     // check that all exist
     for (String part : parts)
       if (part == null)
@@ -557,13 +528,10 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static boolean containsAll(Iterable<String> values, Iterable<String> items, StringComparison stringComparison)
+  @Validate
+  public static boolean containsAll(@NotNull final Iterable<String> values, @NotNull final Iterable<String> items,
+                                    StringComparison stringComparison)
   {
-    if (values == null)
-      throw new NullPointerException("values");
-    if (items == null)
-      throw new NullPointerException("items");
-
     for (String item : items)
     {
       boolean found = false;
@@ -591,17 +559,12 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static boolean
-      containsAll(Iterable<String> values, Iterable<String> items, Locale locale, Collator collator, boolean caseSensitive)
+  @Validate
+  public static boolean containsAll(@NotNull final Iterable<String> values, @NotNull final Iterable<String> items, Locale locale,
+                                    Collator collator, boolean caseSensitive)
   {
-    if (values == null)
-      throw new NullPointerException("values");
-    if (items == null)
-      throw new NullPointerException("items");
-
     for (String item : items)
     {
-
       boolean found = false;
 
       for (String value : values)
@@ -626,13 +589,9 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static boolean containsAny(String value, char[] characters)
+  @Validate
+  public static boolean containsAny(@NotNull final String value, @NotNull final char[] characters)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-    if (characters == null)
-      throw new NullPointerException("characters");
-
     for (char ch : characters)
       if (value.indexOf(ch) >= 0)
         return true;
@@ -657,13 +616,9 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static boolean containsAny(String value, Iterable<String> parts, StringComparison stringComparison)
+  @Validate
+  public static boolean containsAny(@NotNull final String value, @NotNull final Iterable<String> parts, StringComparison stringComparison)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-    if (parts == null)
-      throw new NullPointerException("parts");
-
     // check if parts contained
     for (String part : parts)
       if (part != null)
@@ -679,13 +634,10 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static boolean containsAny(String value, Iterable<String> parts, Locale locale, Collator collator, boolean caseSensitive)
+  @Validate
+  public static boolean containsAny(@NotNull final String value, @NotNull final Iterable<String> parts, Locale locale, Collator collator,
+                                    boolean caseSensitive)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-    if (parts == null)
-      throw new NullPointerException("parts");
-
     // check if parts contained
     for (String part : parts)
       if (part != null)
@@ -701,13 +653,10 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static boolean containsAny(Iterable<String> values, Iterable<String> items, StringComparison stringComparison)
+  @Validate
+  public static boolean containsAny(@NotNull final Iterable<String> values, @NotNull final Iterable<String> items,
+                                    StringComparison stringComparison)
   {
-    if (values == null)
-      throw new NullPointerException("values");
-    if (items == null)
-      throw new NullPointerException("items");
-
     for (String item : items)
       for (String value : values)
       {
@@ -728,14 +677,10 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static boolean
-      containsAny(Iterable<String> values, Iterable<String> items, Locale locale, Collator collator, boolean caseSensitive)
+  @Validate
+  public static boolean containsAny(@NotNull final Iterable<String> values, @NotNull final Iterable<String> items, Locale locale,
+                                    Collator collator, boolean caseSensitive)
   {
-    if (values == null)
-      throw new NullPointerException("values");
-    if (items == null)
-      throw new NullPointerException("items");
-
     for (String item : items)
       for (String value : values)
       {
@@ -756,10 +701,9 @@ public final class StringUtils
    * @throws NullPointerException An argument is null.
    * @throws IndexOutOfBoundsException An index is out of bounds.
    */
-  public static String copy(String value, int startIndex, int endIndex)
+  @Validate
+  public static String copy(@NotNull final String value, int startIndex, int endIndex)
   {
-    if (value == null)
-      throw new NullPointerException("value");
     if (startIndex < 0 || startIndex > endIndex)
       throw new IndexOutOfBoundsException("startIndex=" + startIndex + " endIndex=" + endIndex);
     if (endIndex > value.length())
@@ -773,11 +717,9 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static int count(char[] array, char ch)
+  @Validate
+  public static int count(@NotNull final char[] array, char ch)
   {
-    if (array == null)
-      throw new NullPointerException("array");
-
     int count = 0;
     for (char c : array)
       if (c == ch)
@@ -791,11 +733,9 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static int count(String value, char character)
+  @Validate
+  public static int count(@NotNull final String value, char character)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
     int result = 0;
 
     for (char s : value.toCharArray())
@@ -820,13 +760,9 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static int count(String value, String element, StringComparison stringComparison)
+  @Validate
+  public static int count(@NotNull final String value, @NotNull final String element, StringComparison stringComparison)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-    if (element == null)
-      throw new NullPointerException("element");
-
     int valLen = value.length();
 
     if (valLen <= 0 || element.length() <= 0)
@@ -850,13 +786,10 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static int count(String value, String element, Locale locale, Collator collator, boolean caseSensitive)
+  @Validate
+  public static int count(@NotNull final String value, @NotNull final String element, Locale locale, Collator collator,
+                          boolean caseSensitive)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-    if (element == null)
-      throw new NullPointerException("element");
-
     int valLen = value.length();
 
     if (valLen <= 0 || element.length() <= 0)
@@ -909,13 +842,9 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static String cropStart(String value, char[] except)
+  @Validate
+  public static String cropStart(@NotNull final String value, @NotNull final char[] except)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-    if (except == null)
-      throw new NullPointerException("except");
-
     int startIndex = 0;
     while (startIndex <= value.length() - 1 && !contains(except, value.charAt(startIndex)))
       startIndex++;
@@ -938,13 +867,9 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static String cropEnd(String value, char[] except)
+  @Validate
+  public static String cropEnd(@NotNull final String value, @NotNull final char[] except)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-    if (except == null)
-      throw new NullPointerException("except");
-
     int endIndex = value.length() - 1;
     while (endIndex > 0 && !contains(except, value.charAt(endIndex)))
       endIndex--;
@@ -969,11 +894,9 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static String detectLineSeparator(String text, float ratio)
+  @Validate
+  public static String detectLineSeparator(@NotNull final String text, float ratio)
   {
-    if (text == null)
-      throw new NullPointerException("text");
-
     int crs = count(text, CONSTANT.CR_CHAR);
     int lfs = count(text, CONSTANT.LF_CHAR);
 
@@ -992,10 +915,9 @@ public final class StringUtils
    * @throws NullPointerException An argument is null.
    * @throws IndexOutOfBoundsException An index is out of bounds.
    */
-  public static String delete(String value, int startIndex, int endIndex)
+  @Validate
+  public static String delete(@NotNull final String value, int startIndex, int endIndex)
   {
-    if (value == null)
-      throw new NullPointerException("value");
     if (startIndex < 0 || startIndex > endIndex)
       throw new IndexOutOfBoundsException("startIndex=" + startIndex + " endIndex=" + endIndex);
     if (endIndex > value.length())
@@ -1005,7 +927,7 @@ public final class StringUtils
   }
 
   /**
-   * Concatenates the given values using their ToString method and appending the given delimiter between all values. Returns String.Empty if
+   * Concatenates the given values using their toString() method and appending the given delimiter between all values. Returns String.Empty if
    * an empty or null collection was provided. Ignores null collection items.
    * 
    * @throws NullPointerException An argument is null.
@@ -1016,19 +938,15 @@ public final class StringUtils
   }
 
   /**
-   * Concatenates the given values using their ToString method and appending the given delimiter between all values. Returns String.Empty if
+   * Concatenates the given values using their toString() method and appending the given delimiter between all values. Returns String.Empty if
    * an empty or null collection was provided. Substitutes null items with a null-replacement value, if provided and is not null.
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static String delimit(Iterable<String> values, String delimiter, String nullReplacementValue)
+  @Validate
+  public static String delimit(@NotNull final Iterable<String> values, @NotNull final String delimiter, String nullReplacementValue)
   {
-    if (values == null)
-      throw new NullPointerException("values");
-    if (delimiter == null)
-      throw new NullPointerException("delimiter");
-
-    StringBuilder sb = new StringBuilder(256);
+    val sb = new StringBuilder(256);
 
     for (String value : values)
       if (value != null)
@@ -1050,7 +968,7 @@ public final class StringUtils
   }
 
   /**
-   * Concatenates the given values using their ToString method and appending the given delimiter between all values. Returns String.Empty if
+   * Concatenates the given values using their toString() method and appending the given delimiter between all values. Returns String.Empty if
    * an empty or null collection was provided. Ignores null collection items.
    * 
    * @throws NullPointerException An argument is null.
@@ -1061,19 +979,15 @@ public final class StringUtils
   }
 
   /**
-   * Concatenates the given values using their ToString method and appending the given delimiter between all values. Returns String.Empty if
+   * Concatenates the given values using their toString() method and appending the given delimiter between all values. Returns String.Empty if
    * an empty or null collection was provided. Substitutes null items with a null-replacement value, if provided and is not null.
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static String delimit(String[] values, String delimiter, String nullReplacementValue)
+  @Validate
+  public static String delimit(@NotNull final String[] values, @NotNull final String delimiter, String nullReplacementValue)
   {
-    if (values == null)
-      throw new NullPointerException("values");
-    if (delimiter == null)
-      throw new NullPointerException("delimiter");
-
-    StringBuilder sb = new StringBuilder(256);
+    val sb = new StringBuilder(256);
 
     for (String value : values)
       if (value != null)
@@ -1100,14 +1014,10 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static String delimit(char[] values, String delimiter)
+  @Validate
+  public static String delimit(@NotNull final char[] values, @NotNull final String delimiter)
   {
-    if (values == null)
-      throw new NullPointerException("values");
-    if (delimiter == null)
-      throw new NullPointerException("delimiter");
-
-    StringBuilder sb = new StringBuilder(256);
+    val sb = new StringBuilder(256);
 
     for (char value : values)
     {
@@ -1126,11 +1036,9 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static boolean endsWith(String value, char suffix)
+  @Validate
+  public static boolean endsWith(@NotNull final String value, char suffix)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
     if (value.length() == 0)
       return false;
 
@@ -1182,13 +1090,9 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static boolean equal(String a, String b, StringComparison stringComparison)
+  @Validate
+  public static boolean equal(@NotNull final String a, @NotNull final String b, StringComparison stringComparison)
   {
-    if (a == null)
-      throw new NullPointerException("a");
-    if (b == null)
-      throw new NullPointerException("b");
-
     switch(stringComparison)
     {
       case CurrentLocale:
@@ -1213,26 +1117,19 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static boolean equal(String a, String b, Locale locale, Collator collator, boolean caseSensitive)
+  @Validate
+  public static boolean equal(@NotNull final String a, @NotNull final String b, Locale locale, Collator collator, boolean caseSensitive)
   {
-    if (a == null)
-      throw new NullPointerException("a");
-    if (b == null)
-      throw new NullPointerException("b");
-
     return equalLocaleSensitive(a, b, locale, collator, caseSensitive);
   }
 
   /**
    * Locale-aware string equality comparison.
    */
-  private static boolean equalLocaleSensitive(String a, String b, Locale locale, Collator collator, boolean caseSensitive)
+  @Validate
+  private static boolean equalLocaleSensitive(String a, String b, @NotNull final Locale locale, @NotNull final Collator collator,
+                                              boolean caseSensitive)
   {
-    if (locale == null)
-      throw new NullPointerException("locale");
-    if (collator == null)
-      throw new NullPointerException("collator");
-
     if (!caseSensitive)
     {
       a = a.toLowerCase(locale);
@@ -1258,11 +1155,9 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static int indexOf(char[] array, char ch)
+  @Validate
+  public static int indexOf(@NotNull final char[] array, char ch)
   {
-    if (array == null)
-      throw new NullPointerException("array");
-
     for (int i = 0; i < array.length; i++)
       if (array[i] == ch)
         return i;
@@ -1298,13 +1193,10 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static int indexOf(String value, String part, Locale locale, Collator collator, boolean caseSensitive)
+  @Validate
+  public static int
+      indexOf(@NotNull final String value, @NotNull final String part, Locale locale, Collator collator, boolean caseSensitive)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-    if (part == null)
-      throw new NullPointerException("part");
-
     return indexOfLocaleSensitive(value, part, 0, value.length(), locale, collator, caseSensitive);
   }
 
@@ -1314,13 +1206,10 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static int indexOf(String value, String part, int startIndex, int count, StringComparison stringComparison)
+  @Validate
+  public static int indexOf(@NotNull final String value, @NotNull final String part, int startIndex, int count,
+                            StringComparison stringComparison)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-    if (part == null)
-      throw new NullPointerException("part");
-
     switch(stringComparison)
     {
       case CurrentLocale:
@@ -1349,13 +1238,10 @@ public final class StringUtils
    * @throws IndexOutOfBoundsException An index is out of bounds
    * @throws IllegalArgumentException An argument is out of range
    */
-  public static int indexOf(String value, String part, int startIndex, int count, Locale locale, Collator collator, boolean caseSensitive)
+  @Validate
+  public static int indexOf(@NotNull final String value, @NotNull final String part, int startIndex, int count, Locale locale,
+                            Collator collator, boolean caseSensitive)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-    if (part == null)
-      throw new NullPointerException("part");
-
     return indexOfLocaleSensitive(value, part, startIndex, count, locale, collator, caseSensitive);
   }
 
@@ -1376,14 +1262,10 @@ public final class StringUtils
    * @throws IndexOutOfBoundsException An index is out of bounds
    * @throws IllegalArgumentException An argument is out of range
    */
-  private static int indexOfLocaleSensitive(String value, String part, int startIndex, int count, Locale locale, Collator collator,
-                                            boolean caseSensitive)
+  @Validate
+  private static int indexOfLocaleSensitive(String value, String part, int startIndex, int count, @NotNull final Locale locale,
+                                            @NotNull final Collator collator, boolean caseSensitive)
   {
-    if (locale == null)
-      throw new NullPointerException("locale");
-    if (collator == null)
-      throw new NullPointerException("collator");
-
     int valueLen = value.length();
     int partLen = part.length();
     int endIndex = startIndex + count;
@@ -1531,12 +1413,9 @@ public final class StringUtils
    * @throws NullPointerException An argument is null.
    * @throws IllegalArgumentException Occurrence is out of range.
    */
-  public static int indexOf(String value, String part, int occurrence, StringComparison stringComparison)
+  @Validate
+  public static int indexOf(@NotNull final String value, @NotNull final String part, int occurrence, StringComparison stringComparison)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-    if (part == null)
-      throw new NullPointerException("part");
     if (value.length() <= 0 || part.length() <= 0)
       return 0;
     if (occurrence <= 0)
@@ -1566,12 +1445,10 @@ public final class StringUtils
    * @throws NullPointerException An argument is null.
    * @throws IllegalArgumentException Occurrence is out of range.
    */
-  public static int indexOf(String value, String part, int occurrence, Locale locale, Collator collator, boolean caseSensitive)
+  @Validate
+  public static int indexOf(@NotNull final String value, @NotNull final String part, int occurrence, Locale locale, Collator collator,
+                            boolean caseSensitive)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-    if (part == null)
-      throw new NullPointerException("part");
     if (value.length() <= 0 || part.length() <= 0)
       return 0;
     if (occurrence <= 0)
@@ -1600,12 +1477,9 @@ public final class StringUtils
    * @throws NullPointerException An argument is null.
    * @throws IndexOutOfBoundsException Index is out of range.
    */
-  public static String insert(String value, int index, String insertedValue)
+  @Validate
+  public static String insert(@NotNull final String value, int index, @NotNull final String insertedValue)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-    if (insertedValue == null)
-      throw new NullPointerException("insertedValue");
     if (index < 0 || index > value.length())
       throw new IndexOutOfBoundsException("index=" + index + " length=" + value.length());
 
@@ -1623,7 +1497,7 @@ public final class StringUtils
   /**
    * Returns true if the given string is null or contains only whitespace chars (' ', '\t', '\r' and '\n').
    * 
-   * @author Martin Lamparski
+   * @author Marcin Lamparski
    */
   public static boolean isNullOrBlank(String value)
   {
@@ -1635,11 +1509,9 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static int lastIndexOf(char[] array, char ch)
+  @Validate
+  public static int lastIndexOf(@NotNull final char[] array, char ch)
   {
-    if (array == null)
-      throw new NullPointerException("array");
-
     for (int i = array.length - 1; i >= 0; i--)
       if (array[i] == ch)
         return i;
@@ -1675,13 +1547,10 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static int lastIndexOf(String value, String part, Locale locale, Collator collator, boolean caseSensitive)
+  @Validate
+  public static int lastIndexOf(@NotNull final String value, @NotNull final String part, Locale locale, Collator collator,
+                                boolean caseSensitive)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-    if (part == null)
-      throw new NullPointerException("part");
-
     return lastIndexOfLocaleSensitive(value, part, value.length() - 1, value.length(), locale, collator, caseSensitive);
   }
 
@@ -1693,13 +1562,10 @@ public final class StringUtils
    * @throws IndexOutOfBoundsException An index is out of bounds
    * @throws IllegalArgumentException An argument is out of range
    */
-  public static int lastIndexOf(String value, String part, int startIndex, int count, StringComparison stringComparison)
+  @Validate
+  public static int lastIndexOf(@NotNull final String value, @NotNull final String part, int startIndex, int count,
+                                StringComparison stringComparison)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-    if (part == null)
-      throw new NullPointerException("part");
-
     switch(stringComparison)
     {
       case CurrentLocale:
@@ -1728,14 +1594,10 @@ public final class StringUtils
    * @throws IndexOutOfBoundsException An index is out of bounds
    * @throws IllegalArgumentException An argument is out of range
    */
-  public static int lastIndexOf(String value, String part, int startIndex, int count, Locale locale, Collator collator,
-                                boolean caseSensitive)
+  @Validate
+  public static int lastIndexOf(@NotNull final String value, @NotNull final String part, int startIndex, int count, Locale locale,
+                                Collator collator, boolean caseSensitive)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-    if (part == null)
-      throw new NullPointerException("part");
-
     return lastIndexOfLocaleSensitive(value, part, startIndex, count, locale, collator, caseSensitive);
   }
 
@@ -1756,14 +1618,10 @@ public final class StringUtils
    * @throws IndexOutOfBoundsException An index is out of bounds
    * @throws IllegalArgumentException An argument is out of range
    */
-  private static int lastIndexOfLocaleSensitive(String value, String part, int startIndex, int count, Locale locale, Collator collator,
-                                                boolean caseSensitive)
+  @Validate
+  private static int lastIndexOfLocaleSensitive(String value, String part, int startIndex, int count, @NotNull final Locale locale,
+                                                @NotNull final Collator collator, boolean caseSensitive)
   {
-    if (locale == null)
-      throw new NullPointerException("locale");
-    if (collator == null)
-      throw new NullPointerException("collator");
-
     int valueLen = value.length();
     int partLen = part.length();
     int endIndex = startIndex - count + 1;
@@ -1918,12 +1776,10 @@ public final class StringUtils
    * @throws NullPointerException An argument is null.
    * @throws IllegalArgumentException Occurrence is out of range.
    */
-  public static int lastIndexOf(String value, String part, int occurrenceFromEnd, StringComparison stringComparison)
+  @Validate
+  public static int lastIndexOf(@NotNull final String value, @NotNull final String part, int occurrenceFromEnd,
+                                StringComparison stringComparison)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-    if (part == null)
-      throw new NullPointerException("part");
     if (value.length() <= 0 || part.length() <= 0)
       return 0;
     if (occurrenceFromEnd <= 0)
@@ -1955,12 +1811,10 @@ public final class StringUtils
    * @throws NullPointerException An argument is null.
    * @throws IllegalArgumentException Occurrence is out of range.
    */
-  public static int lastIndexOf(String value, String part, int occurrenceFromEnd, Locale locale, Collator collator, boolean caseSensitive)
+  @Validate
+  public static int lastIndexOf(@NotNull final String value, @NotNull final String part, int occurrenceFromEnd, Locale locale,
+                                Collator collator, boolean caseSensitive)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-    if (part == null)
-      throw new NullPointerException("part");
     if (value.length() <= 0 || part.length() <= 0)
       return 0;
     if (occurrenceFromEnd <= 0)
@@ -1990,13 +1844,9 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static boolean match(String a, MatchType stringMatch, String b, StringComparison stringComparison)
+  @Validate
+  public static boolean match(@NotNull final String a, MatchType stringMatch, @NotNull final String b, StringComparison stringComparison)
   {
-    if (a == null)
-      throw new NullPointerException("a");
-    if (b == null)
-      throw new NullPointerException("b");
-
     switch(stringMatch)
     {
       case Equals:
@@ -2018,13 +1868,10 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static boolean match(String a, MatchType stringMatch, String b, Locale locale, Collator collator, boolean caseSensitive)
+  @Validate
+  public static boolean match(@NotNull final String a, MatchType stringMatch, @NotNull final String b, Locale locale, Collator collator,
+                              boolean caseSensitive)
   {
-    if (a == null)
-      throw new NullPointerException("a");
-    if (b == null)
-      throw new NullPointerException("b");
-
     switch(stringMatch)
     {
       case Equals:
@@ -2046,11 +1893,9 @@ public final class StringUtils
    * @throws NullPointerException An argument is null.
    * @throws IllegalArgumentException An invalid argument was given.
    */
-  public static String padRight(String value, int totalLength, char pad)
+  @Validate
+  public static String padRight(@NotNull final String value, int totalLength, char pad)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
     if (totalLength < 0)
       throw new IllegalArgumentException("totalLength=" + totalLength);
 
@@ -2072,11 +1917,9 @@ public final class StringUtils
    * @throws NullPointerException An argument is null.
    * @throws IllegalArgumentException An invalid argument was given.
    */
-  public static String padLeft(String value, int totalLength, char pad)
+  @Validate
+  public static String padLeft(@NotNull final String value, int totalLength, char pad)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
     if (totalLength < 0)
       throw new IllegalArgumentException("totalLength=" + totalLength);
 
@@ -2109,15 +1952,10 @@ public final class StringUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException Parsed value is outside of configured range, or not of correct type.
    */
-  public static boolean parseBool(String value, String trueValue, String falseValue, StringComparison comparisonType)
+  @Validate
+  public static boolean parseBool(@NotNull final String value, @NotNull final String trueValue, @NotNull final String falseValue,
+                                  StringComparison comparisonType)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-    if (trueValue == null)
-      throw new NullPointerException("trueValue");
-    if (falseValue == null)
-      throw new NullPointerException("falseValue");
-
     // parse
     if (equal(trueValue, value, comparisonType))
       return true;
@@ -2145,10 +1983,9 @@ public final class StringUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException Parsed value is outside of configured range, or not of correct type.
    */
-  public static char parseChar(String value, char minValue, char maxValue)
+  @Validate
+  public static char parseChar(@NotNull final String value, char minValue, char maxValue)
   {
-    if (value == null)
-      throw new NullPointerException("value");
     if (value.length() != 1)
       throw new NumberFormatException("Value is not 1 character long: " + value);
 
@@ -2184,7 +2021,8 @@ public final class StringUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException Parsed value is outside of configured range, or not of correct type.
    */
-  public static LocalDateTime parseDateTime(String value)
+  @Validate
+  public static LocalDateTime parseDateTime(@NotNull final String value)
   {
     LocalDateTime result = null;
 
@@ -2275,13 +2113,10 @@ public final class StringUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException Parsed value is outside of configured range, or not of correct type.
    */
-  public static LocalDateTime parseDateTime(String value, LocalDateTime minValue, LocalDateTime maxValue, DateTimeFormatter formatter)
+  @Validate
+  public static LocalDateTime parseDateTime(@NotNull final String value, @NotNull final LocalDateTime minValue,
+                                            @NotNull final LocalDateTime maxValue, @NotNull final DateTimeFormatter formatter)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-    if (formatter == null)
-      throw new NullPointerException("formatter");
-
     // parse
     LocalDateTime result = formatter.parseDateTime(value).toLocalDateTime();
 
@@ -2300,11 +2135,9 @@ public final class StringUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException Parsed value is outside of configured range, or not of correct type.
    */
-  public static BigDecimal parseDecimal(String value)
+  @Validate
+  public static BigDecimal parseDecimal(@NotNull final String value)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
     // parse
     BigDecimal result;
     try
@@ -2333,11 +2166,10 @@ public final class StringUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException Parsed value is outside of configured range, or not of correct type.
    */
-  public static BigDecimal parseDecimal(String value, BigDecimal minValue, BigDecimal maxValue)
+  @Validate
+  public static BigDecimal
+      parseDecimal(@NotNull final String value, @NotNull final BigDecimal minValue, @NotNull final BigDecimal maxValue)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
     // parse
     BigDecimal result;
     try
@@ -2383,11 +2215,9 @@ public final class StringUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException Parsed value is outside of configured range, or not of correct type.
    */
-  public static double parseDouble(String value, double minValue, double maxValue, boolean allowInfinity, boolean allowNaN)
+  @Validate
+  public static double parseDouble(@NotNull final String value, double minValue, double maxValue, boolean allowInfinity, boolean allowNaN)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
     // parse
     double result;
     try
@@ -2440,11 +2270,9 @@ public final class StringUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException Parsed value is outside of configured range, or not of correct type.
    */
-  public static float parseFloat(String value, float minValue, float maxValue, boolean allowInfinity, boolean allowNaN)
+  @Validate
+  public static float parseFloat(@NotNull final String value, float minValue, float maxValue, boolean allowInfinity, boolean allowNaN)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
     // parse
     float result;
     try
@@ -2497,11 +2325,9 @@ public final class StringUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException Parsed value is outside of configured range, or not of correct type.
    */
-  public static byte parseInt8(String value, byte minValue, byte maxValue)
+  @Validate
+  public static byte parseInt8(@NotNull final String value, byte minValue, byte maxValue)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
     // parse
     byte result;
     try
@@ -2539,11 +2365,9 @@ public final class StringUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException Parsed value is outside of configured range, or not of correct type.
    */
-  public static short parseInt16(String value, short minValue, short maxValue)
+  @Validate
+  public static short parseInt16(@NotNull final String value, short minValue, short maxValue)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
     // parse
     short result;
     try
@@ -2581,11 +2405,9 @@ public final class StringUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException Parsed value is outside of configured range, or not of correct type.
    */
-  public static int parseInt32(String value, int minValue, int maxValue)
+  @Validate
+  public static int parseInt32(@NotNull final String value, int minValue, int maxValue)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
     // parse
     int result;
     try
@@ -2623,11 +2445,9 @@ public final class StringUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException Parsed value is outside of configured range, or not of correct type.
    */
-  public static long parseInt64(String value, long minValue, long maxValue)
+  @Validate
+  public static long parseInt64(@NotNull final String value, long minValue, long maxValue)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
     // parse
     long result;
     try
@@ -2665,11 +2485,9 @@ public final class StringUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException Parsed value is outside of configured range, or not of correct type.
    */
-  public static Int128 parseInt128(String value, Int128 minValue, Int128 maxValue)
+  @Validate
+  public static Int128 parseInt128(@NotNull final String value, @NotNull final Int128 minValue, @NotNull final Int128 maxValue)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
     // parse
     Int128 result;
     try
@@ -2695,11 +2513,9 @@ public final class StringUtils
    * 
    * @throws NullPointerException When an argument is null
    */
-  public static String parseString(String value)
+  @Validate
+  public static String parseString(@NotNull final String value)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
     return value;
   }
 
@@ -2730,11 +2546,9 @@ public final class StringUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException Parsed value is outside of configured range, or not of correct type.
    */
-  public static Duration parseTimeSpan(String value, Duration minValue, Duration maxValue)
+  @Validate
+  public static Duration parseTimeSpan(@NotNull final String value, @NotNull final Duration minValue, @NotNull final Duration maxValue)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
     Duration result;
     try
     {
@@ -2771,11 +2585,10 @@ public final class StringUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException Parsed value is outside of configured range, or not of correct type.
    */
-  public static UnsignedByte parseUInt8(String value, UnsignedByte minValue, UnsignedByte maxValue)
+  @Validate
+  public static UnsignedByte parseUInt8(@NotNull final String value, @NotNull final UnsignedByte minValue,
+                                        @NotNull final UnsignedByte maxValue)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
     // parse
     UnsignedByte result;
     try
@@ -2813,11 +2626,10 @@ public final class StringUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException Parsed value is outside of configured range, or not of correct type.
    */
-  public static UnsignedShort parseUInt16(String value, UnsignedShort minValue, UnsignedShort maxValue)
+  @Validate
+  public static UnsignedShort parseUInt16(@NotNull final String value, @NotNull final UnsignedShort minValue,
+                                          @NotNull final UnsignedShort maxValue)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
     // parse
     UnsignedShort result;
     try
@@ -2855,11 +2667,10 @@ public final class StringUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException Parsed value is outside of configured range, or not of correct type.
    */
-  public static UnsignedInteger parseUInt32(String value, UnsignedInteger minValue, UnsignedInteger maxValue)
+  @Validate
+  public static UnsignedInteger parseUInt32(@NotNull final String value, @NotNull final UnsignedInteger minValue,
+                                            @NotNull final UnsignedInteger maxValue)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
     // parse
     UnsignedInteger result;
     try
@@ -2897,11 +2708,10 @@ public final class StringUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException Parsed value is outside of configured range, or not of correct type.
    */
-  public static UnsignedLong parseUInt64(String value, UnsignedLong minValue, UnsignedLong maxValue)
+  @Validate
+  public static UnsignedLong parseUInt64(@NotNull final String value, @NotNull final UnsignedLong minValue,
+                                         @NotNull final UnsignedLong maxValue)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
     // parse
     UnsignedLong result;
     try
@@ -2927,14 +2737,10 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static String replace(String value, String textToReplace, String replaceWithText, StringComparison stringComparison)
+  @Validate
+  public static String replace(@NotNull String value, @NotNull final String textToReplace, @NotNull final String replaceWithText,
+                               StringComparison stringComparison)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-    if (textToReplace == null)
-      throw new NullPointerException("textToReplace");
-    if (replaceWithText == null)
-      throw new NullPointerException("replaceWithText");
     if (textToReplace.length() == 0)
       return value;
 
@@ -2985,15 +2791,10 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static String replace(String value, String textToReplace, String replaceWithText, Locale locale, Collator collator,
-                               boolean caseSensitive)
+  @Validate
+  public static String replace(@NotNull String value, @NotNull final String textToReplace, @NotNull final String replaceWithText,
+                               Locale locale, Collator collator, boolean caseSensitive)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-    if (textToReplace == null)
-      throw new NullPointerException("textToReplace");
-    if (replaceWithText == null)
-      throw new NullPointerException("replaceWithText");
     if (textToReplace.length() == 0)
       return value;
 
@@ -3037,10 +2838,9 @@ public final class StringUtils
    * @throws NullPointerException An argument is null.
    * @throws IllegalArgumentException Repetitions argument is out of range.
    */
-  public static String repeat(String value, int repetitions)
+  @Validate
+  public static String repeat(@NotNull final String value, int repetitions)
   {
-    if (value == null)
-      throw new NullPointerException("value");
     if (repetitions < 0)
       throw new IllegalArgumentException("repetitions=" + repetitions);
 
@@ -3056,12 +2856,10 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static String reverse(String value)
+  @Validate
+  public static String reverse(@NotNull final String value)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
-    StringBuilder sb = new StringBuilder(value);
+    val sb = new StringBuilder(value);
     return sb.reverse().toString();
   }
 
@@ -3070,13 +2868,9 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static boolean sequenceEqual(char[] a, char[] b)
+  @Validate
+  public static boolean sequenceEqual(@NotNull final char[] a, @NotNull final char[] b)
   {
-    if (a == null)
-      throw new NullPointerException("a");
-    if (b == null)
-      throw new NullPointerException("b");
-
     if (a.length != b.length)
       return false;
     if (a.length == 0)
@@ -3092,13 +2886,9 @@ public final class StringUtils
    * @throws IndexOutOfBoundsException An index is out of bounds.
    * @throws IllegalArgumentException An argument is out of range.
    */
-  public static boolean sequenceEqual(char[] a, int startIndexA, char[] b, int startIndexB, int count)
+  @Validate
+  public static boolean sequenceEqual(@NotNull final char[] a, int startIndexA, @NotNull final char[] b, int startIndexB, int count)
   {
-    if (a == null)
-      throw new NullPointerException("a");
-    if (b == null)
-      throw new NullPointerException("b");
-
     if (count == 0)
       return true;
     if (startIndexA < 0 || startIndexA > a.length)
@@ -3125,11 +2915,9 @@ public final class StringUtils
    * 
    * @throws NullPointerException When an argument is null, or an item in the iterable is null.
    */
-  public static List<char[]> split(char[] values, char delimiter)
+  @Validate
+  public static List<char[]> split(@NotNull final char[] values, char delimiter)
   {
-    if (values == null)
-      throw new NullPointerException("values");
-
     List<ReifiedList<Character>> parts = new ArrayList<ReifiedList<Character>>();
     parts.add(new ReifiedArrayList<Character>(Character.class));
 
@@ -3175,14 +2963,10 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static String[] split(String text, char[] delimiters, StringSplitOptions options)
+  @Validate
+  public static String[] split(@NotNull final String text, @NotNull final char[] delimiters, StringSplitOptions options)
   {
-    if (text == null)
-      throw new NullPointerException("text");
-    if (delimiters == null)
-      throw new NullPointerException("delimiters");
-
-    ReifiedList<String> result = new ReifiedArrayList<String>(String.class);
+    val result = new ReifiedArrayList<String>(String.class);
 
     // if no separators, return the original string
     if (delimiters.length == 0)
@@ -3221,7 +3005,7 @@ public final class StringUtils
       case None:
         return result.toArray();
       case RemoveEmptyEntries:
-        return Linq.where(result.toArray(), Strings.isNotNullOrEmpty());
+        return Linq.where(result.toArray(), isNotNullOrEmpty());
       default:
         throw new IllegalArgumentException("stringSplitOptions has an unexpected value: " + options.toString());
     }
@@ -3242,14 +3026,10 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static String[] split(String text, String delimiter, StringSplitOptions options)
+  @Validate
+  public static String[] split(@NotNull final String text, @NotNull final String delimiter, StringSplitOptions options)
   {
-    if (text == null)
-      throw new NullPointerException("text");
-    if (delimiter == null)
-      throw new NullPointerException("delimiter");
-
-    String[] delimiters = new String[] {delimiter};
+    val delimiters = new String[] {delimiter};
     return split(text, delimiters, options);
   }
 
@@ -3259,15 +3039,11 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static String[] split(String text, String[] delimiters, StringSplitOptions options)
+  @Validate
+  public static String[] split(@NotNull final String text, @NotNull String[] delimiters, StringSplitOptions options)
   {
-    if (text == null)
-      throw new NullPointerException("text");
-    if (delimiters == null)
-      throw new NullPointerException("delimiters");
-
     // ignore null and empty delimiters
-    delimiters = Linq.where(delimiters, Strings.isNotNullOrEmpty());
+    delimiters = Linq.where(delimiters, isNotNullOrEmpty());
 
     // case where there are no delimiters
     ReifiedList<String> result = new ReifiedArrayList<String>(String.class);
@@ -3278,8 +3054,8 @@ public final class StringUtils
     }
 
     // simplify if all delimiters are chars, call character delimiter method
-    if (Linq.all(delimiters, lengthEqualTo(1)))
-      return split(text, ArrayUtils.unbox(Linq.select(delimiters, getCharAt(0))), options);
+    if (Linq.all(delimiters, lengthEquals(1)))
+      return split(text, ArrayUtils.unbox(Linq.select(delimiters, charAt(0))), options);
 
     // multiple delimiters, handled separately
     result.add(text);
@@ -3302,22 +3078,10 @@ public final class StringUtils
       case None:
         return result.toArray();
       case RemoveEmptyEntries:
-        return Linq.toArray(Linq.where(result, Strings.isNotNullOrEmpty()), String.class);
+        return Linq.toArray(Linq.where(result, isNotNullOrEmpty()), String.class);
       default:
         throw new IllegalArgumentException("Unrecognized string split option: " + options);
     }
-  }
-
-  @Predicate
-  private static boolean lengthEqualTo(String element, int _length)
-  {
-    return element.length() == _length;
-  }
-
-  @Function
-  private static Character getCharAt(String element, int _pos)
-  {
-    return element.charAt(_pos);
   }
 
   /**
@@ -3329,15 +3093,11 @@ public final class StringUtils
    * @throws NullPointerException An argument is null.
    * @throws IllegalArgumentException A delimiter is null or empty.
    */
-  public static String[] splitAnchor(String text, Iterable<String> delimiters)
+  @Validate
+  public static String[] splitAnchor(@NotNull String text, @NotNull final Iterable<String> delimiters)
   {
-    if (text == null)
-      throw new NullPointerException("text");
-    if (delimiters == null)
-      throw new NullPointerException("delimiters");
-
     // parts are stored here
-    ReifiedList<String> result = new ReifiedArrayList<String>(String.class);
+    val result = new ReifiedArrayList<String>(String.class);
 
     // process delimiters serially
     for (String delim : delimiters)
@@ -3362,15 +3122,28 @@ public final class StringUtils
   }
 
   /**
+   * Splits a string by finding consecutive 'tags' i.e. delimiters. E.g. for 0d1h2m3s, using "d,h,m,s" as delimiters would return { 0,1,2,3
+   * }. Delimiters that are not found will be ignored. E.g. for 0d1h2m3s, using "d,m,h,s" as delimiters would return { 0,1h2,3 } (i.e. h not
+   * found after m). Uses Ordinal string comparison. Does not continuously split in the same way split() does, uses anchor points instead.
+   * When splitting strings, Ordinal string comparison is always used.
+   * 
+   * @throws NullPointerException An argument is null.
+   * @throws IllegalArgumentException A delimiter is null or empty.
+   */
+  @Validate
+  public static String[] splitAnchor(String text, @NotNull final String[] delimiters)
+  {
+    return splitAnchor(text, Arrays.asList(delimiters));
+  }
+
+  /**
    * Returns true if the value starts with a prefix.
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static boolean startsWith(String value, char prefix)
+  @Validate
+  public static boolean startsWith(@NotNull final String value, char prefix)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
     if (value.length() == 0)
       return false;
 
@@ -3424,11 +3197,9 @@ public final class StringUtils
    * @throws NullPointerException An argument is null.
    * @throws IndexOutOfBoundsException The index or length is out of range.
    */
-  public static String substring(String value, int startIndex, int length)
+  @Validate
+  public static String substring(@NotNull final String value, int startIndex, int length)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
     int valueLen = value.length();
     if (startIndex < 0 || startIndex >= valueLen)
       throw new IndexOutOfBoundsException("startIndex=" + startIndex + " valueLen=" + valueLen);
@@ -3470,10 +3241,9 @@ public final class StringUtils
    * 
    * @throws NullPointerException When an argument is null.
    */
-  public static String trimStart(String value, char ch)
+  @Validate
+  public static String trimStart(@NotNull final String value, char ch)
   {
-    if (value == null)
-      throw new NullPointerException("value");
     return trimStart(value, new char[] {ch});
   }
 
@@ -3482,13 +3252,9 @@ public final class StringUtils
    * 
    * @throws NullPointerException When an argument is null.
    */
-  public static String trimStart(String value, char[] chars)
+  @Validate
+  public static String trimStart(@NotNull final String value, @NotNull final char[] chars)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-    if (chars == null)
-      throw new NullPointerException("chars");
-
     int startIndex = 0;
     while (startIndex <= value.length() - 1 && contains(chars, value.charAt(startIndex)))
       startIndex++;
@@ -3501,11 +3267,9 @@ public final class StringUtils
    * 
    * @throws NullPointerException When an argument is null.
    */
-  public static String trimEnd(String value, char ch)
+  @Validate
+  public static String trimEnd(@NotNull final String value, char ch)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
     return trimEnd(value, new char[] {ch});
   }
 
@@ -3514,13 +3278,9 @@ public final class StringUtils
    * 
    * @throws NullPointerException When an argument is null.
    */
-  public static String trimEnd(String value, char[] chars)
+  @Validate
+  public static String trimEnd(@NotNull final String value, @NotNull final char[] chars)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-    if (chars == null)
-      throw new NullPointerException("chars");
-
     int endIndex = value.length() - 1;
     while (endIndex > 0 && contains(chars, value.charAt(endIndex)))
       endIndex--;
@@ -3553,13 +3313,9 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static String trimStart(String value, String trimmed, StringComparison stringComparison)
+  @Validate
+  public static String trimStart(@NotNull String value, @NotNull final String trimmed, StringComparison stringComparison)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-    if (trimmed == null)
-      throw new NullPointerException("value");
-
     switch(stringComparison)
     {
       case CurrentLocale:
@@ -3591,13 +3347,9 @@ public final class StringUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static String trimEnd(String value, String trimmed, StringComparison stringComparison)
+  @Validate
+  public static String trimEnd(@NotNull String value, @NotNull final String trimmed, StringComparison stringComparison)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-    if (trimmed == null)
-      throw new NullPointerException("value");
-
     switch(stringComparison)
     {
       case CurrentLocale:
@@ -3640,10 +3392,9 @@ public final class StringUtils
    * @throws NullPointerException An argument is null.
    * @throws IndexOutOfBoundsException The index is out of bounds.
    */
-  public static String truncate(String value, int endIndex)
+  @Validate
+  public static String truncate(@NotNull final String value, int endIndex)
   {
-    if (value == null)
-      throw new NullPointerException("value");
     if (endIndex < 0 || endIndex > value.length())
       throw new IndexOutOfBoundsException("endIndex=" + endIndex + " length=" + value.length());
 
@@ -3656,10 +3407,9 @@ public final class StringUtils
    * @throws NullPointerException An argument is null.
    * @throws IndexOutOfBoundsException The index is negative.
    */
-  public static String truncateIfLonger(String value, int endIndex)
+  @Validate
+  public static String truncateIfLonger(@NotNull final String value, int endIndex)
   {
-    if (value == null)
-      throw new NullPointerException("value");
     if (endIndex < 0)
       throw new IndexOutOfBoundsException("endIndex=" + endIndex);
     if (endIndex > value.length())
@@ -4234,5 +3984,9 @@ public final class StringUtils
       DateTimeFormat.forPattern("yyyy.MM.dd HH:mm:ss").getParser(), DateTimeFormat.forPattern("yyyy.MM.dd HH:mm:ss.SSSSSSSSS").getParser(),
       DateTimeFormat.forPattern("HH:mm").getParser(), DateTimeFormat.forPattern("HH:mm:ss").getParser(),
       DateTimeFormat.forPattern("HH:mm:ss.SSSSSSSSS").getParser()};
+  }
+
+  private StringUtils()
+  {
   }
 }

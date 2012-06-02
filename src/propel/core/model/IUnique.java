@@ -1,3 +1,4 @@
+// /////////////////////////////////////////////////////////
 // This file is part of Propel.
 //
 // Propel is free software: you can redistribute it and/or modify
@@ -15,36 +16,17 @@
 // /////////////////////////////////////////////////////////
 // Authored by: Nikolaos Tountas -> salam.kaser-at-gmail.com
 // /////////////////////////////////////////////////////////
-package propel.core.utils;
+package propel.core.model;
+
+import java.util.UUID;
 
 /**
- * Class with null value related utilities
+ * The interface that objects with a unique ID should follow.
  */
-public final class Nullable
+public interface IUnique
 {
   /**
-   * Null coalescing extension method, similar to the ?? operator of C#
+   * Returns a unique 128-bit UUID for uniquely identifying this object
    */
-  public static <T> T orElse(T value, T _elseValue)
-  {
-    if (value != null)
-      return value;
-
-    return _elseValue;
-  }
-
-  /**
-   * Null coalescing extension method, similar to the ?? operator of C#
-   */
-  public static Object orElseObj(Object value, Object _elseValue)
-  {
-    if (value != null)
-      return value;
-
-    return _elseValue;
-  }
-
-  private Nullable()
-  {
-  }
+  UUID getUniqueId();
 }

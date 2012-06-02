@@ -19,7 +19,7 @@
 package propel.core.transactional;
 
 import java.util.List;
-import lombok.Functions.Function0;
+import lombok.Actions.Action0;
 
 /**
  * The interface of the transaction manager, capable of running actions in a transactional fashion.
@@ -29,12 +29,12 @@ public interface ITransactionManager
   /**
    * A list of actions, executed in a way that guarantees complete success or complete failure.
    */
-  List<Function0<Void>> getActions();
+  List<Action0> getActions();
 
   /**
    * If an action fails, the corresponding rollback actions are executed in FIFO or FILO order, as configured by the caller.
    */
-  List<Function0<Void>> getRollbackActions();
+  List<Action0> getRollbackActions();
 
   /**
    * The index of the action that is executing. This is useful for determining the index of any actions that fail. This can be then used to
@@ -50,13 +50,13 @@ public interface ITransactionManager
   /**
    * Adds an action without a corresponding rollback action. This should only be used for actions that do not alter things.
    */
-  void add(Function0<Void> action);
+  void add(Action0 action);
 
   /**
    * Adds an action and the corresponding rollback action. If the transaction fails before all actions have been successfully completed then
    * the rollback actions are called, so ensure that the rollback action acts as an "undo" operation for the action.
    */
-  void add(Function0<Void> action, Function0<Void> rollbackAction);
+  void add(Action0 action, Action0 rollbackAction);
 
   /**
    * Executes all actions, starting at the beginning. If an exception occurs during the execution of an action then it is thrown.

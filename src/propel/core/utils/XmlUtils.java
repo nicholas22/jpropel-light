@@ -18,11 +18,13 @@
 // /////////////////////////////////////////////////////////
 package propel.core.utils;
 
+import java.util.ArrayList;
+import java.util.List;
+import lombok.Validate;
+import lombok.Validate.NotNull;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import java.util.ArrayList;
-import java.util.List;
 import propel.core.common.CONSTANT;
 
 /**
@@ -44,11 +46,9 @@ public final class XmlUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static String compact(String xml)
+  @Validate
+  public static String compact(@NotNull String xml)
   {
-    if (xml == null)
-      throw new NullPointerException("xml");
-
     xml = xml.replace(CONSTANT.CR, CONSTANT.EMPTY_STRING);
     xml = xml.replace(CONSTANT.LF, CONSTANT.EMPTY_STRING);
     xml = xml.replace(CONSTANT.TAB, CONSTANT.EMPTY_STRING);
@@ -75,13 +75,9 @@ public final class XmlUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static Node findAttribute(Node node, String attributeName, MatchType matchType, StringComparison comparisonType)
+  @Validate
+  public static Node findAttribute(@NotNull final Node node, @NotNull final String attributeName, MatchType matchType, StringComparison comparisonType)
   {
-    if (node == null)
-      throw new NullPointerException("node");
-    if (attributeName == null)
-      throw new NullPointerException("attributeName");
-
     switch(matchType)
     {
       case Equals:
@@ -223,13 +219,9 @@ public final class XmlUtils
    * 
    * @throws NullPointerException When an argument is null.
    */
-  public static Node findNode(Node node, String childNodeName, int index, MatchType matchType, StringComparison comparisonType)
+  @Validate
+  public static Node findNode(@NotNull final Node node, @NotNull final String childNodeName, int index, MatchType matchType, StringComparison comparisonType)
   {
-    if (node == null)
-      throw new NullPointerException("node");
-    if (childNodeName == null)
-      throw new NullPointerException("childNodeName");
-
     switch(matchType)
     {
       case Equals:
@@ -373,13 +365,9 @@ public final class XmlUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static List<Node> findAllNodes(Node node, String childNodeName, MatchType matchType, StringComparison comparisonType)
+  @Validate
+  public static List<Node> findAllNodes(@NotNull final Node node, @NotNull final String childNodeName, MatchType matchType, StringComparison comparisonType)
   {
-    if (node == null)
-      throw new NullPointerException("node");
-    if (childNodeName == null)
-      throw new NullPointerException("childNodeName");
-
     switch(matchType)
     {
       case Equals:

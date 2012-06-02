@@ -1,3 +1,4 @@
+// /////////////////////////////////////////////////////////
 // This file is part of Propel.
 //
 // Propel is free software: you can redistribute it and/or modify
@@ -15,36 +16,20 @@
 // /////////////////////////////////////////////////////////
 // Authored by: Nikolaos Tountas -> salam.kaser-at-gmail.com
 // /////////////////////////////////////////////////////////
-package propel.core.utils;
+package propel.core.common;
 
-/**
- * Class with null value related utilities
- */
-public final class Nullable
+public enum StackTraceLevel
 {
   /**
-   * Null coalescing extension method, similar to the ?? operator of C#
+   * Use this to capture the entire stack trace
    */
-  public static <T> T orElse(T value, T _elseValue)
-  {
-    if (value != null)
-      return value;
-
-    return _elseValue;
-  }
-
+  FULL,
   /**
-   * Null coalescing extension method, similar to the ?? operator of C#
+   * Use this to capture only a small part of stack traces
    */
-  public static Object orElseObj(Object value, Object _elseValue)
-  {
-    if (value != null)
-      return value;
-
-    return _elseValue;
-  }
-
-  private Nullable()
-  {
-  }
+  ABBREVIATED,
+  /**
+   * Use this to capture only types and messages
+   */
+  MINIMAL
 }

@@ -18,6 +18,7 @@
 // /////////////////////////////////////////////////////////
 package propel.core.utils;
 
+import static propel.core.functional.projections.Files.getAbsolutePath;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -32,7 +33,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,7 +42,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import lombok.Function;
+import lombok.Validate;
+import lombok.Validate.NotNull;
+import lombok.val;
 import propel.core.collections.lists.ReifiedArrayList;
 import propel.core.collections.lists.ReifiedList;
 import propel.core.common.CONSTANT;
@@ -53,11 +55,6 @@ import propel.core.functional.tuples.Pair;
  */
 public final class FileUtils
 {
-
-  private FileUtils()
-  {
-  }
-  
   /**
    * Appends some binary data to a file. If the file does not exist, it is created.
    * 
@@ -67,7 +64,7 @@ public final class FileUtils
    * @throws FileNotFoundException The file specified is a directory, or it does not exist and cannot be created, or cannot be appended to.
    * @throws SecurityException Access to filesystem is denied by a SecurityManager
    */
-  public static void appendData(File file, byte[] data, int offset, int count) 
+  public static void appendData(File file, byte[] data, int offset, int count)
       throws IOException
   {
     appendData(file.getAbsolutePath(), data, offset, count);
@@ -82,13 +79,10 @@ public final class FileUtils
    * @throws FileNotFoundException The file specified is a directory, or it does not exist and cannot be created, or cannot be appended to.
    * @throws SecurityException Access to filesystem is denied by a SecurityManager
    */
-  public static void appendData(String fileAbsPath, byte[] data, int offset, int count)
+  @Validate
+  public static void appendData(@NotNull final String fileAbsPath, @NotNull final byte[] data, int offset, int count)
       throws IOException
   {
-    if (fileAbsPath == null)
-      throw new NullPointerException("fileAbsPath");
-    if (data == null)
-      throw new NullPointerException("data");
     if (offset > data.length)
       throw new IllegalArgumentException("offset=" + offset + " dataLen=" + data.length);
     if (count < 0 || count > data.length)
@@ -96,15 +90,14 @@ public final class FileUtils
     if (offset + count > data.length || offset + count < 0)
       throw new IllegalArgumentException("offset=" + offset + " count=" + count + " dataLen=" + data.length);
 
-    BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(fileAbsPath, true));
+    val bos = new BufferedOutputStream(new FileOutputStream(fileAbsPath, true));
     bos.write(data, offset, count);
     bos.flush();
     bos.close();
   }
 
   /**
-   * Appends some text to a file. If the file does not exist, it is created. No EOL terminator is appended, e.g.
-   * Environment.NewLine.
+   * Appends some text to a file. If the file does not exist, it is created. No EOL terminator is appended, e.g. Environment.NewLine.
    * 
    * @throws NullPointerException An argument is null
    * @throws IllegalArgumentException An argument is out of range
@@ -117,7 +110,7 @@ public final class FileUtils
   {
     appendText(file.getAbsolutePath(), text);
   }
-  
+
   /**
    * Appends some text to a file in the specified path. If the file does not exist, it is created. No EOL terminator is appended, e.g.
    * Environment.NewLine.
@@ -148,7 +141,7 @@ public final class FileUtils
   {
     appendTextLine(file.getAbsolutePath(), text);
   }
-  
+
   /**
    * Appends some text to a file in the specified path and then appends Environment.NewLine. If the file does not exist, it is created.
    * 
@@ -179,7 +172,7 @@ public final class FileUtils
   {
     appendText(file.getAbsolutePath(), text, eolTerminator);
   }
-  
+
   /**
    * Appends some text to a file in the specified path. If the file does not exist, it is created. If the End-Of-Line terminator is not
    * null, it is appended after the text (this could be e.g. Environment.NewLine)
@@ -190,13 +183,11 @@ public final class FileUtils
    * @throws FileNotFoundException The file specified is a directory, or it does not exist and cannot be created, or cannot be appended to.
    * @throws SecurityException Access to filesystem is denied by a SecurityManager
    */
-  public static void appendText(String fileAbsPath, String text, String eolTerminator)
+  @Validate
+  public static void appendText(@NotNull final String fileAbsPath, String text, String eolTerminator)
       throws IOException
   {
-    if (fileAbsPath == null)
-      throw new NullPointerException("fileAbsPath");
-
-    BufferedWriter bw = new BufferedWriter(new FileWriter(fileAbsPath, true));
+    val bw = new BufferedWriter(new FileWriter(fileAbsPath, true));
     bw.write(text);
     if (eolTerminator != null)
       bw.write(eolTerminator);
@@ -218,7 +209,7 @@ public final class FileUtils
   {
     cloneFile(originatingFile.getAbsolutePath(), destinationPath);
   }
-  
+
   /**
    * Copies a file from source to destination while preserving the file's Last Modified date. Note: Creation date is not possible to obtain
    * and set in a cross platform way in Java prior to 1.7.
@@ -233,11 +224,22 @@ public final class FileUtils
   {
     copyFile(originatingPath, destinationPath);
 
-    File source = new File(originatingPath);
-    File dest = new File(destinationPath);
+    val source = new File(originatingPath);
+    val dest = new File(destinationPath);
 
     if (!dest.setLastModified(source.lastModified()))
       throw new IOException("Could not set last modified date/time.");
+  }
+
+  /**
+   * Combines two paths, appending a directory separator after the first path, if needed.
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  @Validate
+  public static String combinePath(@NotNull final String path, @NotNull final String nextPath)
+  {
+    return path.endsWith(CONSTANT.DIRECTORY_SEPARATOR) ? path + nextPath : path + CONSTANT.DIRECTORY_SEPARATOR + nextPath;
   }
 
   /**
@@ -248,7 +250,7 @@ public final class FileUtils
   {
     return tryCloneFile(sourceFile.getAbsolutePath(), destAbsPath);
   }
-  
+
   /**
    * Clones a file from source to destination, returning true if the operation was successful. The file is not copied if any exception
    * occurs. No exception is thrown under any circumstance.
@@ -279,7 +281,7 @@ public final class FileUtils
   {
     copyFile(originatingFile.getAbsolutePath(), destinationPath);
   }
-  
+
   /**
    * Copies a file from source to destination
    * 
@@ -288,16 +290,12 @@ public final class FileUtils
    * @throws FileNotFoundException The file specified is a directory, it does not exist or cannot be read/created.
    * @throws SecurityException Access to filesystem is denied by a SecurityManager
    */
-  public static void copyFile(String originatingPath, String destinationPath)
+  @Validate
+  public static void copyFile(@NotNull final String originatingPath, @NotNull final String destinationPath)
       throws IOException
   {
-    if (originatingPath == null)
-      throw new NullPointerException("originatingPath");
-    if (destinationPath == null)
-      throw new NullPointerException("destinationPath");
-
-    File source = new File(originatingPath);
-    File dest = new File(destinationPath);
+    val source = new File(originatingPath);
+    val dest = new File(destinationPath);
 
     BufferedInputStream fis = null;
     BufferedOutputStream fos = null;
@@ -329,7 +327,7 @@ public final class FileUtils
   {
     return tryCopyFile(sourceFile, destAbsPath);
   }
-  
+
   /**
    * Copies a file from source to destination, returning true if the operation was successful. The file is not copied if any exception
    * occurs. No exception is thrown under any circumstance.
@@ -360,7 +358,7 @@ public final class FileUtils
   {
     deleteFile(file.getAbsolutePath());
   }
-  
+
   /**
    * Deletes a file, if it exists.
    * 
@@ -369,13 +367,11 @@ public final class FileUtils
    * @throws FileNotFoundException The file was a directory
    * @throws SecurityException Access to filesystem is denied by a SecurityManager
    */
-  public static void deleteFile(String fileAbsPath)
+  @Validate
+  public static void deleteFile(@NotNull final String fileAbsPath)
       throws IOException
   {
-    if (fileAbsPath == null)
-      throw new NullPointerException("fileAbsPath");
-
-    File file = new File(fileAbsPath);
+    val file = new File(fileAbsPath);
     if (file.exists())
     {
       // check not dir
@@ -394,7 +390,7 @@ public final class FileUtils
   {
     return tryDeleteFile(file.getAbsolutePath());
   }
-  
+
   /**
    * Attempts to delete a file. The file is not deleted if any exception occurs. No exception is thrown under any circumstance.
    */
@@ -416,20 +412,71 @@ public final class FileUtils
       return false;
     }
   }
-  
+
+  /**
+   * Returns the specified file's extesion, or an empty string if no extension was found
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  @Validate
+  public static String getFileExtension(@NotNull final File file)
+  {
+    return getFileExtension(file.getAbsolutePath());
+  }
+
+  /**
+   * Returns the specified file's extesion, or an empty string if no extension was found
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  @Validate
+  public static String getFileExtension(@NotNull final String filename)
+  {
+    val index = StringUtils.lastIndexOf(filename, CONSTANT.DOT, StringComparison.Ordinal);
+
+    if (index < 0)
+      return CONSTANT.EMPTY_STRING;
+
+    return filename.substring(index + 1);
+  }
+
+  /**
+   * Trims the file's extension (if there is one) and returns the file name
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  @Validate
+  public static String getFileName(@NotNull final File file)
+  {
+    return getFileName(file.getName());
+  }
+
+  /**
+   * Trims the file's extension (if there is one) and returns the file name
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  @Validate
+  public static String getFileName(@NotNull final String filename)
+  {
+    val extension = getFileExtension(filename);
+    if (extension.length() <= 0)
+      return filename;
+
+    return filename.substring(0, filename.length() - extension.length() - 1);
+  }
+
   /**
    * Returns the URL to a resource, by its class path e.g. /java/util/test.xml.
    * 
    * @throws NullPointerException An argument is null
    * @throws FileNotFoundException The resource specified was not found
    */
-  public static URL getResourceUrl(String classpath)
+  @Validate
+  public static URL getResourceUrl(@NotNull final String classpath)
       throws FileNotFoundException
   {
-    if (classpath == null)
-      throw new NullPointerException("classpath");
-
-    URL result = FileUtils.class.getResource(classpath);
+    val result = FileUtils.class.getResource(classpath);
 
     if (result == null)
       throw new FileNotFoundException("Resource not found in specified class path: " + classpath);
@@ -443,16 +490,12 @@ public final class FileUtils
    * @throws NullPointerException An argument is null
    * @throws FileNotFoundException The resource specified was not found
    */
-  public static URL getResourceUrl(Package pkg, String filename)
+  @Validate
+  public static URL getResourceUrl(@NotNull final Package pkg, @NotNull final String filename)
       throws FileNotFoundException
   {
-    if (pkg == null)
-      throw new NullPointerException("pkg");
-    if (filename == null)
-      throw new NullPointerException("filename");
-
     // get the class's package
-    String myPackage = pkg.getName();
+    val myPackage = pkg.getName();
 
     // convert package to class path
     String myClasspath = CONSTANT.FORWARD_SLASH + myPackage.replace(CONSTANT.DOT, CONSTANT.FORWARD_SLASH);
@@ -460,7 +503,7 @@ public final class FileUtils
       myClasspath += CONSTANT.FORWARD_SLASH;
 
     // append filename to class path
-    String resourceClasspath = myClasspath + filename;
+    val resourceClasspath = myClasspath + filename;
 
     // load resource
     return FileUtils.getResourceUrl(resourceClasspath);
@@ -474,12 +517,10 @@ public final class FileUtils
    * @throws IOException An I/O exception occurred during loading of the resource
    * @throws FileNotFoundException The resource specified was not found
    */
-  private static Pair<InputStream, Long> getResourceStream(URL url)
+  @Validate
+  private static Pair<InputStream, Long> getResourceStream(@NotNull final URL url)
       throws FileNotFoundException, IOException
   {
-    if (url == null)
-      throw new NullPointerException("url");
-
     // Thanks to Marcin Lamparski, we don't need the following anymore
     /*
      * if file:// { File file = new File(EscapingUtils.fromUrl(url.getFile())); InputStream is = new FileInputStream(file);
@@ -487,10 +528,10 @@ public final class FileUtils
      * return new Pair<InputStream, Long>(is, file.length()); } else
      */
 
-    URLConnection connection = url.openConnection();
+    val connection = url.openConnection();
     int length = connection.getContentLength();
 
-    InputStream is = connection.getInputStream();
+    val is = connection.getInputStream();
     return new Pair<InputStream, Long>(is, (long) length);
   }
 
@@ -499,12 +540,10 @@ public final class FileUtils
    * 
    * @throws IOException An I/O exception occurred during loading of the resource
    */
-  public static InputStream getResourceStreamData(URL url)
+  @Validate
+  public static InputStream getResourceStreamData(@NotNull final URL url)
       throws IOException
   {
-    if (url == null)
-      throw new NullPointerException("url");
-
     return url.openStream();
   }
 
@@ -528,12 +567,10 @@ public final class FileUtils
    * @throws IOException An I/O exception occurred during loading of the resource
    * @throws FileNotFoundException The resource specified was not found
    */
-  public static String getResourceTextData(URL url, Charset charset)
+  @Validate
+  public static String getResourceTextData(URL url, @NotNull final Charset charset)
       throws IOException
   {
-    if (charset == null)
-      throw new NullPointerException("charset");
-
     return new String(getResourceData(url), CONSTANT.UTF8);
   }
 
@@ -544,18 +581,16 @@ public final class FileUtils
    * @throws IOException An I/O exception occurred during loading of the resource
    * @throws FileNotFoundException The resource specified was not found
    */
-  public static byte[] getResourceData(URL url)
+  @Validate
+  public static byte[] getResourceData(@NotNull final URL url)
       throws IOException
   {
-    if (url == null)
-      throw new NullPointerException("url");
-
     Pair<InputStream, Long> tuple = getResourceStream(url);
 
-    InputStream input = tuple.getFirst();
-    long length = tuple.getSecond();
+    val input = tuple.getFirst();
+    val length = tuple.getSecond();
 
-    byte[] result = StreamUtils.readFully(input, length);
+    val result = StreamUtils.readFully(input, length);
 
     // important not to forget to close the opened stream
     input.close();
@@ -576,7 +611,7 @@ public final class FileUtils
   {
     moveFile(originatingFile.getAbsolutePath(), destinationPath);
   }
-  
+
   /**
    * Moves a file from source to destination
    * 
@@ -585,16 +620,12 @@ public final class FileUtils
    * @throws FileNotFoundException The file specified is a directory, it does not exist or cannot be read/created.
    * @throws SecurityException Access to filesystem is denied by a SecurityManager
    */
-  public static void moveFile(String originatingPath, String destinationPath)
+  @Validate
+  public static void moveFile(@NotNull final String originatingPath, @NotNull final String destinationPath)
       throws IOException
   {
-    if (originatingPath == null)
-      throw new NullPointerException("originatingPath");
-    if (destinationPath == null)
-      throw new NullPointerException("destinationPath");
-
-    File source = new File(originatingPath);
-    File dest = new File(destinationPath);
+    val source = new File(originatingPath);
+    val dest = new File(destinationPath);
     source.renameTo(dest);
   }
 
@@ -606,7 +637,7 @@ public final class FileUtils
   {
     return tryMoveFile(sourceFile.getAbsolutePath(), destAbsPath);
   }
-  
+
   /**
    * Moves a file from source to destination, returning true if the operation was successful. The file is not moved if any exception occurs.
    * No exception is thrown under any circumstance.
@@ -633,12 +664,13 @@ public final class FileUtils
    * @throws FileNotFoundException The file was not found, or it was a directory
    * @throws SecurityException Access to filesystem is denied by a SecurityManager
    */
-  public static String readFileToEnd(File file)
+  @Validate
+  public static String readFileToEnd(@NotNull final File file)
       throws IOException
   {
     return readFileToEnd(file.getAbsolutePath());
   }
-  
+
   /**
    * Reads the entire contents of a file to a string and returns it. This method should generally only be used for small files as it is
    * quite inefficient to read everything in memory.
@@ -648,13 +680,11 @@ public final class FileUtils
    * @throws FileNotFoundException The file was not found, or it was a directory
    * @throws SecurityException Access to filesystem is denied by a SecurityManager
    */
-  public static String readFileToEnd(String fileAbsPath)
+  @Validate
+  public static String readFileToEnd(@NotNull final String fileAbsPath)
       throws IOException
   {
-    if (fileAbsPath == null)
-      throw new NullPointerException("fileAbsPath");
-
-    File file = new File(fileAbsPath);
+    val file = new File(fileAbsPath);
 
     if (!file.exists())
       throw new FileNotFoundException("The file was not found: " + fileAbsPath);
@@ -665,7 +695,7 @@ public final class FileUtils
     try
     {
       stream = new BufferedInputStream(new FileInputStream(file));
-      byte[] result = StreamUtils.readFully(stream, file.length());
+      val result = StreamUtils.readFully(stream, file.length());
       return ConversionUtils.toString(result);
     }
     finally
@@ -674,7 +704,7 @@ public final class FileUtils
         stream.close();
     }
   }
-  
+
   /**
    * Enumerates the contents of a file line by line (reads the entire contents of a file in memory to do so).
    * 
@@ -683,7 +713,8 @@ public final class FileUtils
    * @throws FileNotFoundException The file was not found, or it was a directory
    * @throws SecurityException Access to filesystem is denied by a SecurityManager
    */
-  public static Iterable<String> readFilePerLine(File file)
+  @Validate
+  public static Iterable<String> readFilePerLine(@NotNull final File file)
       throws IOException
   {
     return readFilePerLine(file.getAbsolutePath());
@@ -697,18 +728,19 @@ public final class FileUtils
    * @throws FileNotFoundException The file was not found, or it was a directory
    * @throws SecurityException Access to filesystem is denied by a SecurityManager
    */
-  public static Iterable<String> readFilePerLine(String fileAbsPath)
+  @Validate
+  public static Iterable<String> readFilePerLine(@NotNull final String fileAbsPath)
       throws IOException
   {
-    List<String> result = new ArrayList<String>(100);
+    val result = new ArrayList<String>(100);
 
-    File file = new File(fileAbsPath);
+    val file = new File(fileAbsPath);
     if (!file.exists())
       throw new FileNotFoundException("The file was not found: " + fileAbsPath);
     if (!file.isFile())
       throw new FileNotFoundException("The specified path is not referring to a file: " + fileAbsPath);
 
-    BufferedReader br = new BufferedReader(new FileReader(file));
+    val br = new BufferedReader(new FileReader(file));
     String line;
     while ((line = br.readLine()) != null)
       result.add(line);
@@ -726,12 +758,13 @@ public final class FileUtils
    * @throws FileNotFoundException The file was not found, or it was a directory
    * @throws SecurityException Access to filesystem is denied by a SecurityManager
    */
-  public static byte[] readFileInMemory(File file)
+  @Validate
+  public static byte[] readFileInMemory(@NotNull final File file)
       throws IOException
   {
     return readFileInMemory(file.getAbsolutePath());
   }
-  
+
   /**
    * Reads the entire contents of a file to a byte[] and returns it. This method should generally only be used for small files as it is
    * quite inefficient to read everything in memory.
@@ -741,20 +774,18 @@ public final class FileUtils
    * @throws FileNotFoundException The file was not found, or it was a directory
    * @throws SecurityException Access to filesystem is denied by a SecurityManager
    */
-  public static byte[] readFileInMemory(String fileAbsPath)
+  @Validate
+  public static byte[] readFileInMemory(@NotNull final String fileAbsPath)
       throws IOException
   {
-    if (fileAbsPath == null)
-      throw new NullPointerException("fileAbsPath");
-
-    File file = new File(fileAbsPath);
+    val file = new File(fileAbsPath);
     if (!file.exists())
       throw new FileNotFoundException("The file was not found: " + fileAbsPath);
     if (!file.isFile())
       throw new FileNotFoundException("The specified path is not referring to a file: " + fileAbsPath);
 
-    BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
-    byte[] result = StreamUtils.readFully(bis, file.length());
+    val bis = new BufferedInputStream(new FileInputStream(file));
+    val result = StreamUtils.readFully(bis, file.length());
     bis.close();
     return result;
   }
@@ -767,12 +798,13 @@ public final class FileUtils
    * @throws FileNotFoundException The file was not found, or it was a directory
    * @throws SecurityException Access to filesystem is denied by a SecurityManager
    */
-  public static Iterable<byte[]> readFilePerBlock(File file, int blockSize)
+  @Validate
+  public static Iterable<byte[]> readFilePerBlock(@NotNull final File file, final int blockSize)
       throws IOException
   {
     return readFilePerBlock(file.getAbsolutePath(), blockSize);
   }
-  
+
   /**
    * Enumerates the contents of a file line by line (reads the entire contents of a file in memory to do so).
    * 
@@ -781,7 +813,8 @@ public final class FileUtils
    * @throws FileNotFoundException The file was not found, or it was a directory
    * @throws SecurityException Access to filesystem is denied by a SecurityManager
    */
-  public static Iterable<byte[]> readFilePerBlock(String fileAbsPath, int blockSize)
+  @Validate
+  public static Iterable<byte[]> readFilePerBlock(@NotNull final String fileAbsPath, final int blockSize)
       throws IOException
   {
     if (blockSize <= 0)
@@ -821,12 +854,13 @@ public final class FileUtils
    * @throws FileNotFoundException A directory was specified instead of a file
    * @throws SecurityException Access to filesystem is denied by a SecurityManager
    */
-  public static void touchFile(File file)
+  @Validate
+  public static void touchFile(@NotNull final File file)
       throws IOException
   {
     touchFile(file.getAbsolutePath());
   }
-  
+
   /**
    * Touches a file, i.e. creates it if not there, otherwise updates its last write time.
    * 
@@ -835,13 +869,11 @@ public final class FileUtils
    * @throws FileNotFoundException A directory was specified instead of a file
    * @throws SecurityException Access to filesystem is denied by a SecurityManager
    */
-  public static void touchFile(String fileAbsPath)
+  @Validate
+  public static void touchFile(@NotNull final String fileAbsPath)
       throws IOException
   {
-    if (fileAbsPath == null)
-      throw new NullPointerException("fileAbsPath");
-
-    File file = new File(fileAbsPath);
+    val file = new File(fileAbsPath);
     if (file.exists())
     {
       if (!file.isFile())
@@ -861,7 +893,7 @@ public final class FileUtils
   {
     return tryTouchFile(file.getAbsolutePath());
   }
-  
+
   /**
    * Touches a file, i.e. creates it if not there, otherwise updates its last write time. Returns true if succeeded. No exception is thrown
    * under any circumstance.
@@ -879,7 +911,7 @@ public final class FileUtils
     }
   }
 
-  // Directory related methods  
+  // Directory related methods
   /**
    * Creates a directory if it does not already exist (if there are subdirectories there are created too).
    * 
@@ -888,27 +920,56 @@ public final class FileUtils
    *           attempt.
    * @throws SecurityException Access to filesystem is denied by a SecurityManager
    */
-  public static void createDirectory(String directoryAbsPath)
+  @Validate
+  public static void createDirectory(@NotNull final File dirAbsPath)
       throws IOException
   {
-    if (directoryAbsPath == null)
-      throw new NullPointerException("directoryAbsPath");
-
-    File file = new File(directoryAbsPath);
-    if (!file.exists())
-      if (!file.mkdirs())
-        throw new IOException("Directory creation failure: " + directoryAbsPath); // sub-directories may have been created!
+    if (!dirAbsPath.exists())
+      if (!dirAbsPath.mkdirs())
+        throw new IOException("Directory creation failure: " + dirAbsPath.getAbsolutePath()); // sub-directories may have been created!
+  }
+  
+  /**
+   * Creates a directory if it does not already exist (if there are subdirectories there are created too).
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IOException An I/O error occurs, or directory creation fails: please note that a partial path may have been created during the
+   *           attempt.
+   * @throws SecurityException Access to filesystem is denied by a SecurityManager
+   */
+  public static void createDirectory(final String dirAbsPath)
+      throws IOException
+  {
+    val dir = new File(dirAbsPath);
+    createDirectory(dir);
   }
 
   /**
    * Attempts to create a directory (if there are subdirectories there are created too). Returns true if succeeded or directory already
    * exists. No exception is thrown under any circumstance.
    */
-  public static boolean tryCreateDirectory(String directoryAbsPath)
+  public static boolean tryCreateDirectory(File dirAbsPath)
   {
     try
     {
-      createDirectory(directoryAbsPath);
+      createDirectory(dirAbsPath);
+      return true;
+    }
+    catch(Throwable e)
+    {
+      return false;
+    }
+  }
+  
+  /**
+   * Attempts to create a directory (if there are subdirectories there are created too). Returns true if succeeded or directory already
+   * exists. No exception is thrown under any circumstance.
+   */
+  public static boolean tryCreateDirectory(String dirAbsPath)
+  {
+    try
+    {
+      createDirectory(dirAbsPath);
       return true;
     }
     catch(Throwable e)
@@ -925,32 +986,43 @@ public final class FileUtils
    * @throws FileNotFoundException The specified path is not a directory
    * @throws SecurityException Access to filesystem is denied by a SecurityManager
    */
-  public static void deleteDirectory(String directoryAbsPath)
+  @Validate
+  public static void deleteDirectory(@NotNull final File dirAbsPath)
       throws IOException
   {
-    if (directoryAbsPath == null)
-      throw new NullPointerException("directoryAbsPath");
-
-    File file = new File(directoryAbsPath);
-    if (file.exists())
+    if (dirAbsPath.exists())
     {
-      if (!file.isDirectory())
-        throw new FileNotFoundException("The specified path is not referring to a directory: " + directoryAbsPath);
+      if (!dirAbsPath.isDirectory())
+        throw new FileNotFoundException("The specified path is not referring to a directory: " + dirAbsPath.getAbsolutePath());
 
-      if (!file.delete())
+      if (!dirAbsPath.delete())
         throw new IOException("The directory could not be deleted, because it is not empty.");
     }
   }
-
+  
+  /**
+   * Deletes an empty directory, if it exists. (if it has contents this will not succeed).
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IOException An I/O error occurs, or the directory could not be deleted
+   * @throws FileNotFoundException The specified path is not a directory
+   * @throws SecurityException Access to filesystem is denied by a SecurityManager
+   */
+  public static void deleteDirectory(final String dirAbsPath)
+      throws IOException
+  {
+    val dir = new File(dirAbsPath);
+    deleteDirectory(dir);
+  }
   /**
    * Attempts to delete an empty directory (if there are contents this will not succeed). Returns true if succeeded. No exception is thrown
    * under any circumstance.
    */
-  public static boolean tryDeleteDirectory(String directoryAbsPath)
+  public static boolean tryDeleteDirectory(File dirAbsPath)
   {
     try
     {
-      deleteDirectory(directoryAbsPath);
+      deleteDirectory(dirAbsPath);
       return true;
     }
     catch(Throwable e)
@@ -958,7 +1030,22 @@ public final class FileUtils
       return false;
     }
   }
-
+  /**
+   * Attempts to delete an empty directory (if there are contents this will not succeed). Returns true if succeeded. No exception is thrown
+   * under any circumstance.
+   */
+  public static boolean tryDeleteDirectory(String dirAbsPath)
+  {
+    try
+    {
+      deleteDirectory(dirAbsPath);
+      return true;
+    }
+    catch(Throwable e)
+    {
+      return false;
+    }
+  }
   /**
    * Deletes a directory recursively (if there are contents they will be deleted).
    * 
@@ -967,39 +1054,49 @@ public final class FileUtils
    * @throws FileNotFoundException The specified path is not a directory
    * @throws SecurityException Access to filesystem is denied by a SecurityManager
    */
-  public static void deleteDirectoryRecursive(String directoryAbsPath)
+  @Validate
+  public static void deleteDirectoryRecursive(@NotNull final File dirAbsPath)
       throws IOException
   {
-    if (directoryAbsPath == null)
-      throw new NullPointerException("directoryAbsPath");
-
-    File file = new File(directoryAbsPath);
-    if (file.exists())
+    if (dirAbsPath.exists())
     {
-      if (!file.isDirectory())
-        throw new FileNotFoundException("The specified path is not referring to a directory: " + directoryAbsPath);
+      if (!dirAbsPath.isDirectory())
+        throw new FileNotFoundException("The specified path is not referring to a directory: " + dirAbsPath.getAbsolutePath());
 
-      File[] files = file.listFiles();
+      val files = dirAbsPath.listFiles();
       for (int i = 0; i < files.length; i++)
         if (files[i].isDirectory())
-          deleteDirectoryRecursive(files[i].getAbsolutePath());
+          deleteDirectoryRecursive(files[i]);
         else if (!files[i].delete())
           throw new IOException("Could not delete path: " + files[i].getAbsolutePath());
-      if (!file.delete())
-        throw new IOException("Could not delete path: " + file.getAbsolutePath());
+      if (!dirAbsPath.delete())
+        throw new IOException("Could not delete path: " + dirAbsPath.getAbsolutePath());
 
     }
   }
-
+  /**
+   * Deletes a directory recursively (if there are contents they will be deleted).
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IOException An I/O error occurs, or the directory could not be deleted
+   * @throws FileNotFoundException The specified path is not a directory
+   * @throws SecurityException Access to filesystem is denied by a SecurityManager
+   */
+  public static void deleteDirectoryRecursive(final String dirAbsPath)
+      throws IOException
+  {
+    val dir = new File(dirAbsPath);
+    deleteDirectoryRecursive(dir);
+  }
   /**
    * Attempts to delete a directory (if there are contents they will be deleted). Returns true if succeeded. No exception is thrown under
    * any circumstance.
    */
-  public static boolean tryDeleteDirectoryRecursive(String directoryAbsPath)
+  public static boolean tryDeleteDirectoryRecursive(File dirAbsPath)
   {
     try
     {
-      deleteDirectoryRecursive(directoryAbsPath);
+      deleteDirectoryRecursive(dirAbsPath);
       return true;
     }
     catch(Throwable e)
@@ -1007,7 +1104,23 @@ public final class FileUtils
       return false;
     }
   }
-
+  /**
+   * Attempts to delete a directory (if there are contents they will be deleted). Returns true if succeeded. No exception is thrown under
+   * any circumstance.
+   */
+  public static boolean tryDeleteDirectoryRecursive(String dirAbsPath)
+  {
+    try
+    {
+      deleteDirectoryRecursive(dirAbsPath);
+      return true;
+    }
+    catch(Throwable e)
+    {
+      return false;
+    }
+  }
+  
   /**
    * Touches a directory, i.e. creates it if not there, otherwise updates its last write time.
    * 
@@ -1016,24 +1129,51 @@ public final class FileUtils
    * @throws FileNotFoundException A file was specified instead of a directory
    * @throws SecurityException Access to filesystem is denied by a SecurityManager
    */
-  public static void touchDirectory(String folderAbsPath)
+  @Validate
+  public static void touchDirectory(@NotNull final File dirAbsPath)
       throws IOException
   {
-    if (folderAbsPath == null)
-      throw new NullPointerException("folderAbsPath");
-
-    File file = new File(folderAbsPath);
-    if (file.exists())
+    if (dirAbsPath.exists())
     {
-      if (!file.isDirectory())
-        throw new FileNotFoundException("The specified entry was a file, not a directory: " + folderAbsPath);
+      if (!dirAbsPath.isDirectory())
+        throw new FileNotFoundException("The specified entry was a file, not a directory: " + dirAbsPath.getAbsolutePath());
 
       // set to current date/time (millis since 1/1/1970)
-      file.setLastModified(System.currentTimeMillis());
-    } else if (!file.mkdirs())
+      dirAbsPath.setLastModified(System.currentTimeMillis());
+    } else if (!dirAbsPath.mkdirs())
       throw new IOException("Could not touch directory, because creation failed.");
   }
-
+  
+  /**
+   * Touches a directory, i.e. creates it if not there, otherwise updates its last write time.
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IOException An I/O error occurs
+   * @throws FileNotFoundException A file was specified instead of a directory
+   * @throws SecurityException Access to filesystem is denied by a SecurityManager
+   */
+  public static void touchDirectory(final String dirAbsPath)
+      throws IOException
+  {
+    val dir = new File(dirAbsPath);
+    touchDirectory(dir);
+  }
+  /**
+   * Touches a directory, i.e. creates it if not there, otherwise updates its last write time. Returns true if succeeded. No exception is
+   * thrown under any circumstance.
+   */
+  public static boolean tryTouchDirectory(File dirAbsPath)
+  {
+    try
+    {
+      touchDirectory(dirAbsPath);
+      return true;
+    }
+    catch(Throwable e)
+    {
+      return false;
+    }
+  }
   /**
    * Touches a directory, i.e. creates it if not there, otherwise updates its last write time. Returns true if succeeded. No exception is
    * thrown under any circumstance.
@@ -1082,15 +1222,11 @@ public final class FileUtils
    * @throws FileNotFoundException A file was specified instead of a directory
    * @throws SecurityException Access to filesystem is denied by a SecurityManager
    */
-  public static File[] filterOut(File[] files, Set<FileAttribute> fileAttributes)
+  @Validate
+  public static File[] filterOut(@NotNull final File[] files, @NotNull final Set<FileAttribute> fileAttributes)
       throws IOException
   {
-    if (files == null)
-      throw new NullPointerException("files");
-    if (fileAttributes == null)
-      throw new NullPointerException("fileAttributes");
-
-    ReifiedList<File> result = new ReifiedArrayList<File>(64, File.class);
+    val result = new ReifiedArrayList<File>(64, File.class);
     for (File fi : files)
       if (!matchesAnyAttribute(fi, fileAttributes))
         result.add(fi);
@@ -1106,15 +1242,11 @@ public final class FileUtils
    * @throws FileNotFoundException A file was specified instead of a directory
    * @throws SecurityException Access to filesystem is denied by a SecurityManager
    */
-  public static File[] filterIn(File[] files, Set<FileAttribute> fileAttributes)
+  @Validate
+  public static File[] filterIn(@NotNull final File[] files, @NotNull final Set<FileAttribute> fileAttributes)
       throws IOException
   {
-    if (files == null)
-      throw new NullPointerException("files");
-    if (fileAttributes == null)
-      throw new NullPointerException("fileAttributes");
-
-    ReifiedList<File> result = new ReifiedArrayList<File>(64, File.class);
+    val result = new ReifiedArrayList<File>(64, File.class);
     for (File fi : files)
       if (matchesAnyAttribute(fi, fileAttributes))
         result.add(fi);
@@ -1154,15 +1286,12 @@ public final class FileUtils
    * @throws IllegalArgumentException The linked resource does not exist
    * @throws IOException An I/O error occurs
    */
-  public static void createApplicationShortcut(String shortcutAbsPath, String linkedResourceAbsPath, String applicationWorkingDirectory)
+  @Validate
+  public static void createApplicationShortcut(@NotNull String shortcutAbsPath, @NotNull final String linkedResourceAbsPath,
+                                               String applicationWorkingDirectory)
       throws IOException
   {
-    if (shortcutAbsPath == null)
-      throw new NullPointerException("shortcutAbsPath");
-    if (linkedResourceAbsPath == null)
-      throw new NullPointerException("linkedResourceAbsPath");
-
-    File linkedResourceFile = new File(linkedResourceAbsPath);
+    val linkedResourceFile = new File(linkedResourceAbsPath);
     if (!linkedResourceFile.exists())
       throw new IllegalArgumentException("The linked resource does not exist: " + linkedResourceAbsPath);
 
@@ -1181,7 +1310,7 @@ public final class FileUtils
       tryDeleteFile(shortcutAbsPath);
 
       // windows OS
-      BufferedWriter bw = new BufferedWriter(new FileWriter(shortcutAbsPath, false));
+      val bw = new BufferedWriter(new FileWriter(shortcutAbsPath, false));
 
       bw.write("[InternetShortcut]");
       bw.newLine();
@@ -1196,7 +1325,7 @@ public final class FileUtils
         bw.newLine();
       } else
       {
-        File lrf = new File(linkedResourceAbsPath);
+        val lrf = new File(linkedResourceAbsPath);
         if (lrf.exists())
         {
           // for files, get their parent directory
@@ -1223,7 +1352,7 @@ public final class FileUtils
     if (OsUtils.isOSX() || OsUtils.isBsd())
     {
       // delete symlink if it exists
-      Process p1 = Runtime.getRuntime().exec(new String[] {"rm", "\"" + shortcutAbsPath + "\""});
+      val p1 = Runtime.getRuntime().exec(new String[] {"rm", "\"" + shortcutAbsPath + "\""});
       BufferedReader br = new BufferedReader(new InputStreamReader(p1.getInputStream()));
       String line = null;
       while ((line = br.readLine()) != null)
@@ -1235,7 +1364,7 @@ public final class FileUtils
       catch(InterruptedException e)
       {}
 
-      Process p2 = Runtime.getRuntime().exec(new String[] {"ln", "-s", "\"" + linkedResourceAbsPath + "\"", "\"" + shortcutAbsPath + "\""});
+      val p2 = Runtime.getRuntime().exec(new String[] {"ln", "-s", "\"" + linkedResourceAbsPath + "\"", "\"" + shortcutAbsPath + "\""});
       br = new BufferedReader(new InputStreamReader(p2.getInputStream()));
 
       while ((line = br.readLine()) != null)
@@ -1255,7 +1384,7 @@ public final class FileUtils
       // remove old shortcut if it exists
       tryDeleteFile(shortcutAbsPath);
 
-      BufferedWriter bw = new BufferedWriter(new FileWriter(shortcutAbsPath, false));
+      val bw = new BufferedWriter(new FileWriter(shortcutAbsPath, false));
       bw.write("[Desktop Entry]");
       bw.newLine();
 
@@ -1302,14 +1431,10 @@ public final class FileUtils
    * @throws NullPointerException An argument is null
    * @throws IOException An I/O error occurs
    */
-  public static void createInternetShortcut(String shortcutAbsPath, String url)
+  @Validate
+  public static void createInternetShortcut(@NotNull String shortcutAbsPath, @NotNull final String url)
       throws IOException
   {
-    if (shortcutAbsPath == null)
-      throw new NullPointerException("shortcutAbsPath");
-    if (url == null)
-      throw new NullPointerException("url");
-
     // ensure correct extension is used
     if (!StringUtils.endsWith(shortcutAbsPath, ".url", StringComparison.OrdinalIgnoreCase))
     {
@@ -1321,7 +1446,7 @@ public final class FileUtils
     // delete any existing file
     tryDeleteFile(shortcutAbsPath);
 
-    BufferedWriter bw = new BufferedWriter(new FileWriter(shortcutAbsPath, false));
+    val bw = new BufferedWriter(new FileWriter(shortcutAbsPath, false));
 
     bw.write("[InternetShortcut]");
     bw.newLine();
@@ -1340,15 +1465,13 @@ public final class FileUtils
    * 
    * @throws NullPointerException An argument is null
    */
-  public static void performCreateReadWriteDeleteAccess(String folderName)
+  @Validate
+  public static void performCreateReadWriteDeleteAccess(@NotNull final String folderName)
       throws IOException
   {
-    if (folderName == null)
-      throw new NullPointerException("folderName");
-
     // check source is readable/writable
-    File folderPath = new File(folderName);
-    File randomFilename = new File(folderPath, UUID.randomUUID() + ".crwd");
+    val folderPath = new File(folderName);
+    val randomFilename = new File(folderPath, UUID.randomUUID() + ".crwd");
 
     if (!randomFilename.createNewFile())
       throw new IOException("Could not create file: " + randomFilename.getAbsolutePath());
@@ -1357,7 +1480,7 @@ public final class FileUtils
 
     try
     {
-      FileOutputStream fs = new FileOutputStream(randomFilename);
+      val fs = new FileOutputStream(randomFilename);
       fs.write(100);
       fs.flush();
       fs.close();
@@ -1377,7 +1500,7 @@ public final class FileUtils
 
     try
     {
-      FileInputStream fis = new FileInputStream(randomFilename);
+      val fis = new FileInputStream(randomFilename);
       fis.read();
       fis.close();
     }
@@ -1427,11 +1550,8 @@ public final class FileUtils
    */
   public static List<String> scanPath(String path, ScanInclusionMode inclusionMode, ScanHiddenMode hiddenMode, ScanDepthMode depthMode,
                                       ScanSortMode sortMode, ScanFailMode failMode)
-      throws Throwable
+                                      throws Exception
   {
-    if (path == null)
-      throw new NullPointerException("path");
-
     return scanPath(path, inclusionMode, hiddenMode, depthMode, sortMode, failMode, null);
   }
 
@@ -1443,21 +1563,19 @@ public final class FileUtils
    * @throws IllegalArgumentException Unrecognized hide, sort or fail mode. Also occurs when fail mode is SkipAndCollect and
    *           collectedScanErrors is null.
    * @throws IOException An I/O error occurs and the scan fail mode is immediate
-   * @throws Throwable An error occurs and the scan fail mode is immediate
+   * @throws Exception An error occurs and the scan fail mode is immediate
    */
-  public static List<String> scanPath(String path, ScanInclusionMode inclusionMode, ScanHiddenMode hiddenMode, ScanDepthMode depthMode,
+  @Validate
+  public static List<String> scanPath(@NotNull String path, ScanInclusionMode inclusionMode, ScanHiddenMode hiddenMode, ScanDepthMode depthMode,
                                       ScanSortMode sortMode, ScanFailMode failMode, List<ScanErrorEntry> collectedScanErrors)
-      throws Throwable
+                                      throws Exception
   {
-    if (path == null)
-      throw new NullPointerException("path");
-
     if (failMode == ScanFailMode.SkipAndCollect)
       if (collectedScanErrors == null)
         throw new IllegalArgumentException("Cannot use " + ScanFailMode.SkipAndCollect
             + " mode without a specified container for accumulating errors.");
 
-    File dir = new File(path);
+    val dir = new File(path);
     if (!dir.exists())
       throw new IOException("The directory cannot be scanned as it does not exist: " + path);
     if (!dir.isDirectory())
@@ -1494,23 +1612,23 @@ public final class FileUtils
    * @throws NullPointerException An argument is null
    * @throws IllegalArgumentException Unrecognized hide, sort or fail mode.
    * @throws IOException An I/O error occurs and the scan fail mode is immediate
-   * @throws Throwable Some other error occurs and the scan fail mode is immediate
+   * @throws Exception Some other error occurs and the scan fail mode is immediate
    */
   private static List<String> scanPathBreadthFirst(String path, boolean includeFiles, boolean includeDirectories,
                                                    ScanHiddenMode hiddenMode, ScanSortMode sortMode, ScanFailMode failMode,
                                                    List<ScanErrorEntry> collectedScanErrors, boolean deepScan)
-      throws Throwable
+      throws Exception
   {
-    List<String> result = new ArrayList<String>(64);
+    val result = new ArrayList<String>(64);
 
     // maintain a queue of scanned directories
-    LinkedList<String> directoryQueue = new LinkedList<String>();
+    val directoryQueue = new LinkedList<String>();
     directoryQueue.addLast(path);
 
     // check if we need to add self
     if (includeDirectories)
       result.addAll(Linq.toList(Linq.select(hideScanned(new File[] {new File(path)}, hiddenMode, failMode, collectedScanErrors),
-          getAbsPath())));
+          getAbsolutePath())));
 
     // While there are directories to process
     while (directoryQueue.size() > 0)
@@ -1566,7 +1684,7 @@ public final class FileUtils
           }
         }
       }
-      catch(Throwable e)
+      catch(Exception e)
       {
         switch(failMode)
         {
@@ -1586,28 +1704,19 @@ public final class FileUtils
     return result;
   }
 
-  @Function
-  private static String getAbsPath(final File arg)
-  {
-    return arg.getAbsolutePath();
-  }
-
   /**
    * Performs depth-first filesystem path scanning
    * 
    * @throws NullPointerException An argument is null
    * @throws IllegalArgumentException Unrecognized hide, sort or fail mode.
    * @throws IOException An I/O error occurs and the scan fail mode is immediate
-   * @throws Throwable Some other error occurs and the scan fail mode is immediate
+   * @throws Exception Some other error occurs and the scan fail mode is immediate
    */
   private static List<String> scanPathDepthFirst(String path, boolean includeFiles, boolean includeDirectories, ScanHiddenMode hiddenMode,
                                                  ScanSortMode sortMode, ScanFailMode failMode, List<ScanErrorEntry> collectedScanErrors)
-      throws Throwable
+      throws Exception
   {
-    if (path == null)
-      throw new NullPointerException("path");
-
-    List<String> result = new ArrayList<String>(64);
+    val result = new ArrayList<String>(64);
 
     // maintain a stack of scanned files/directories
     LinkedList<String> fsEntryStack = new LinkedList<String>();
@@ -1644,7 +1753,7 @@ public final class FileUtils
           // check if we need to include directories in results
           if (includeDirectories)
             result.addAll(Linq.toList(Linq.select(hideScanned(new File[] {currDir}, hiddenMode, failMode, collectedScanErrors),
-                getAbsPath())));
+                getAbsolutePath())));
 
           File[] dis = filterIn(currDir.listFiles(),
               new HashSet<FileAttribute>(Arrays.asList(new FileAttribute[] {FileAttribute.Directory})));
@@ -1667,10 +1776,10 @@ public final class FileUtils
           // check if we need to include files in results
           if (includeFiles)
             result.addAll(Linq.toList(Linq.select(hideScanned(new File[] {currFile}, hiddenMode, failMode, collectedScanErrors),
-                getAbsPath())));
+                getAbsolutePath())));
         }
       }
-      catch(Throwable e)
+      catch(Exception e)
       {
         switch(failMode)
         {
@@ -1698,9 +1807,6 @@ public final class FileUtils
    */
   private static List<String> sortScanned(List<String> names, ScanSortMode sortMode)
   {
-    if (names == null)
-      throw new NullPointerException("names");
-
     switch(sortMode)
     {
       case None:
@@ -1721,10 +1827,10 @@ public final class FileUtils
    * Applies the relevant hiding mode, e.g. returning only hidden files, only non-hidden files, or all files.
    * 
    * @throws NullPointerException An argument is null
-   * @throws Throwable An error occurs during file attribute checking
+   * @throws Exception An error occurs during file attribute checking
    */
   private static File[] hideScanned(File[] fis, ScanHiddenMode hiddenMode, ScanFailMode failMode, List<ScanErrorEntry> collectedScanErrors)
-      throws Throwable
+      throws Exception
   {
     if (fis == null)
       throw new NullPointerException("fis");
@@ -1748,7 +1854,7 @@ public final class FileUtils
             else if (fi.isHidden())
               result.add(fi);
           }
-          catch(Throwable e)
+          catch(Exception e)
           {
             switch(failMode)
             {
@@ -1767,5 +1873,9 @@ public final class FileUtils
       default:
         throw new IllegalArgumentException("Unrecognized hide mode: " + hiddenMode);
     }
+  }
+
+  private FileUtils()
+  {
   }
 }

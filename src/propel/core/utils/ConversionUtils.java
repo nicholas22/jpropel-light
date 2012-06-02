@@ -18,31 +18,36 @@
 // /////////////////////////////////////////////////////////
 package propel.core.utils;
 
-import lombok.Predicate;
-import propel.core.collections.maps.avl.AvlHashtable;
-import propel.core.common.CONSTANT;
-import propel.core.userTypes.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.util.Calendar;
+import java.util.Formatter;
 import java.util.GregorianCalendar;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+import lombok.Predicate;
+import lombok.Validate;
+import lombok.Validate.NotNull;
+import lombok.val;
 import org.joda.time.Duration;
 import org.joda.time.LocalDateTime;
 import org.joda.time.Period;
+import propel.core.collections.maps.avl.AvlHashtable;
+import propel.core.common.CONSTANT;
+import propel.core.userTypes.Int128;
+import propel.core.userTypes.SignedByte;
+import propel.core.userTypes.UnsignedByte;
+import propel.core.userTypes.UnsignedInteger;
+import propel.core.userTypes.UnsignedLong;
+import propel.core.userTypes.UnsignedShort;
 
 /**
  * Class aiding in casting, encoding/decoding and converting
  */
 public final class ConversionUtils
 {
-  private ConversionUtils()
-  {
-  }
-
   /**
    * Used to convert Durations into milliseconds
    */
@@ -100,16 +105,12 @@ public final class ConversionUtils
    * @throws NumberFormatException An invalid input value was given that does not parse to the specified target type
    * @throws ClassCastException A class cast failed
    */
+  @Validate
   @SuppressWarnings("unchecked")
-  public static <T> T changeType(Object value, Class<T> targetType)
+  public static <T> T changeType(@NotNull final Object value, @NotNull final Class<T> targetType)
       throws InstantiationException, IllegalAccessException
   {
-    if (value == null)
-      throw new NullPointerException("value");
-    if (targetType == null)
-      throw new NullPointerException("targetType");
-
-    Class<?> sourceType = value.getClass();
+    val sourceType = value.getClass();
 
     // check that we're not working with incompatible types
     if (sourceType.isAnnotation() || targetType.isAnnotation())
@@ -154,11 +155,9 @@ public final class ConversionUtils
   /**
    * Converts an XML Gregorian Calendar data type to a Joda LocalDateTime
    */
-  public static LocalDateTime fromXMLGregorianCalendar(XMLGregorianCalendar value)
+  @Validate
+  public static LocalDateTime fromXMLGregorianCalendar(@NotNull final XMLGregorianCalendar value)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
     return new LocalDateTime(value.getYear(), value.getMonth(), value.getDay(), value.getHour(), value.getMinute(), value.getSecond(),
         value.getMillisecond());
   }
@@ -166,24 +165,20 @@ public final class ConversionUtils
   /**
    * Converts an XML Duration data type to a Joda Duration
    */
-  public static Duration fromXMLDuration(javax.xml.datatype.Duration value)
+  @Validate
+  public static Duration fromXMLDuration(@NotNull final javax.xml.datatype.Duration value)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
     return new Duration(value.getTimeInMillis(ZERO_AD));
   }
 
   /**
    * Converts a Joda LocalDateTime object to an XML Gregorian Calendar data type
    */
-  public static XMLGregorianCalendar toXMLGregorianCalendar(LocalDateTime value)
+  @Validate
+  public static XMLGregorianCalendar toXMLGregorianCalendar(@NotNull final LocalDateTime value)
       throws DatatypeConfigurationException
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
-    GregorianCalendar gc = new GregorianCalendar(value.getYear(), value.getMonthOfYear() - 1, value.getDayOfMonth(), value.getHourOfDay(),
+    val gc = new GregorianCalendar(value.getYear(), value.getMonthOfYear() - 1, value.getDayOfMonth(), value.getHourOfDay(),
         value.getMinuteOfHour(), value.getSecondOfMinute());
     gc.set(Calendar.MILLISECOND, value.getMillisOfSecond());
 
@@ -193,12 +188,10 @@ public final class ConversionUtils
   /**
    * Converts a Joda Duration object to an XML Duration data type
    */
-  public static javax.xml.datatype.Duration toXMLDuration(Duration value)
+  @Validate
+  public static javax.xml.datatype.Duration toXMLDuration(@NotNull final Duration value)
       throws DatatypeConfigurationException
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
     return DatatypeFactory.newInstance().newDuration(value.getMillis());
   }
 
@@ -207,7 +200,8 @@ public final class ConversionUtils
   /**
    * Converts a number to binary, e.g. 255 -> 11111111. Binary representations can be endian dependent.
    */
-  public static String toBinary(UnsignedLong num, boolean padLeft)
+  @Validate
+  public static String toBinary(@NotNull final UnsignedLong num, boolean padLeft)
   {
     return !padLeft ? toBinary(num) : StringUtils.padLeft(toBinary(num), 64, CONSTANT.ZERO_CHAR);
   }
@@ -239,7 +233,8 @@ public final class ConversionUtils
   /**
    * Converts a number to binary, e.g. 255 -> 11111111. Binary representations can be endian dependent.
    */
-  public static String toBinary(UnsignedInteger num, boolean padLeft)
+  @Validate
+  public static String toBinary(@NotNull final UnsignedInteger num, boolean padLeft)
   {
     return !padLeft ? toBinary(num) : StringUtils.padLeft(toBinary(num), 32, CONSTANT.ZERO_CHAR);
   }
@@ -247,7 +242,8 @@ public final class ConversionUtils
   /**
    * Converts a number to binary, e.g. 255 -> 11111111. Binary representations can be endian dependent.
    */
-  public static String toBinary(UnsignedInteger num)
+  @Validate
+  public static String toBinary(@NotNull final UnsignedInteger num)
   {
     return num.bigIntegerValue().toString(2);
   }
@@ -271,7 +267,8 @@ public final class ConversionUtils
   /**
    * Converts a number to binary, e.g. 255 -> 11111111. Binary representations can be endian dependent.
    */
-  public static String toBinary(UnsignedShort num, boolean padLeft)
+  @Validate
+  public static String toBinary(@NotNull final UnsignedShort num, boolean padLeft)
   {
     return !padLeft ? toBinary(num) : StringUtils.padLeft(toBinary(num), 16, CONSTANT.ZERO_CHAR);
   }
@@ -303,7 +300,8 @@ public final class ConversionUtils
   /**
    * Converts a number to binary, e.g. 255 -> 11111111. Binary representations can be endian dependent.
    */
-  public static String toBinary(UnsignedByte num, boolean padLeft)
+  @Validate
+  public static String toBinary(@NotNull final UnsignedByte num, boolean padLeft)
   {
     return !padLeft ? toBinary(num) : StringUtils.padLeft(toBinary(num), 8, CONSTANT.ZERO_CHAR);
   }
@@ -337,12 +335,10 @@ public final class ConversionUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static String toBinary(byte[] bytes)
+  @Validate
+  public static String toBinary(@NotNull final byte[] bytes)
   {
-    if (bytes == null)
-      throw new NullPointerException("bytes");
-
-    StringBuilder sb = new StringBuilder(bytes.length * 8);
+    val sb = new StringBuilder(bytes.length * 8);
     for (byte b : bytes)
       sb.append(toBinary(b, true));
 
@@ -356,10 +352,9 @@ public final class ConversionUtils
    * @throws IndexOutOfBoundsException An index is out of bounds.
    * @throws IllegalArgumentException An argument is out of range.
    */
-  public static String toBinary(byte[] bytes, int startIndex, int length)
+  @Validate
+  public static String toBinary(@NotNull final byte[] bytes, int startIndex, int length)
   {
-    if (bytes == null)
-      throw new NullPointerException("bytes");
     if (startIndex < 0 || startIndex > bytes.length)
       throw new IndexOutOfBoundsException("startIndex=" + startIndex + " bytesLen=" + bytes.length);
     if (length < 0 || length + startIndex > bytes.length || length + startIndex < 0)
@@ -378,11 +373,9 @@ public final class ConversionUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static int fromBinaryToInt32(String binary)
+  @Validate
+  public static int fromBinaryToInt32(@NotNull final String binary)
   {
-    if (binary == null)
-      throw new NullPointerException("binary");
-
     return Integer.parseInt(binary, 2);
   }
 
@@ -392,11 +385,9 @@ public final class ConversionUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static UnsignedInteger fromBinaryToUInt32(String binary)
+  @Validate
+  public static UnsignedInteger fromBinaryToUInt32(@NotNull final String binary)
   {
-    if (binary == null)
-      throw new NullPointerException("binary");
-
     return new UnsignedInteger(new BigInteger(binary, 2));
   }
 
@@ -406,11 +397,9 @@ public final class ConversionUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static long fromBinaryToInt64(String binary)
+  @Validate
+  public static long fromBinaryToInt64(@NotNull final String binary)
   {
-    if (binary == null)
-      throw new NullPointerException("binary");
-
     return Long.parseLong(binary, 2);
   }
 
@@ -420,11 +409,9 @@ public final class ConversionUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static UnsignedLong fromBinaryToUInt64(String binary)
+  @Validate
+  public static UnsignedLong fromBinaryToUInt64(@NotNull final String binary)
   {
-    if (binary == null)
-      throw new NullPointerException("binary");
-
     return new UnsignedLong(new BigInteger(binary, 2));
   }
 
@@ -434,11 +421,9 @@ public final class ConversionUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static short fromBinaryToInt16(String binary)
+  @Validate
+  public static short fromBinaryToInt16(@NotNull final String binary)
   {
-    if (binary == null)
-      throw new NullPointerException("binary");
-
     return Short.parseShort(binary, 2);
   }
 
@@ -448,11 +433,9 @@ public final class ConversionUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static UnsignedShort fromBinaryToUInt16(String binary)
+  @Validate
+  public static UnsignedShort fromBinaryToUInt16(@NotNull final String binary)
   {
-    if (binary == null)
-      throw new NullPointerException("binary");
-
     return new UnsignedShort(new BigInteger(binary, 2));
   }
 
@@ -462,11 +445,9 @@ public final class ConversionUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static byte fromBinaryToByte(String binary)
+  @Validate
+  public static byte fromBinaryToByte(@NotNull final String binary)
   {
-    if (binary == null)
-      throw new NullPointerException("binary");
-
     return Byte.parseByte(binary, 2);
   }
 
@@ -476,11 +457,9 @@ public final class ConversionUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static UnsignedByte fromBinaryToUInt8(String binary)
+  @Validate
+  public static UnsignedByte fromBinaryToUInt8(@NotNull final String binary)
   {
-    if (binary == null)
-      throw new NullPointerException("binary");
-
     return new UnsignedByte(new BigInteger(binary, 2));
   }
 
@@ -491,11 +470,9 @@ public final class ConversionUtils
    * @throws IllegalArgumentException An argument is out of range.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static byte[] fromBinaryToByteArray(String binary)
+  @Validate
+  public static byte[] fromBinaryToByteArray(@NotNull final String binary)
   {
-    if (binary == null)
-      throw new NullPointerException("binary");
-
     return fromBinaryToByteArray(binary, 0, binary.length());
   }
 
@@ -507,10 +484,9 @@ public final class ConversionUtils
    * @throws IllegalArgumentException An argument is out of range.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static byte[] fromBinaryToByteArray(String binary, int startIndex, int length)
+  @Validate
+  public static byte[] fromBinaryToByteArray(@NotNull final String binary, int startIndex, int length)
   {
-    if (binary == null)
-      throw new NullPointerException("binary");
     if (startIndex < 0 || startIndex > binary.length())
       throw new IndexOutOfBoundsException("startIndex=" + startIndex + " binaryLen=" + binary.length());
     if (length < 0 || length + startIndex > binary.length() || length + startIndex < 0)
@@ -534,11 +510,9 @@ public final class ConversionUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static UnsignedInteger fromStringToUInt32(String value)
+  @Validate
+  public static UnsignedInteger fromStringToUInt32(@NotNull final String value)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
     return new UnsignedInteger(value);
   }
 
@@ -548,11 +522,9 @@ public final class ConversionUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static int fromStringToInt32(String value)
+  @Validate
+  public static int fromStringToInt32(@NotNull final String value)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
     return Integer.parseInt(value, 10);
   }
 
@@ -562,11 +534,9 @@ public final class ConversionUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static UnsignedLong fromStringToUInt64(String value)
+  @Validate
+  public static UnsignedLong fromStringToUInt64(@NotNull final String value)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
     return new UnsignedLong(value);
   }
 
@@ -576,11 +546,9 @@ public final class ConversionUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static long fromStringToInt64(String value)
+  @Validate
+  public static long fromStringToInt64(@NotNull final String value)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
     return Long.parseLong(value, 10);
   }
 
@@ -590,11 +558,9 @@ public final class ConversionUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static UnsignedShort fromStringToUInt16(String value)
+  @Validate
+  public static UnsignedShort fromStringToUInt16(@NotNull final String value)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
     return new UnsignedShort(value);
   }
 
@@ -604,11 +570,9 @@ public final class ConversionUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static short fromStringToInt16(String value)
+  @Validate
+  public static short fromStringToInt16(@NotNull final String value)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
     return Short.parseShort(value, 10);
   }
 
@@ -618,11 +582,9 @@ public final class ConversionUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static UnsignedByte fromStringToUInt8(String value)
+  @Validate
+  public static UnsignedByte fromStringToUInt8(@NotNull final String value)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
     return new UnsignedByte(value);
   }
 
@@ -632,11 +594,9 @@ public final class ConversionUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static byte fromStringToByte(String value)
+  @Validate
+  public static byte fromStringToByte(@NotNull final String value)
   {
-    if (value == null)
-      throw new NullPointerException("value");
-
     return Byte.parseByte(value, 10);
   }
 
@@ -645,7 +605,8 @@ public final class ConversionUtils
   /**
    * Converts a number to hex, e.g. 255 -> FF. Hex representations can be endian dependent.
    */
-  public static String toHex(UnsignedLong num)
+  @Validate
+  public static String toHex(@NotNull final UnsignedLong num)
   {
     return num.bigIntegerValue().toString(16);
   }
@@ -653,7 +614,8 @@ public final class ConversionUtils
   /**
    * Converts a number to hex, e.g. 255 -> FF Hex representations can be endian dependent.
    */
-  public static String toHex(UnsignedLong num, boolean padLeft)
+  @Validate
+  public static String toHex(@NotNull final UnsignedLong num, boolean padLeft)
   {
     return !padLeft ? num.bigIntegerValue().toString(16) : StringUtils.padLeft(num.bigIntegerValue().toString(16), 16, CONSTANT.ZERO_CHAR);
   }
@@ -677,7 +639,8 @@ public final class ConversionUtils
   /**
    * Converts a number to hex, e.g. 255 -> FF. Hex representations can be endian dependent.
    */
-  public static String toHex(UnsignedInteger num)
+  @Validate
+  public static String toHex(@NotNull final UnsignedInteger num)
   {
     return num.bigIntegerValue().toString(16);
   }
@@ -685,7 +648,8 @@ public final class ConversionUtils
   /**
    * Converts a number to hex, e.g. 255 -> FF Hex representations can be endian dependent.
    */
-  public static String toHex(UnsignedInteger num, boolean padLeft)
+  @Validate
+  public static String toHex(@NotNull final UnsignedInteger num, boolean padLeft)
   {
     return !padLeft ? num.bigIntegerValue().toString(16) : StringUtils.padLeft(num.bigIntegerValue().toString(16), 8, CONSTANT.ZERO_CHAR);
   }
@@ -709,7 +673,8 @@ public final class ConversionUtils
   /**
    * Converts a number to hex, e.g. 255 -> FF. Hex representations can be endian dependent.
    */
-  public static String toHex(UnsignedShort num)
+  @Validate
+  public static String toHex(@NotNull final UnsignedShort num)
   {
     return num.bigIntegerValue().toString(16);
   }
@@ -717,7 +682,8 @@ public final class ConversionUtils
   /**
    * Converts a number to hex, e.g. 255 -> FF Hex representations can be endian dependent.
    */
-  public static String toHex(UnsignedShort num, boolean padLeft)
+  @Validate
+  public static String toHex(@NotNull final UnsignedShort num, boolean padLeft)
   {
     return !padLeft ? num.bigIntegerValue().toString(16) : StringUtils.padLeft(num.bigIntegerValue().toString(16), 4, CONSTANT.ZERO_CHAR);
   }
@@ -741,7 +707,8 @@ public final class ConversionUtils
   /**
    * Converts a number to hex, e.g. 255 -> FF. Hex representations can be endian dependent.
    */
-  public static String toHex(UnsignedByte num)
+  @Validate
+  public static String toHex(@NotNull final UnsignedByte num)
   {
     return num.bigIntegerValue().toString(16);
   }
@@ -749,7 +716,8 @@ public final class ConversionUtils
   /**
    * Converts a number to hex, e.g. 255 -> FF Hex representations can be endian dependent.
    */
-  public static String toHex(UnsignedByte num, boolean padLeft)
+  @Validate
+  public static String toHex(@NotNull final UnsignedByte num, boolean padLeft)
   {
     return !padLeft ? num.bigIntegerValue().toString(16) : StringUtils.padLeft(num.bigIntegerValue().toString(16), 2, CONSTANT.ZERO_CHAR);
   }
@@ -775,11 +743,9 @@ public final class ConversionUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static String toHex(byte[] ba)
+  @Validate
+  public static String toHex(@NotNull final byte[] ba)
   {
-    if (ba == null)
-      throw new NullPointerException("ba");
-
     return toHex(ba, 0, ba.length);
   }
 
@@ -790,11 +756,9 @@ public final class ConversionUtils
    * @throws IndexOutOfBoundsException An index is out of bounds.
    * @throws IllegalArgumentException An argument is out of range.
    */
-  public static String toHex(byte[] ba, int offset, int length)
+  @Validate
+  public static String toHex(@NotNull final byte[] ba, int offset, int length)
   {
-    if (ba == null)
-      throw new NullPointerException("ba");
-
     if (offset < 0 || offset > ba.length)
       throw new IndexOutOfBoundsException("offset=" + offset + " baLen=" + ba.length);
     if (length < 0 || offset + length > ba.length || offset + length < 0)
@@ -829,10 +793,9 @@ public final class ConversionUtils
    * @throws IllegalArgumentException An argument is out of range.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static byte[] fromHexToByteArray(String hex, int startIndex, int length)
+  @Validate
+  public static byte[] fromHexToByteArray(@NotNull final String hex, int startIndex, int length)
   {
-    if (hex == null)
-      throw new NullPointerException("hex");
     if (startIndex < 0 || startIndex > hex.length())
       throw new IndexOutOfBoundsException("startIndex=" + startIndex + " hexLen=" + hex.length());
     if (length < 0 || length + startIndex > hex.length() || length + startIndex < 0)
@@ -856,11 +819,9 @@ public final class ConversionUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static UnsignedLong fromHexToUInt64(String hex)
+  @Validate
+  public static UnsignedLong fromHexToUInt64(@NotNull final String hex)
   {
-    if (hex == null)
-      throw new NullPointerException("hex");
-
     return new UnsignedLong(new BigInteger(hex, 16));
   }
 
@@ -870,11 +831,9 @@ public final class ConversionUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static long fromHexToInt64(String hex)
+  @Validate
+  public static long fromHexToInt64(@NotNull final String hex)
   {
-    if (hex == null)
-      throw new NullPointerException("hex");
-
     return Long.parseLong(hex, 16);
   }
 
@@ -884,11 +843,9 @@ public final class ConversionUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static UnsignedInteger fromHexToUInt32(String hex)
+  @Validate
+  public static UnsignedInteger fromHexToUInt32(@NotNull final String hex)
   {
-    if (hex == null)
-      throw new NullPointerException("hex");
-
     return new UnsignedInteger(new BigInteger(hex, 16));
   }
 
@@ -898,11 +855,9 @@ public final class ConversionUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static int fromHexToInt32(String hex)
+  @Validate
+  public static int fromHexToInt32(@NotNull final String hex)
   {
-    if (hex == null)
-      throw new NullPointerException("hex");
-
     return Integer.parseInt(hex, 16);
 
   }
@@ -913,11 +868,9 @@ public final class ConversionUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static UnsignedInteger fromHexToUInt16(String hex)
+  @Validate
+  public static UnsignedInteger fromHexToUInt16(@NotNull final String hex)
   {
-    if (hex == null)
-      throw new NullPointerException("hex");
-
     return new UnsignedInteger(new BigInteger(hex, 16));
   }
 
@@ -927,11 +880,8 @@ public final class ConversionUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static short fromHexToInt16(String hex)
+  public static short fromHexToInt16(@NotNull final String hex)
   {
-    if (hex == null)
-      throw new NullPointerException("hex");
-
     int i = Integer.parseInt(hex, 16);
     if (i < Short.MIN_VALUE || i > Short.MAX_VALUE)
       throw new NumberFormatException("The hex string '" + hex + "' cannot be represented as a Short.");
@@ -945,11 +895,9 @@ public final class ConversionUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static UnsignedByte fromHexToUInt8(String hex)
+  @Validate
+  public static UnsignedByte fromHexToUInt8(@NotNull final String hex)
   {
-    if (hex == null)
-      throw new NullPointerException("hex");
-
     return new UnsignedByte(new BigInteger(hex, 16));
   }
 
@@ -959,11 +907,9 @@ public final class ConversionUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static byte fromHexToByte(String hex)
+  @Validate
+  public static byte fromHexToByte(@NotNull final String hex)
   {
-    if (hex == null)
-      throw new NullPointerException("hex");
-
     int i = Integer.parseInt(hex, 16);
     if (i < Byte.MIN_VALUE || i > Byte.MAX_VALUE)
       throw new NumberFormatException("The hex string '" + hex + "' cannot be represented as a Byte.");
@@ -1036,9 +982,6 @@ public final class ConversionUtils
    */
   public static String toBase64(byte[] array)
   {
-    if (array == null)
-      throw new NullPointerException("array");
-
     return Base64.encodeBytes(array);
   }
 
@@ -1049,11 +992,9 @@ public final class ConversionUtils
    * @throws IndexOutOfBoundsException An index is out of bounds.
    * @throws IllegalArgumentException An argument is out of range.
    */
-  public static String toBase64(byte[] array, int offset, int length)
+  @Validate
+  public static String toBase64(@NotNull final byte[] array, int offset, int length)
   {
-    if (array == null)
-      throw new NullPointerException("array");
-
     return Base64.encodeBytes(array, offset, length);
   }
 
@@ -1063,10 +1004,9 @@ public final class ConversionUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static long fromBase64ToInt64(String base64)
+  @Validate
+  public static long fromBase64ToInt64(@NotNull final String base64)
   {
-    if (base64 == null)
-      throw new NullPointerException("base64");
     try
     {
       return ByteArrayUtils.toInt64(Base64.decode(base64));
@@ -1083,10 +1023,9 @@ public final class ConversionUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static UnsignedLong fromBase64ToUInt64(String base64)
+  @Validate
+  public static UnsignedLong fromBase64ToUInt64(@NotNull final String base64)
   {
-    if (base64 == null)
-      throw new NullPointerException("base64");
     try
     {
       return ByteArrayUtils.toUInt64(Base64.decode(base64));
@@ -1103,10 +1042,9 @@ public final class ConversionUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static int fromBase64ToInt32(String base64)
+  @Validate
+  public static int fromBase64ToInt32(@NotNull final String base64)
   {
-    if (base64 == null)
-      throw new NullPointerException("base64");
     try
     {
       return ByteArrayUtils.toInt32(Base64.decode(base64));
@@ -1123,10 +1061,9 @@ public final class ConversionUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static UnsignedInteger fromBase64ToUInt32(String base64)
+  @Validate
+  public static UnsignedInteger fromBase64ToUInt32(@NotNull final String base64)
   {
-    if (base64 == null)
-      throw new NullPointerException("base64");
     try
     {
       return ByteArrayUtils.toUInt32(Base64.decode(base64));
@@ -1143,10 +1080,9 @@ public final class ConversionUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static short fromBase64ToInt16(String base64)
+  @Validate
+  public static short fromBase64ToInt16(@NotNull final String base64)
   {
-    if (base64 == null)
-      throw new NullPointerException("base64");
     try
     {
       return ByteArrayUtils.toInt16(Base64.decode(base64));
@@ -1163,10 +1099,9 @@ public final class ConversionUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static UnsignedShort fromBase64ToUInt16(String base64)
+  @Validate
+  public static UnsignedShort fromBase64ToUInt16(@NotNull final String base64)
   {
-    if (base64 == null)
-      throw new NullPointerException("base64");
     try
     {
       return ByteArrayUtils.toUInt16(Base64.decode(base64));
@@ -1183,10 +1118,9 @@ public final class ConversionUtils
    * @throws NullPointerException An argument is null.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static byte fromBase64ToByte(String base64)
+  @Validate
+  public static byte fromBase64ToByte(@NotNull final String base64)
   {
-    if (base64 == null)
-      throw new NullPointerException("base64");
     try
     {
       short s = ByteArrayUtils.toInt16(Base64.decode(base64));
@@ -1208,11 +1142,9 @@ public final class ConversionUtils
    * @throws IllegalArgumentException An argument is out of range.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static byte[] fromBase64ToByteArray(String base64)
+  @Validate
+  public static byte[] fromBase64ToByteArray(@NotNull final String base64)
   {
-    if (base64 == null)
-      throw new NullPointerException("base64");
-
     try
     {
       return Base64.decode(base64);
@@ -1231,10 +1163,9 @@ public final class ConversionUtils
    * @throws IllegalArgumentException An argument is out of range.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static byte[] fromBase64ToByteArray(String base64, int startIndex, int length)
+  @Validate
+  public static byte[] fromBase64ToByteArray(@NotNull final String base64, int startIndex, int length)
   {
-    if (base64 == null)
-      throw new NullPointerException("base64");
     if (startIndex < 0 || startIndex > base64.length())
       throw new IndexOutOfBoundsException("startIndex=" + startIndex + " baseLen=" + base64.length());
     if (length < 0 || startIndex + length > base64.length() || startIndex + length < 0)
@@ -1255,7 +1186,8 @@ public final class ConversionUtils
   /**
    * Converts a number to alphanumeric, e.g. 0 -> 0, 16 -> G, 61 -> z, 62 -> 10. Only works for positive numbers.
    */
-  public static String toAlphanumeric(UnsignedLong num)
+  @Validate
+  public static String toAlphanumeric(@NotNull final UnsignedLong num)
   {
     if (num.bigIntegerValue().equals(BigInteger.ZERO))
       return CONSTANT.ZERO;
@@ -1280,7 +1212,8 @@ public final class ConversionUtils
   /**
    * Converts a number to alphanumeric, e.g. 0 -> 0, 16 -> G, 61 -> z, 62 -> 10
    */
-  public static String toAlphanumeric(UnsignedLong num, boolean padLeft)
+  @Validate
+  public static String toAlphanumeric(@NotNull final UnsignedLong num, boolean padLeft)
   {
     return !padLeft ? toAlphanumeric(num) : StringUtils.padLeft(toAlphanumeric(num), 11, CONSTANT.ZERO_CHAR);
   }
@@ -1290,7 +1223,8 @@ public final class ConversionUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static String toAlphanumeric(byte[] ba)
+  @Validate
+  public static String toAlphanumeric(@NotNull final byte[] ba)
   {
     return toAlphanumeric(ba, 0, ba.length);
   }
@@ -1302,10 +1236,9 @@ public final class ConversionUtils
    * @throws IndexOutOfBoundsException An index is out of bounds.
    * @throws IllegalArgumentException An argument is out of range.
    */
-  public static String toAlphanumeric(byte[] ba, int offset, int length)
+  @Validate
+  public static String toAlphanumeric(@NotNull final byte[] ba, int offset, int length)
   {
-    if (ba == null)
-      throw new NullPointerException("ba");
     if (offset < 0 || offset > ba.length)
       throw new IndexOutOfBoundsException("offset=" + offset + " baLen=" + ba.length);
     if (length < 0 || length + offset > ba.length || length + offset < 0)
@@ -1332,7 +1265,8 @@ public final class ConversionUtils
    * @throws IllegalArgumentException An argument is out of range.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static byte[] fromAlphanumericToByteArray(String alphanumeric)
+  @Validate
+  public static byte[] fromAlphanumericToByteArray(@NotNull final String alphanumeric)
   {
     return fromAlphanumericToByteArray(alphanumeric, 0, alphanumeric.length());
   }
@@ -1345,10 +1279,9 @@ public final class ConversionUtils
    * @throws IllegalArgumentException An argument is out of range.
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static byte[] fromAlphanumericToByteArray(String alphanumeric, int startIndex, int length)
+  @Validate
+  public static byte[] fromAlphanumericToByteArray(@NotNull final String alphanumeric, int startIndex, int length)
   {
-    if (alphanumeric == null)
-      throw new NullPointerException("alphanumeric");
     if (startIndex < 0 || startIndex > alphanumeric.length())
       throw new IndexOutOfBoundsException("startIndex=" + startIndex + " alphaLen=" + alphanumeric.length());
     if (length < 0 || length + startIndex > alphanumeric.length() || length + startIndex < 0)
@@ -1376,10 +1309,9 @@ public final class ConversionUtils
    * @throws NullPointerException An argument is null
    * @throws NumberFormatException A number could not be parsed.
    */
-  public static UnsignedLong fromAlphanumericToUInt64(String alphanumeric)
+  @Validate
+  public static UnsignedLong fromAlphanumericToUInt64(@NotNull final String alphanumeric)
   {
-    if (alphanumeric == null)
-      throw new NullPointerException("alphanumeric");
     if (alphanumeric.equals(CONSTANT.ZERO))
       return new UnsignedLong(BigInteger.ZERO);
 
@@ -1424,21 +1356,25 @@ public final class ConversionUtils
    * 2008 1:30:00 PM for en-US, den 10 april 2008 13:30:00 for sv-FI /// </summary> UniversalFull, /// <summary> /// Displays e.g. April,
    * 2008 for en-US, April 2008 for af-ZA /// </summary> YearMonth }
    */
-  public static String toHumanReadable(Period p)
+  @Validate
+  public static String toHumanReadable(@NotNull final Period p)
   {
     return toHumanReadable(p.toStandardDuration());
   }
 
-  // / <summary>
-  // / Returns the value of the given timespan in a human-readable form, appending the suffix.
-  // / Example: 10 seconds become "less than a minute".
-  // / Example: 1.1 minutes become "about a minute from now".
-  // / Example: 50 minutes become "50 minutes".
-  // / Example: 13 hours, 10 minutes become "about 13 hours".
-  // / The suffix " ago" or " from now" is appended depending on the sign of the timespan.
-  // / </summary>
-  // / <exception cref="OverflowException">When new TimeSpan(long.MinValue) is used as a value.</exception>
-  public static String toHumanReadable(Duration ts)
+  /**
+   * Returns the value of the given timespan in a human-readable form, appending the suffix.
+   * 
+   * <pre>
+   * Example: 10 seconds become "less than a minute".
+   * Example: 1.1 minutes become "about a minute from now".
+   * Example: 50 minutes become "50 minutes".
+   * Example: 13 hours, 10 minutes become "about 13 hours".
+   * The suffix " ago" or " from now" is appended depending on the sign of the timespan.
+   * </pre>
+   */
+  @Validate
+  public static String toHumanReadable(@NotNull Duration ts)
   {
     String suffix = " ago";
     if (ts.getMillis() < 0.0)
@@ -1453,18 +1389,15 @@ public final class ConversionUtils
     return toHumanReadable(ts, suffix);
   }
 
-  // / <summary>
-  // / Returns the value of the given timespan in a human-readable form, appending the suffix.
-  // / Example: 10 seconds become "less than a minute".
-  // / Example: 1.1 minutes become "about a minute".
-  // / Example: 50 minutes become "50 minutes".
-  // / Example: 13 hours, 10 minutes become "about 13 hours".
-  // / The suffix can be used to describe the event's position in time, use e.g. " ago" or " from now"
-  // / </summary>
-  // / <exception cref="OverflowException">When new TimeSpan(long.MinValue) is used as a value.</exception>
-  public static String toHumanReadable(Duration ts, String suffix)
+  /**
+   * Returns the value of the given timespan in a human-readable form, appending the suffix. Example: 10 seconds become
+   * "less than a minute". Example: 1.1 minutes become "about a minute". Example: 50 minutes become "50 minutes". Example: 13 hours, 10
+   * minutes become "about 13 hours". The suffix can be used to describe the event's position in time, use e.g. " ago" or " from now"
+   */
+  @Validate
+  public static String toHumanReadable(@NotNull final Duration ts, @NotNull final String suffix)
   {
-    AvlHashtable<Double, String> values = new AvlHashtable<Double, String>(Double.class, String.class);
+    val values = new AvlHashtable<Double, String>(Double.class, String.class);
 
     long totalSeconds = Math.abs(ts.getStandardSeconds());
     final double totalMinutes = Math.round(totalSeconds / 60);
@@ -1495,63 +1428,121 @@ public final class ConversionUtils
     return _totalMinutes < key;
   }
 
+  /**
+   * Returns the value of the given number in a human-readable form. Example: 1000 becomes 1,000 (UK) or 1.000 (US).
+   */
+  public static String toHumanReadable(long number)
+  {
+    return new Formatter().format("%,d", number).toString();
+  }
+
+  /**
+   * Returns the value of the given number in a human-readable form. Example: 1000 becomes 1,000 (UK) or 1.000 (US).
+   */
+  public static String toHumanReadable(int number)
+  {
+    return new Formatter().format("%,d", number).toString();
+  }
+
+  /**
+   * Returns the value of the given number in a human-readable form. Example: 1000 becomes 1,000 (UK) or 1.000 (US).
+   */
+  public static String toHumanReadable(short number)
+  {
+    return new Formatter().format("%,d", number).toString();
+  }
+
+  /**
+   * Returns the value of the given number in a human-readable form. Example: 1000 becomes 1,000 (UK) or 1.000 (US).
+   */
+  public static String toHumanReadable(byte number)
+  {
+    return new Formatter().format("%,d", number).toString();
+  }
+
+  /**
+   * Returns the value of the given number in a human-readable form. Example: 1000 becomes 1,000 (UK) or 1.000 (US).
+   */
+  public static String toHumanReadable(float number)
+  {
+    return new Formatter().format("%,f", number).toString();
+  }
+
+  /**
+   * Returns the value of the given number in a human-readable form. Example: 1000 becomes 1,000 (UK) or 1.000 (US).
+   * 
+   * @throws IllegalArgumentException An argument was invalid
+   */
+  public static String toHumanReadable(float number, int decimalPlaces)
+  {
+    if (decimalPlaces < 0)
+      throw new IllegalArgumentException("decimalPlaces=" + decimalPlaces);
+
+    return new Formatter().format("%,." + decimalPlaces + "f", number).toString();
+  }
+
+  /**
+   * Returns the value of the given number in a human-readable form. Example: 1000 becomes 1,000 (UK) or 1.000 (US).
+   */
+  public static String toHumanReadable(double number)
+  {
+    return new Formatter().format("%,f", number).toString();
+  }
+
+  /**
+   * Returns the value of the given number in a human-readable form. Example: 1000 becomes 1,000 (UK) or 1.000 (US).
+   * 
+   * @throws IllegalArgumentException An argument was invalid
+   */
+  public static String toHumanReadable(double number, int decimalPlaces)
+  {
+    if (decimalPlaces < 0)
+      throw new IllegalArgumentException("decimalPlaces=" + decimalPlaces);
+
+    return new Formatter().format("%,." + decimalPlaces + "f", number).toString();
+  }
+
+  /**
+   * Returns the value of the given number in a human-readable form. Example: 1000 becomes 1,000 (UK) or 1.000 (US).
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  @Validate
+  public static String toHumanReadable(@NotNull final BigDecimal number)
+  {
+    return new Formatter().format("%,f", number).toString();
+  }
+
+  /**
+   * Returns the value of the given number in a human-readable form. Example: 1000 becomes 1,000 (UK) or 1.000 (US).
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws IllegalArgumentException An argument was invalid
+   */
+  @Validate
+  public static String toHumanReadable(@NotNull final BigDecimal number, int decimalPlaces)
+  {
+    return new Formatter().format("%,." + decimalPlaces + "f", number).toString();
+  }
+
+  // TODO: implement these
   /*
-   * /// <summary> /// Returns the value of the given number in a human-readable form. /// Example: 1000 becomes 1,000 (UK locale) or 1.000
-   * (US). /// </summary> public static String ToHumanReadable(long number) { return number.ToString("N0"); }
-   * 
-   * /// <summary> /// Returns the value of the given number in a human-readable form. /// Example: 1000 becomes 1,000 (UK locale) or 1.000
-   * (US). /// </summary> public static String ToHumanReadable(int number) { return number.ToString("N0"); }
-   * 
-   * /// <summary> /// Returns the value of the given number in a human-readable form. /// Example: 1000 becomes 1,000 (UK locale) or 1.000
-   * (US). /// </summary> public static String ToHumanReadable(short number) { return number.ToString("N0"); }
-   * 
-   * /// <summary> /// Returns the value of the given number in a human-readable form. /// Example: 1000 becomes 1,000 (UK locale) or 1.000
-   * (US). /// </summary> public static String ToHumanReadable(ulong number) { return number.ToString("N0"); }
-   * 
-   * /// <summary> /// Returns the value of the given number in a human-readable form. /// Example: 1000 becomes 1,000 (UK locale) or 1.000
-   * (US). /// </summary> public static String ToHumanReadable(uint number) { return number.ToString("N0"); }
-   * 
-   * /// <summary> /// Returns the value of the given number in a human-readable form. /// Example: 1000 becomes 1,000 (UK locale) or 1.000
-   * (US). /// </summary> public static String ToHumanReadable(ushort number) { return number.ToString("N0"); }
-   * 
-   * /// <summary> /// Returns the value of the given number in a human-readable form. /// Example: 1000.00 becomes 1,000 (UK locale) or
-   * 1.000 (US). /// </summary> public static String ToHumanReadable(float number) { return number.ToString("N0"); }
-   * 
-   * /// <summary> /// Returns the value of the given number in a human-readable form. /// Example: 1000.00 becomes 1,000.00 (UK locale) or
-   * 1.000,00 (US) for 2 decimal places. /// </summary> public static String ToHumanReadable(float number, int decimalPlaces) { return
-   * number.ToString("N" + decimalPlaces); }
-   * 
-   * /// <summary> /// Returns the value of the given number in a human-readable form. /// Example: 1000.00 becomes 1,000 (UK locale) or
-   * 1.000 (US). /// </summary> public static String ToHumanReadable(double number) { return number.ToString("N0"); }
-   * 
-   * /// <summary> /// Returns the value of the given number in a human-readable form. /// Example: 1000.00 becomes 1,000.00 (UK locale) or
-   * 1.000,00 (US) for 2 decimal places. /// </summary> public static String ToHumanReadable(double number, int decimalPlaces) { return
-   * number.ToString("N" + decimalPlaces); }
-   * 
-   * /// <summary> /// Returns the value of the given number in a human-readable form. /// Example: 1000.00 becomes 1,000 (UK locale) or
-   * 1.000 (US). /// </summary> public static String ToHumanReadable(decimal number) { return number.ToString("N0"); }
-   * 
-   * /// <summary> /// Returns the value of the given number in a human-readable form. /// Example: 1000.00 becomes 1,000.00 (UK locale) or
-   * 1.000,00 (US) for 2 decimal places. /// </summary> public static String ToHumanReadable(decimal number, int decimalPlaces) { return
-   * number.ToString("N" + decimalPlaces); }
-   * 
    * /// <summary> /// Returns the date/time value in a human-readable and standard form, /// as specified by the given style selection.
    * Uses current thread locale. /// </summary> public static String ToHumanReadable(DateTime dateTime, DateTimeStyle style) { return
-   * ToHumanReadable(dateTime, style, CultureInfo.CurrentCulture); }
-   * 
-   * /// <summary> /// Returns the date/time value in a human-readable and standard form, /// as specified by the given style selection.
-   * Uses current specified locale. /// </summary> /// <exception cref="ArgumentException">Unrecognized date/time style used.</exception>
-   * public static String ToHumanReadable(DateTime dateTime, DateTimeStyle style, CultureInfo cultureInfo) { switch(style) { case
-   * DateTimeStyle.ShortDate: return dateTime.ToString("d", cultureInfo); case DateTimeStyle.LongDate: return dateTime.ToString("D",
-   * cultureInfo); case DateTimeStyle.FullDateShortTime: return dateTime.ToString("f", cultureInfo); case DateTimeStyle.FullDateLongTime:
-   * return dateTime.ToString("F", cultureInfo); case DateTimeStyle.GeneralDateShortTime: return dateTime.ToString("g", cultureInfo); case
-   * DateTimeStyle.GeneralDateLongTime: return dateTime.ToString("G", cultureInfo); case DateTimeStyle.MonthDay: return
-   * dateTime.ToString("m", cultureInfo); case DateTimeStyle.RoundTrip: return dateTime.ToString("o", cultureInfo); case
-   * DateTimeStyle.Rfc1123: return dateTime.ToString("r", cultureInfo); case DateTimeStyle.Sortable: return dateTime.ToString("s",
-   * cultureInfo); case DateTimeStyle.ShortTime: return dateTime.ToString("t", cultureInfo); case DateTimeStyle.LongTime: return
-   * dateTime.ToString("T", cultureInfo); case DateTimeStyle.UniversalSortable: return dateTime.ToString("u", cultureInfo); case
-   * DateTimeStyle.UniversalFull: return dateTime.ToString("U", cultureInfo); case DateTimeStyle.YearMonth: return dateTime.ToString("y",
-   * cultureInfo); default: throw new ArgumentException("Unrecognized date/time format: " + style); } }
+   * ToHumanReadable(dateTime, style, CultureInfo.CurrentCulture); } /// <summary> /// Returns the date/time value in a human-readable and
+   * standard form, /// as specified by the given style selection. Uses current specified locale. /// </summary> /// <exception
+   * cref="ArgumentException">Unrecognized date/time style used.</exception> public static String ToHumanReadable(DateTime dateTime,
+   * DateTimeStyle style, CultureInfo cultureInfo) { switch(style) { case DateTimeStyle.ShortDate: return dateTime.ToString("d",
+   * cultureInfo); case DateTimeStyle.LongDate: return dateTime.ToString("D", cultureInfo); case DateTimeStyle.FullDateShortTime: return
+   * dateTime.ToString("f", cultureInfo); case DateTimeStyle.FullDateLongTime: return dateTime.ToString("F", cultureInfo); case
+   * DateTimeStyle.GeneralDateShortTime: return dateTime.ToString("g", cultureInfo); case DateTimeStyle.GeneralDateLongTime: return
+   * dateTime.ToString("G", cultureInfo); case DateTimeStyle.MonthDay: return dateTime.ToString("m", cultureInfo); case
+   * DateTimeStyle.RoundTrip: return dateTime.ToString("o", cultureInfo); case DateTimeStyle.Rfc1123: return dateTime.ToString("r",
+   * cultureInfo); case DateTimeStyle.Sortable: return dateTime.ToString("s", cultureInfo); case DateTimeStyle.ShortTime: return
+   * dateTime.ToString("t", cultureInfo); case DateTimeStyle.LongTime: return dateTime.ToString("T", cultureInfo); case
+   * DateTimeStyle.UniversalSortable: return dateTime.ToString("u", cultureInfo); case DateTimeStyle.UniversalFull: return
+   * dateTime.ToString("U", cultureInfo); case DateTimeStyle.YearMonth: return dateTime.ToString("y", cultureInfo); default: throw new
+   * ArgumentException("Unrecognized date/time format: " + style); } }
    */
 
   // Text <-> Byte-array conversions
@@ -1562,11 +1553,9 @@ public final class ConversionUtils
    * @throws NullPointerException An argument is null.
    * @throws RuntimeException The UTF8 encoding is not supported.
    */
-  public static byte[] toByteArray(String text)
+  @Validate
+  public static byte[] toByteArray(@NotNull final String text)
   {
-    if (text == null)
-      throw new NullPointerException("text");
-
     try
     {
       return text.getBytes(CONSTANT.UTF8);
@@ -1585,10 +1574,9 @@ public final class ConversionUtils
    * @throws IllegalArgumentException An argument is out of range
    * @throws RuntimeException The UTF8 encoding is not supported
    */
-  public static byte[] toByteArray(String text, int index, int count)
+  @Validate
+  public static byte[] toByteArray(@NotNull final String text, int index, int count)
   {
-    if (text == null)
-      throw new NullPointerException("text");
     if (index < 0 || index > text.length())
       throw new IndexOutOfBoundsException("index=" + index + " textLen=" + text.length());
     if (count < 0 || index + count > text.length() || index + count < 0)
@@ -1602,13 +1590,9 @@ public final class ConversionUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static byte[] toByteArray(String text, Charset encoding)
+  @Validate
+  public static byte[] toByteArray(@NotNull final String text, @NotNull final Charset encoding)
   {
-    if (text == null)
-      throw new NullPointerException("text");
-    if (encoding == null)
-      throw new NullPointerException("encoding");
-
     return text.getBytes(encoding);
   }
 
@@ -1620,16 +1604,13 @@ public final class ConversionUtils
    * @throws IllegalArgumentException An argument is out of range
    * @throws RuntimeException The UTF8 encoding is not supported
    */
-  public static byte[] toByteArray(String text, Charset encoding, int index, int count)
+  @Validate
+  public static byte[] toByteArray(@NotNull final String text, @NotNull final Charset encoding, int index, int count)
   {
-    if (text == null)
-      throw new NullPointerException("text");
     if (index < 0 || index > text.length())
       throw new IndexOutOfBoundsException("index=" + index + " textLen=" + text.length());
     if (count < 0 || index + count > text.length() || index + count < 0)
       throw new IllegalArgumentException("count=" + count + " index=" + index + " textLen=" + text.length());
-    if (encoding == null)
-      throw new NullPointerException("encoding");
 
     return text.substring(index, index + count).getBytes(encoding);
   }
@@ -1637,11 +1618,9 @@ public final class ConversionUtils
   /**
    * Converts a byte array to a UTF8-encoded string
    */
-  public static String toString(byte[] ba)
+  @Validate
+  public static String toString(@NotNull final byte[] ba)
   {
-    if (ba == null)
-      throw new NullPointerException("ba");
-
     return new String(ba);
   }
 
@@ -1652,10 +1631,9 @@ public final class ConversionUtils
    * @throws IndexOutOfBoundsException An index is out of bounds
    * @throws IllegalArgumentException An argument is out of range
    */
-  public static String toString(byte[] ba, int index, int count)
+  @Validate
+  public static String toString(@NotNull final byte[] ba, int index, int count)
   {
-    if (ba == null)
-      throw new NullPointerException("ba");
     if (index < 0 || index > ba.length)
       throw new IndexOutOfBoundsException("index=" + index + " baLen=" + ba.length);
     if (count < 0 || index + count > ba.length || index + count < 0)
@@ -1669,13 +1647,9 @@ public final class ConversionUtils
    * 
    * @throws NullPointerException An argument is null.
    */
-  public static String toString(byte[] ba, Charset encoding)
+  @Validate
+  public static String toString(@NotNull final byte[] ba, @NotNull final Charset encoding)
   {
-    if (ba == null)
-      throw new NullPointerException("ba");
-    if (encoding == null)
-      throw new NullPointerException("encoding");
-
     return new String(ba, encoding);
   }
 
@@ -1686,12 +1660,9 @@ public final class ConversionUtils
    * @throws IndexOutOfBoundsException An index is out of bounds
    * @throws IllegalArgumentException An argument is out of range
    */
-  public static String toString(byte[] ba, Charset encoding, int index, int count)
+  @Validate
+  public static String toString(@NotNull final byte[] ba, @NotNull final Charset encoding, int index, int count)
   {
-    if (ba == null)
-      throw new NullPointerException("ba");
-    if (encoding == null)
-      throw new NullPointerException("encoding");
     if (index < 0 || index > ba.length)
       throw new IndexOutOfBoundsException("index=" + index + " baLen=" + ba.length);
     if (count < 0 || index + count > ba.length || index + count < 0)
@@ -1790,6 +1761,12 @@ public final class ConversionUtils
       return new SignedByte(number.byteValue());
     if (targetType.equals(BigInteger.class))
       return new BigInteger(number.toString());
+    if (targetType.equals(propel.core.userTypes.BigInteger.class))
+    {
+      propel.core.userTypes.BigInteger bi = new propel.core.userTypes.BigInteger();
+      bi.setCurrentValue(number.toString());
+      return bi;
+    }
 
     throw new IllegalArgumentException("The provided Number could not be converted to type '" + targetType.getSimpleName() + "': " + value);
   }
@@ -1851,6 +1828,12 @@ public final class ConversionUtils
       return new SignedByte((byte) ch);
     if (targetType.equals(BigInteger.class))
       return new BigInteger(Integer.valueOf(ch).toString());
+    if (targetType.equals(propel.core.userTypes.BigInteger.class))
+    {
+      propel.core.userTypes.BigInteger bi = new propel.core.userTypes.BigInteger();
+      bi.setCurrentValue(Integer.valueOf(ch).toString());
+      return bi;
+    }
 
     throw new IllegalArgumentException("The provided Character could not be converted to type '" + targetType.getSimpleName() + "': "
         + value);
@@ -1913,6 +1896,12 @@ public final class ConversionUtils
       return bool ? new SignedByte("1") : new SignedByte("0");
     if (targetType.equals(BigInteger.class))
       return bool ? new BigInteger("1") : new BigInteger("0");
+    if (targetType.equals(propel.core.userTypes.BigInteger.class))
+    {
+      propel.core.userTypes.BigInteger bi = new propel.core.userTypes.BigInteger();
+      bi.setCurrentValue(bool ? "1" : "0");
+      return bi;
+    }
 
     throw new IllegalArgumentException("The provided Boolean could not be converted to type '" + targetType.getSimpleName() + "': " + value);
   }
@@ -1976,7 +1965,17 @@ public final class ConversionUtils
       return new SignedByte(str);
     if (targetType.equals(BigInteger.class))
       return new BigInteger(str);
+    if (targetType.equals(propel.core.userTypes.BigInteger.class))
+    {
+      propel.core.userTypes.BigInteger bi = new propel.core.userTypes.BigInteger();
+      bi.setCurrentValue(str);
+      return bi;
+    }
 
-    throw new IllegalArgumentException("The provided String could not be converted to type '" + targetType.getSimpleName() + "': " + value);
+    throw new IllegalArgumentException("The provided object could not be converted to type '" + targetType.getSimpleName() + "': " + value);
+  }
+
+  private ConversionUtils()
+  {
   }
 }

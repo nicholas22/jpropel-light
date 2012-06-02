@@ -42,7 +42,7 @@ import propel.core.collections.sets.ReifiedSet;
  */
 public final class ImmutableUtils
 {
-  // per-interface suppressed methods
+  // per-interface suppressed methods (public API)
   private static final String[] collectionSuppressed = {"add", "addAll", "clear", "remove", "removeAll", "retainAll"};
   private static final String[] reifiedListSuppressed = ArrayUtils.add(collectionSuppressed, "set");
   private static final String[] sharedListSuppressed = ArrayUtils.add(reifiedListSuppressed, "addIfAbsent");

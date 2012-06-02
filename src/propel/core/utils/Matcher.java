@@ -22,14 +22,16 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Functions.Function1;
 import lombok.Predicates.Predicate1;
+import lombok.Validate;
+import lombok.Validate.NotNull;
 import propel.core.functional.tuples.Pair;
 
 /**
- * Class allows for matching, making the use of nested if-then-else blocks obsolete.
+ * Class allows for matching, helps in reducing the usage of nested if-then-else statements
  */
 public class Matcher<T, TResult>
 {
-  private List<Pair<Predicate1<T>, Function1<T, ?>>> cases;
+  private final List<Pair<Predicate1<T>, Function1<T, ?>>> cases;
   private Function1<T, ?> defaultFunc;
 
   /**
@@ -46,13 +48,9 @@ public class Matcher<T, TResult>
    * 
    * @throws NullPointerException An argument is null
    */
-  public void addFunction(final Predicate1<T> predicate, final Function1<T, TResult> func)
+  @Validate
+  public void addFunction(@NotNull final Predicate1<T> predicate, @NotNull final Function1<T, TResult> func)
   {
-    if (predicate == null)
-      throw new NullPointerException("predicate");
-    if (func == null)
-      throw new NullPointerException("func");
-
     cases.add(new Pair<Predicate1<T>, Function1<T, ?>>(predicate, func));
   }
 
@@ -63,11 +61,9 @@ public class Matcher<T, TResult>
    * 
    * @throws NullPointerException An argument is null
    */
-  public void addFunction(final Predicate1<T> predicate)
+  @Validate
+  public void addFunction(@NotNull final Predicate1<T> predicate)
   {
-    if (predicate == null)
-      throw new NullPointerException("predicate");
-
     cases.add(new Pair<Predicate1<T>, Function1<T, ?>>(predicate, new Function1<T, TResult>() {
       @SuppressWarnings("unchecked")
       public TResult apply(T arg)
@@ -83,13 +79,9 @@ public class Matcher<T, TResult>
    * 
    * @throws NullPointerException An argument is null
    */
-  public void addAction(final Predicate1<T> predicate, final Function1<T, Void> func)
+  @Validate
+  public void addAction(@NotNull final Predicate1<T> predicate, @NotNull final Function1<T, Void> func)
   {
-    if (predicate == null)
-      throw new NullPointerException("predicate");
-    if (func == null)
-      throw new NullPointerException("func");
-
     cases.add(new Pair<Predicate1<T>, Function1<T, ?>>(predicate, func));
   }
 

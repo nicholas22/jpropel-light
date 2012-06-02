@@ -23,21 +23,17 @@ import propel.core.utils.StringComparison;
 import propel.core.utils.StringUtils;
 
 /**
- * Some common, re-usable predicates
+ * Some common, re-usable predicates for Strings
  */
 public final class Strings
 {
-  private Strings()
-  {
-  }
-
   /**
    * Predicate returning true when the function argument contains some string
    * 
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean contains(String element, String _part)
+  public static boolean contains(final String element, final String _part)
   {
     return StringUtils.contains(element, _part, StringComparison.Ordinal);
   }
@@ -48,7 +44,7 @@ public final class Strings
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean contains(String element, String _part, StringComparison _comparison)
+  public static boolean contains(final String element, final String _part, final StringComparison _comparison)
   {
     return StringUtils.contains(element, _part, _comparison);
   }
@@ -59,7 +55,7 @@ public final class Strings
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean endsWith(String element, String _suffix)
+  public static boolean endsWith(final String element, final String _suffix)
   {
     return StringUtils.endsWith(element, _suffix, StringComparison.Ordinal);
   }
@@ -70,7 +66,7 @@ public final class Strings
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean endsWith(String element, String _suffix, StringComparison _comparison)
+  public static boolean endsWith(final String element, final String _suffix, final StringComparison _comparison)
   {
     return StringUtils.endsWith(element, _suffix, _comparison);
   }
@@ -81,7 +77,7 @@ public final class Strings
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean isEmpty(String element)
+  public static boolean isEmpty(final String element)
   {
     return element.isEmpty();
   }
@@ -92,7 +88,7 @@ public final class Strings
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean isEqual(String element, String _other)
+  public static boolean isEqual(final String element, final String _other)
   {
     return StringUtils.equal(element, _other, StringComparison.Ordinal);
   }
@@ -103,7 +99,7 @@ public final class Strings
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean isEqual(String element, String _other, StringComparison _comparison)
+  public static boolean isEqual(final String element, final String _other, final StringComparison _comparison)
   {
     return StringUtils.equal(element, _other, _comparison);
   }
@@ -114,7 +110,7 @@ public final class Strings
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean isNullOrEmpty(String element)
+  public static boolean isNullOrEmpty(final String element)
   {
     return StringUtils.isNullOrEmpty(element);
   }
@@ -125,7 +121,7 @@ public final class Strings
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean isNotNullOrEmpty(String element)
+  public static boolean isNotNullOrEmpty(final String element)
   {
     return !StringUtils.isNullOrEmpty(element);
   }
@@ -136,7 +132,7 @@ public final class Strings
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean isNullOrBlank(String element)
+  public static boolean isNullOrBlank(final String element)
   {
     return StringUtils.isNullOrBlank(element);
   }
@@ -147,7 +143,7 @@ public final class Strings
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean isNotNullOrBlank(String element)
+  public static boolean isNotNullOrBlank(final String element)
   {
     return !StringUtils.isNullOrBlank(element);
   }
@@ -158,7 +154,7 @@ public final class Strings
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean lengthEquals(String element, int _len)
+  public static boolean lengthEquals(final String element, final int _len)
   {
     return element.length() == _len;
   }
@@ -169,7 +165,7 @@ public final class Strings
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean lengthGreaterThan(String element, int _len)
+  public static boolean lengthGreaterThan(final String element, final int _len)
   {
     return element.length() > _len;
   }
@@ -180,7 +176,7 @@ public final class Strings
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean lengthGreaterThanOrEqual(String element, int _len)
+  public static boolean lengthGreaterThanOrEqual(final String element, final int _len)
   {
     return element.length() >= _len;
   }
@@ -191,7 +187,7 @@ public final class Strings
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean lengthLessThan(String element, int _len)
+  public static boolean lengthLessThan(final String element, final int _len)
   {
     return element.length() < _len;
   }
@@ -202,7 +198,7 @@ public final class Strings
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean lengthLessThanOrEqual(String element, int _len)
+  public static boolean lengthLessThanOrEqual(final String element, final int _len)
   {
     return element.length() <= _len;
   }
@@ -213,7 +209,7 @@ public final class Strings
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean lengthNotEqual(String element, int _len)
+  public static boolean lengthNotEqual(final String element, final int _len)
   {
     return element.length() != _len;
   }
@@ -224,7 +220,7 @@ public final class Strings
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean notContains(String element, String _part)
+  public static boolean notContains(final String element, final String _part)
   {
     return !StringUtils.contains(element, _part, StringComparison.Ordinal);
   }
@@ -235,7 +231,7 @@ public final class Strings
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean notContains(String element, String _part, StringComparison _comparison)
+  public static boolean notContains(final String element, final String _part, final StringComparison _comparison)
   {
     return !StringUtils.contains(element, _part, _comparison);
   }
@@ -246,7 +242,7 @@ public final class Strings
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean notEndsWith(String element, String _suffix)
+  public static boolean notEndsWith(final String element, final String _suffix)
   {
     return !StringUtils.endsWith(element, _suffix, StringComparison.Ordinal);
   }
@@ -257,7 +253,7 @@ public final class Strings
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean notEndsWith(String element, String _suffix, StringComparison _comparison)
+  public static boolean notEndsWith(final String element, final String _suffix, final StringComparison _comparison)
   {
     return !StringUtils.endsWith(element, _suffix, _comparison);
   }
@@ -268,7 +264,7 @@ public final class Strings
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean notStartsWith(String element, String _prefix)
+  public static boolean notStartsWith(final String element, final String _prefix)
   {
     return !StringUtils.startsWith(element, _prefix, StringComparison.Ordinal);
   }
@@ -279,7 +275,7 @@ public final class Strings
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean notStartsWith(String element, String _prefix, StringComparison _comparison)
+  public static boolean notStartsWith(final String element, final String _prefix, final StringComparison _comparison)
   {
     return !StringUtils.startsWith(element, _prefix, _comparison);
   }
@@ -290,7 +286,7 @@ public final class Strings
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean startsWith(String element, String _prefix)
+  public static boolean startsWith(final String element, final String _prefix)
   {
     return StringUtils.startsWith(element, _prefix, StringComparison.Ordinal);
   }
@@ -301,32 +297,12 @@ public final class Strings
    * @throws NullPointerException When an argument is null
    */
   @Predicate
-  public static boolean startsWith(String element, String _prefix, StringComparison _comparison)
+  public static boolean startsWith(final String element, final String _prefix, final StringComparison _comparison)
   {
     return StringUtils.startsWith(element, _prefix, _comparison);
   }
 
-  /**
-   * Predicate returning true always, can be used to print out all elements in an all() Linq statement
-   * 
-   * @throws NullPointerException When an argument is null
-   */
-  @Predicate
-  public static boolean println(String element)
+  private Strings()
   {
-    System.out.println(element);
-    return true;
-  }
-
-  /**
-   * Predicate returning true always, can be used to print out all elements in an all() Linq statement
-   * 
-   * @throws NullPointerException When an argument is null
-   */
-  @Predicate
-  public static boolean print(String element)
-  {
-    System.out.print(element);
-    return true;
   }
 }

@@ -26,7 +26,6 @@ import java.lang.reflect.Method;
 public final class PropertyInfo
     implements Comparable<PropertyInfo>
 {
-
   private String name;
   private Method getter;
   private Method setter;

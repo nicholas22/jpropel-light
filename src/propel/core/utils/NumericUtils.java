@@ -18,23 +18,25 @@
 // /////////////////////////////////////////////////////////
 package propel.core.utils;
 
+import lombok.val;
+
 /**
  * Provides utility functionality for numberic structures
  */
-public class NumericUtils
+public final class NumericUtils
 {
   /**
    * Returns a character range from start (inclusive) to end (exclusive).
    * 
    * @throws IllegalArgumentException When the end is before start
    */
-  public static int[] intRange(int start, int end)
+  public static int[] intRange(final int start, final int end)
   {
     int length = end - start;
     if (length < 0)
       throw new IllegalArgumentException("start=" + start + " end=" + end);
 
-    int[] result = new int[length];
+    val result = new int[length];
 
     int index = 0;
     for (int i = start; i < end; i++)
@@ -49,7 +51,7 @@ public class NumericUtils
    * @throws NullPointerException An argument is null
    * @throws IllegalArgumentException When the end is before start
    */
-  public static Integer[] until(Integer start, Integer end)
+  public static Integer[] until(final Integer start, final Integer end)
   {
     return ArrayUtils.box(intRange(start.intValue(), end.intValue()));
   }
@@ -60,7 +62,7 @@ public class NumericUtils
    * @throws NullPointerException An argument is null
    * @throws IllegalArgumentException When the end is before start
    */
-  public static Integer[] to(Integer start, Integer end)
+  public static Integer[] to(final Integer start, final Integer end)
   {
     return ArrayUtils.box(intRange(start.intValue(), end.intValue() + 1));
   }
@@ -70,7 +72,7 @@ public class NumericUtils
    * 
    * @throws IllegalArgumentException When the end is before start, or (end-start) is larger than Integer.MAX_VALUE
    */
-  public static long[] longRange(long start, long end)
+  public static long[] longRange(final long start, final long end)
   {
     long length = end - start;
     if (length < 0)
@@ -78,7 +80,7 @@ public class NumericUtils
     if (length > Integer.MAX_VALUE)
       throw new IllegalArgumentException("start=" + start + " end=" + end + " length=" + length);
 
-    long[] result = new long[(int) length];
+    val result = new long[(int) length];
 
     int index = 0;
     for (long i = start; i < end; i++)
@@ -93,7 +95,7 @@ public class NumericUtils
    * @throws NullPointerException An argument is null
    * @throws IllegalArgumentException When the end is before start
    */
-  public static Long[] until(Long start, Long end)
+  public static Long[] until(final Long start, final Long end)
   {
     return ArrayUtils.box(longRange(start.longValue(), end.longValue()));
   }
@@ -104,9 +106,12 @@ public class NumericUtils
    * @throws NullPointerException An argument is null
    * @throws IllegalArgumentException When the end is before start
    */
-  public static Long[] to(Long start, Long end)
+  public static Long[] to(final Long start, final Long end)
   {
     return ArrayUtils.box(longRange(start.longValue(), end.longValue() + 1));
   }
 
+  private NumericUtils()
+  {
+  }
 }

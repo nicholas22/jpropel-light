@@ -75,4 +75,29 @@ public final class OsUtils
   {
     return IS_BSD;
   }
+
+  /**
+   * Returns a simple version of the OS name
+   */
+  public static String getSimpleName()
+  {
+    if (isBsd())
+      return "BSD";
+    if (isLinux())
+      return "Linux";
+    if (isOSX())
+      return "OSX";
+    if (isWindows())
+      return "Windows";
+
+    return "OtherOS";
+  }
+
+  /**
+   * Returns the os.name property
+   */
+  public static String getName()
+  {
+    return System.getProperty(OS_NAME_PROPERTY);
+  }
 }

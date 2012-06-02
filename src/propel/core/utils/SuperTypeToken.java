@@ -22,21 +22,32 @@ import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import lombok.Validate;
+import lombok.Validate.NotNull;
+import lombok.val;
 
 /**
  * Super type token implementation, allows for getting the run-time generic type of an anonymously instantiated generic collection.
- * <p/>
+ * <br/>
  * Example:
- * <p/>
- * <p>
- * public class MyAvlHashtable<TKey extends Comparable<TKey>, TValue> extends AvlHashtable<TKey, TValue> { public Class&lt;?&gt; keyClass;
- * public Class&lt;?&gt; valueClass; public Type keyType; public Type valueType;
- * <p/>
- * public A_MyAvlHashtable() { // retrieves first generic parameter i.e. class type of TKey keyClass =
- * SuperTypeToken.getClazz(this.getClass()); // retrieves second generic parameter valueClass = SuperTypeToken.getClazz(this.getClass(), 1);
- * <p/>
- * keyType = SuperTypeToken.getType(this.getClass()); valueType = SuperTypeToken.getType(this.getClass(), 1); } }
- * </p>
+ * <pre>
+ * public class MyAvlHashtable<TKey extends Comparable<TKey>, TValue> extends AvlHashtable<TKey, TValue> { 
+ *   public Class&lt;?&gt; keyClass;
+ *   public Class&lt;?&gt; valueClass; 
+ *   public Type keyType; 
+ *   public Type valueType;
+ * 
+ *   public A_MyAvlHashtable() { 
+ *     // retrieves first generic parameter i.e. class type of TKey
+ *     keyClass = SuperTypeToken.getClazz(this.getClass()); 
+ *     // retrieves second generic parameter 
+ *     valueClass = SuperTypeToken.getClazz(this.getClass(), 1);
+ * 
+ *     keyType = SuperTypeToken.getType(this.getClass()); 
+ *     valueType = SuperTypeToken.getType(this.getClass(), 1); 
+ *   }
+ * }
+ * </pre>
  */
 public final class SuperTypeToken
 {
@@ -51,10 +62,11 @@ public final class SuperTypeToken
   /**
    * Returns the Type of a class's first formal type argument Therefore for Blah<T0, T1>, 0 will return T0, and 1 will return T1.
    * 
+   * @throws NullPointerException An argument is null
    * @throws SuperTypeTokenException The class is not a concrete class, not a generic class or not instantiated using anonymous class
    *           semantics.
    */
-  static public Type getType(final Class<?> clazz)
+  public static Type getType(final Class<?> clazz)
   {
     return getType(clazz, 0);
   }
@@ -63,12 +75,14 @@ public final class SuperTypeToken
    * Returns the Type of a class's formal type argument, at a given position. The first format type argument is 0, then 1, etc. Therefore
    * for Blah<T0, T1>, 0 will return T0, and 1 will return T1.
    * 
+   * @throws NullPointerException An argument is null
    * @throws SuperTypeTokenException The class is not a concrete class, not a generic class or not instantiated using anonymous class
    *           semantics.
    */
-  static public Type getType(final Class<?> clazz, final int pos)
+  @Validate
+  public static Type getType(@NotNull final Class<?> clazz, final int pos)
   {
-    final Type superClass = clazz.getGenericSuperclass();
+    val superClass = clazz.getGenericSuperclass();
 
     // test is superclass found
     if (superClass instanceof Class)
@@ -76,7 +90,7 @@ public final class SuperTypeToken
           + "' instance should belong to an anonymous class or should be extending a generic class."));
 
     // get type arguments
-    final Type[] types = ((ParameterizedType) superClass).getActualTypeArguments();
+    val types = ((ParameterizedType) superClass).getActualTypeArguments();
 
     // test if enough generic parameters were passed
     if (pos >= types.length)
@@ -89,10 +103,11 @@ public final class SuperTypeToken
   /**
    * Returns the Class of a class's first formal type argument. Therefore for Blah<T>, this will return T.
    * 
+   * @throws NullPointerException An argument is null
    * @throws SuperTypeTokenException The class is not a concrete class, not a generic class or not instantiated using anonymous class
    *           semantics.
    */
-  static public Class<?> getClazz(final Class<?> clazz)
+  public static Class<?> getClazz(final Class<?> clazz)
   {
     return getClazz(clazz, 0);
   }
@@ -101,13 +116,14 @@ public final class SuperTypeToken
    * Returns the Class of a class's formal type argument, at a given position. The first format type argument is 0, then 1, etc. Therefore
    * for Blah<T0, T1>, 0 will return T0, and 1 will return T1.
    * 
+   * @throws NullPointerException An argument is null
    * @throws SuperTypeTokenException The class is not a concrete class, not a generic class or not instantiated using anonymous class
    *           semantics.
    */
-  static public Class<?> getClazz(final Class<?> clazz, final int pos)
+  public static Class<?> getClazz(final Class<?> clazz, final int pos)
   {
-    final Type type = getType(clazz, pos);
-    final Class<?> result = getClass(type);
+    val type = getType(clazz, pos);
+    val result = getClass(type);
 
     if (result == null)
       throw new SuperTypeTokenException(
@@ -125,7 +141,7 @@ public final class SuperTypeToken
    * 
    * @return the underlying class
    */
-  static private Class<?> getClass(Type type)
+  private static Class<?> getClass(Type type)
   {
     if (type instanceof Class)
     {

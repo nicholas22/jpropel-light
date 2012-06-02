@@ -18,14 +18,17 @@
 // /////////////////////////////////////////////////////////
 package propel.core.utils;
 
-import propel.core.common.CONSTANT;
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
+import lombok.Validate;
+import lombok.Validate.NotNull;
+import lombok.val;
+import propel.core.common.CONSTANT;
 
 /**
- * Provides utility functionality for random data
+ * Provides utility functionality for obtaining random data. Please note that the random number generators are not thread safe.
  */
 public final class RandomUtils
 {
@@ -33,18 +36,11 @@ public final class RandomUtils
   private static final Random PSEUDO_RANDOM = new Random();
 
   /**
-   * Private constructor
-   */
-  private RandomUtils()
-  {
-  }
-
-  /**
-   * Returns a random Int32, created by the information entropy from bytes in a newly. created UUID.
+   * Returns a random Int32, created by the information entropy from bytes in a newly created UUID.
    */
   public static int getPseudoInt32()
   {
-    UUID guid = UUID.randomUUID();
+    val guid = UUID.randomUUID();
     return HashingUtils.uuidToInt32(guid);
   }
 
@@ -53,7 +49,7 @@ public final class RandomUtils
    * 
    * @throws IllegalArgumentException An argument is out of range
    */
-  public static int getPseudoInt32(int min, int max)
+  public static int getPseudoInt32(final int min, final int max)
   {
     if (min < 0)
       throw new IllegalArgumentException("min=" + min);
@@ -68,7 +64,7 @@ public final class RandomUtils
    */
   public static long getPseudoInt64()
   {
-    UUID guid = UUID.randomUUID();
+    val guid = UUID.randomUUID();
     return HashingUtils.uuidToInt64(guid);
   }
 
@@ -77,20 +73,20 @@ public final class RandomUtils
    * 
    * @throws IllegalArgumentException An argument is out of range
    */
-  public static byte[] getPseudoBytes(int length)
+  public static byte[] getPseudoBytes(final int length)
   {
     if (length < 0)
       throw new IllegalArgumentException("length=" + length);
     if (length == 0)
       return new byte[0];
 
-    byte[] result = new byte[length];
+    val result = new byte[length];
     int index = 0;
 
     while (true)
     {
-      UUID randomUuid = UUID.randomUUID();
-      byte[] random = ByteArrayUtils.getBytes(randomUuid);
+      val randomUuid = UUID.randomUUID();
+      val random = ByteArrayUtils.getBytes(randomUuid);
 
       for (int i = 0; i < 16; i++)
       {
@@ -107,14 +103,14 @@ public final class RandomUtils
    * 
    * @throws IllegalArgumentException An argument is out of range.
    */
-  public static String getPseudoBase64Text(int length)
+  public static String getPseudoBase64Text(final int length)
   {
     if (length < 0)
       throw new IllegalArgumentException("length=" + length);
     if (length == 0)
       return CONSTANT.EMPTY_STRING;
 
-    StringBuilder sb = new StringBuilder(length + 32);
+    val sb = new StringBuilder(length + 32);
     while (sb.length() < length)
       sb.append(ConversionUtils.toBase64(getPseudoInt64()));
 
@@ -127,18 +123,18 @@ public final class RandomUtils
    * 
    * @throws IllegalArgumentException An argument is out of range.
    */
-  public static String getPseudoAlphanumericText(int length)
+  public static String getPseudoAlphanumericText(final int length)
   {
     if (length < 0)
       throw new IllegalArgumentException("length=" + length);
     if (length == 0)
       return CONSTANT.EMPTY_STRING;
 
-    StringBuilder sb = new StringBuilder(length + 32);
+    val sb = new StringBuilder(length + 32);
 
     while (sb.length() < length)
     {
-      String base64 = ConversionUtils.toBase64(getPseudoInt64());
+      val base64 = ConversionUtils.toBase64(getPseudoInt64());
       for (char ch : base64.toCharArray())
         if (Character.isLetterOrDigit(ch))
           sb.append(ch);
@@ -153,25 +149,23 @@ public final class RandomUtils
    * @throws NullPointerException An argument is null.
    * @throws IndexOutOfBoundsException An index is out of range.
    */
-  public static <T> void pseudoRandomize(T[] data, int start, int end)
+  @Validate
+  public static <T> void pseudoRandomize(@NotNull final T[] data, final int start, final int end)
   {
-    if (data == null)
-      throw new NullPointerException("data");
     if (start < 0 || start >= data.length || start > end)
       throw new IndexOutOfBoundsException("start=" + start + " end=" + end + " dataLen=" + data.length);
     if (end < 0 || end > data.length)
       throw new IndexOutOfBoundsException("end=" + end + " dataLen=" + data.length);
 
-    Random random = new Random();
-    int[] from = new int[end - start];
-    int[] to = new int[end - start];
+    val from = new int[end - start];
+    val to = new int[end - start];
     for (int i = start; i < end; i++)
     {
-      from[i] = random.nextInt(end - start) + start;
-      to[i] = random.nextInt(end - start) + start;
+      from[i] = PSEUDO_RANDOM.nextInt(end - start) + start;
+      to[i] = PSEUDO_RANDOM.nextInt(end - start) + start;
     }
 
-    ArrayUtils.swap(data, from, to);
+    Linq.swap(data, from, to);
   }
 
   /**
@@ -180,25 +174,23 @@ public final class RandomUtils
    * @throws NullPointerException An argument is null.
    * @throws IndexOutOfBoundsException An index is out of range.
    */
-  public static <T> void pseudoRandomize(List<T> data, int start, int end)
+  @Validate
+  public static <T> void pseudoRandomize(@NotNull final List<T> data, final int start, final int end)
   {
-    if (data == null)
-      throw new NullPointerException("data");
     if (start < 0 || start >= data.size() || start > end)
       throw new IndexOutOfBoundsException("start=" + start + " end=" + end + " dataLen=" + data.size());
     if (end < 0 || end > data.size())
       throw new IndexOutOfBoundsException("end=" + end + " dataLen=" + data.size());
 
-    Random random = new Random();
-    int[] from = new int[end - start];
-    int[] to = new int[end - start];
+    val from = new int[end - start];
+    val to = new int[end - start];
     for (int i = start; i < end; i++)
     {
-      from[i] = random.nextInt(end - start) + start;
-      to[i] = random.nextInt(end - start) + start;
+      from[i] = PSEUDO_RANDOM.nextInt(end - start) + start;
+      to[i] = PSEUDO_RANDOM.nextInt(end - start) + start;
     }
 
-    ArrayUtils.swap(data, from, to);
+    Linq.swap(data, from, to);
   }
 
   /**
@@ -206,7 +198,7 @@ public final class RandomUtils
    */
   public static int getSecureInt32()
   {
-    byte[] buffer = getSecureBytes(4); // size of int
+    val buffer = getSecureBytes(4); // size of int
     return ByteArrayUtils.toInt32(buffer);
   }
 
@@ -215,7 +207,7 @@ public final class RandomUtils
    */
   public static long getSecureInt64()
   {
-    byte[] buffer = getSecureBytes(8); // size of long
+    val buffer = getSecureBytes(8); // size of long
     return ByteArrayUtils.toInt64(buffer);
   }
 
@@ -224,14 +216,14 @@ public final class RandomUtils
    * 
    * @throws IllegalArgumentException An argument is out of range
    */
-  public static byte[] getSecureBytes(int length)
+  public static byte[] getSecureBytes(final int length)
   {
     if (length < 0)
       throw new IllegalArgumentException("length=" + length);
     if (length == 0)
       return new byte[0];
 
-    byte[] buffer = new byte[length];
+    val buffer = new byte[length];
     CRYPTO_RANDOM.nextBytes(buffer);
     return buffer;
   }
@@ -241,14 +233,14 @@ public final class RandomUtils
    * 
    * @throws IllegalArgumentException An argument is out of range
    */
-  public static String getSecureBase64Text(int length)
+  public static String getSecureBase64Text(final int length)
   {
     if (length < 0)
       throw new IllegalArgumentException("length=" + length);
     if (length == 0)
       return CONSTANT.EMPTY_STRING;
 
-    StringBuilder sb = new StringBuilder(length + 32);
+    val sb = new StringBuilder(length + 32);
     while (sb.length() < length)
       sb.append(ConversionUtils.toBase64(getSecureInt64()));
 
@@ -260,14 +252,14 @@ public final class RandomUtils
    * 
    * @throws IllegalArgumentException An argument is out of range
    */
-  public static String getSecureAlphanumericText(int length)
+  public static String getSecureAlphanumericText(final int length)
   {
     if (length < 0)
       throw new IllegalArgumentException("length=" + length);
     if (length == 0)
       return CONSTANT.EMPTY_STRING;
 
-    StringBuilder sb = new StringBuilder(length + 32);
+    val sb = new StringBuilder(length + 32);
 
     while (sb.length() < length)
     {
@@ -278,5 +270,9 @@ public final class RandomUtils
     }
 
     return sb.substring(0, length);
+  }
+
+  private RandomUtils()
+  {
   }
 }
