@@ -245,6 +245,21 @@ You may visit the [lombok](http://projectlombok.org/slideshow.html) project webs
 
 ##Changelog
 
+####1.1.4: Enhancements & bugfixes
+Upgraded dependency lombok-pg to v0.11.0
+Upgraded dependency slf4j-api to v1.6.4
+ThreadUtils methods for sleep, busy-spin, yield waiting
+Added methods getSetter and getGetter in ReflectionUtils
+Added FileUtils directory methods accepting File as arg
+NPE cleanup, using Validate.NotNull in most Util classes
+Bugfixes
+Breaking changes:
+  - Moved some ArrayUtils methods to Linq for consistency
+  - Projections organised as Arrays, Objects, Files, etc.
+  - Removed some duplicate methods
+
+
+
 ####1.1.3: Minor improvements
 Included Eclipse project in sources JAR.  
 Added EnvironmentUtils utility class, allows for altering JVM env. vars at run-time.  
