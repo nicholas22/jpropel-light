@@ -42,6 +42,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import lombok.SneakyThrows;
 import lombok.Validate;
 import lombok.Validate.NotNull;
 import lombok.val;
@@ -49,6 +50,7 @@ import propel.core.collections.lists.ReifiedArrayList;
 import propel.core.collections.lists.ReifiedList;
 import propel.core.common.CONSTANT;
 import propel.core.functional.tuples.Pair;
+import static lombok.Yield.yield;
 
 /**
  * Provides utility functionality for File/Directory related structures
@@ -721,7 +723,7 @@ public final class FileUtils
   }
 
   /**
-   * Enumerates the contents of a file line by line (reads the entire contents of a file in memory to do so).
+   * Enumerates the contents of a file line by line. It does not read the entire contents in memory.
    * 
    * @throws NullPointerException An argument is null
    * @throws IOException An I/O error occurs
@@ -732,21 +734,43 @@ public final class FileUtils
   public static Iterable<String> readFilePerLine(@NotNull final String fileAbsPath)
       throws IOException
   {
-    val result = new ArrayList<String>(100);
+    File file = openFile(fileAbsPath);
 
+    BufferedReader br = openBufferedReader(file);
+    String line;
+    while ((line = readLine(br)) != null)
+      yield(line);
+
+    closeBufferedReader(br);
+  }
+
+  @SneakyThrows
+  private static File openFile(final String fileAbsPath)
+  {
     val file = new File(fileAbsPath);
     if (!file.exists())
       throw new FileNotFoundException("The file was not found: " + fileAbsPath);
     if (!file.isFile())
       throw new FileNotFoundException("The specified path is not referring to a file: " + fileAbsPath);
+    return file;
+  }
 
-    val br = new BufferedReader(new FileReader(file));
-    String line;
-    while ((line = br.readLine()) != null)
-      result.add(line);
+  @SneakyThrows
+  private static BufferedReader openBufferedReader(final File file)
+  {
+    return new BufferedReader(new FileReader(file));
+  }
 
+  @SneakyThrows
+  private static String readLine(final BufferedReader br)
+  {
+    return br.readLine();
+  }
+
+  @SneakyThrows
+  private static void closeBufferedReader(final BufferedReader br)
+  {
     br.close();
-    return result;
   }
 
   /**
@@ -928,7 +952,7 @@ public final class FileUtils
       if (!dirAbsPath.mkdirs())
         throw new IOException("Directory creation failure: " + dirAbsPath.getAbsolutePath()); // sub-directories may have been created!
   }
-  
+
   /**
    * Creates a directory if it does not already exist (if there are subdirectories there are created too).
    * 
@@ -960,7 +984,7 @@ public final class FileUtils
       return false;
     }
   }
-  
+
   /**
    * Attempts to create a directory (if there are subdirectories there are created too). Returns true if succeeded or directory already
    * exists. No exception is thrown under any circumstance.
@@ -999,7 +1023,7 @@ public final class FileUtils
         throw new IOException("The directory could not be deleted, because it is not empty.");
     }
   }
-  
+
   /**
    * Deletes an empty directory, if it exists. (if it has contents this will not succeed).
    * 
@@ -1014,6 +1038,7 @@ public final class FileUtils
     val dir = new File(dirAbsPath);
     deleteDirectory(dir);
   }
+
   /**
    * Attempts to delete an empty directory (if there are contents this will not succeed). Returns true if succeeded. No exception is thrown
    * under any circumstance.
@@ -1030,6 +1055,7 @@ public final class FileUtils
       return false;
     }
   }
+
   /**
    * Attempts to delete an empty directory (if there are contents this will not succeed). Returns true if succeeded. No exception is thrown
    * under any circumstance.
@@ -1046,6 +1072,7 @@ public final class FileUtils
       return false;
     }
   }
+
   /**
    * Deletes a directory recursively (if there are contents they will be deleted).
    * 
@@ -1074,6 +1101,7 @@ public final class FileUtils
 
     }
   }
+
   /**
    * Deletes a directory recursively (if there are contents they will be deleted).
    * 
@@ -1088,6 +1116,7 @@ public final class FileUtils
     val dir = new File(dirAbsPath);
     deleteDirectoryRecursive(dir);
   }
+
   /**
    * Attempts to delete a directory (if there are contents they will be deleted). Returns true if succeeded. No exception is thrown under
    * any circumstance.
@@ -1104,6 +1133,7 @@ public final class FileUtils
       return false;
     }
   }
+
   /**
    * Attempts to delete a directory (if there are contents they will be deleted). Returns true if succeeded. No exception is thrown under
    * any circumstance.
@@ -1120,7 +1150,7 @@ public final class FileUtils
       return false;
     }
   }
-  
+
   /**
    * Touches a directory, i.e. creates it if not there, otherwise updates its last write time.
    * 
@@ -1143,7 +1173,7 @@ public final class FileUtils
     } else if (!dirAbsPath.mkdirs())
       throw new IOException("Could not touch directory, because creation failed.");
   }
-  
+
   /**
    * Touches a directory, i.e. creates it if not there, otherwise updates its last write time.
    * 
@@ -1158,6 +1188,7 @@ public final class FileUtils
     val dir = new File(dirAbsPath);
     touchDirectory(dir);
   }
+
   /**
    * Touches a directory, i.e. creates it if not there, otherwise updates its last write time. Returns true if succeeded. No exception is
    * thrown under any circumstance.
@@ -1174,6 +1205,7 @@ public final class FileUtils
       return false;
     }
   }
+
   /**
    * Touches a directory, i.e. creates it if not there, otherwise updates its last write time. Returns true if succeeded. No exception is
    * thrown under any circumstance.
@@ -1550,7 +1582,7 @@ public final class FileUtils
    */
   public static List<String> scanPath(String path, ScanInclusionMode inclusionMode, ScanHiddenMode hiddenMode, ScanDepthMode depthMode,
                                       ScanSortMode sortMode, ScanFailMode failMode)
-                                      throws Exception
+      throws Exception
   {
     return scanPath(path, inclusionMode, hiddenMode, depthMode, sortMode, failMode, null);
   }
@@ -1566,9 +1598,10 @@ public final class FileUtils
    * @throws Exception An error occurs and the scan fail mode is immediate
    */
   @Validate
-  public static List<String> scanPath(@NotNull String path, ScanInclusionMode inclusionMode, ScanHiddenMode hiddenMode, ScanDepthMode depthMode,
-                                      ScanSortMode sortMode, ScanFailMode failMode, List<ScanErrorEntry> collectedScanErrors)
-                                      throws Exception
+  public static List<String> scanPath(@NotNull String path, ScanInclusionMode inclusionMode, ScanHiddenMode hiddenMode,
+                                      ScanDepthMode depthMode, ScanSortMode sortMode, ScanFailMode failMode,
+                                      List<ScanErrorEntry> collectedScanErrors)
+      throws Exception
   {
     if (failMode == ScanFailMode.SkipAndCollect)
       if (collectedScanErrors == null)

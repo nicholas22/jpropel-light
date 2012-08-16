@@ -1155,7 +1155,7 @@ public final class ReflectionUtils
   @Validate
   public static boolean isReturnTypeVoid(@NotNull final Method method)
   {
-    return method.getReturnType() == Void.class;
+    return method.getReturnType() == void.class || method.getReturnType() == Void.class;
   }
 
   /**

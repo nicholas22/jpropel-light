@@ -245,6 +245,10 @@ You may visit the [lombok](http://projectlombok.org/slideshow.html) project webs
 
 ##Changelog
 
+####1.1.5: bugfixing
+Bugfix for ReflectionUtils getSetters and getProperties
+Block iterator for per-line file reading
+
 ####1.1.4: Enhancements & bugfixes
 Upgraded dependency lombok-pg to v0.11.0
 Upgraded dependency slf4j-api to v1.6.4
