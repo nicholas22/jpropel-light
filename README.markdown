@@ -245,6 +245,9 @@ You may visit the [lombok](http://projectlombok.org/slideshow.html) project webs
 
 ##Changelog
 
+####1.1.6: bugfixiging
+Thanks to Redundent (ReifiedArrayList bug in ensureCapacity() method)
+
 ####1.1.5: bugfixing
 Bugfix for ReflectionUtils getSetters and getProperties
 Block iterator for per-line file reading

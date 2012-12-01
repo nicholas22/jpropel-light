@@ -629,7 +629,7 @@ public class ReifiedArrayList<T>
     if (buffer.length < positionsRequired)
     {
       // double it
-      T[] newBuffer = (T[]) Array.newInstance(getGenericTypeParameter(), buffer.length * 2);
+      T[] newBuffer = (T[]) Array.newInstance(getGenericTypeParameter(), Math.max(buffer.length * 2, positionsRequired));
       System.arraycopy(buffer, 0, newBuffer, 0, buffer.length);
       buffer = newBuffer;
     }
