@@ -33,8 +33,8 @@ import propel.core.utils.StringUtils;
  */
 public class StackTraceLogger
 {
-  public static int MAX_STACK_FRAMES = 5;
   protected String stackTrace;
+  protected int maxStackFrames = 5;
 
   /**
    * Constructor, initialises with a Throwable
@@ -43,7 +43,7 @@ public class StackTraceLogger
   {
     this(e, StackTraceLevel.FULL);
   }
-  
+
   /**
    * Constructor, initialises with a Throwable
    * 
@@ -79,7 +79,7 @@ public class StackTraceLogger
             // limit stack frames being shown
             if (current.getStackTrace() != null)
             {
-              for (int i = 0; (i < current.getStackTrace().length) && (i < MAX_STACK_FRAMES); i++)
+              for (int i = 0; (i < current.getStackTrace().length) && (i < maxStackFrames); i++)
               {
                 val frame = current.getStackTrace()[i];
                 if (frame != null && frame.getClassName() != null)
@@ -143,7 +143,7 @@ public class StackTraceLogger
     if (lastIndex < 0 || lastIndex >= fullClassName.length())
       return fullClassName;
 
-    return fullClassName.substring(lastIndex+1);
+    return fullClassName.substring(lastIndex + 1);
   }
 
   /**
@@ -152,7 +152,7 @@ public class StackTraceLogger
   @Override
   public String toString()
   {
-    return stackTrace;
+    return StringUtils.trimEnd(stackTrace, CONSTANT.CRLF_CHARS);
   }
 
 }

@@ -19,6 +19,7 @@
 package propel.core.utils;
 
 import static propel.core.functional.projections.Files.getAbsolutePath;
+import static lombok.Yield.yield;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -50,7 +51,6 @@ import propel.core.collections.lists.ReifiedArrayList;
 import propel.core.collections.lists.ReifiedList;
 import propel.core.common.CONSTANT;
 import propel.core.functional.tuples.Pair;
-import static lombok.Yield.yield;
 
 /**
  * Provides utility functionality for File/Directory related structures
@@ -414,9 +414,31 @@ public final class FileUtils
       return false;
     }
   }
+  
+  /**
+   * Returns true if the file exists
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  @Validate
+  public static boolean exists(@NotNull final File file) 
+  {
+    return file.exists();
+  }
+  
+  /**
+   * Returns true if the file exists
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  @Validate
+  public static boolean exists(@NotNull final String file) 
+  {
+    return new File(file).exists();
+  }
 
   /**
-   * Returns the specified file's extesion, or an empty string if no extension was found
+   * Returns the specified file's extension, or an empty string if no extension was found
    * 
    * @throws NullPointerException An argument is null
    */
@@ -427,7 +449,7 @@ public final class FileUtils
   }
 
   /**
-   * Returns the specified file's extesion, or an empty string if no extension was found
+   * Returns the specified file's extension, or an empty string if no extension was found
    * 
    * @throws NullPointerException An argument is null
    */
@@ -599,7 +621,51 @@ public final class FileUtils
 
     return result;
   }
+  
+  /**
+   * Returns true if the File is a directory 
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  @Validate
+  public static boolean isDirectory(@NotNull final File file) 
+  {
+    return file.isDirectory();
+  }
 
+  /**
+   * Returns true if the File is a directory 
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  @Validate
+  public static boolean isDirectory(@NotNull final String file) 
+  {
+    return new File(file).isDirectory();
+  }
+  
+  /**
+   * Returns true if the File is not a directory 
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  @Validate
+  public static boolean isFile(@NotNull final File file) 
+  {
+    return file.isFile();
+  }
+
+  /**
+   * Returns true if the File is not a directory 
+   * 
+   * @throws NullPointerException An argument is null
+   */
+  @Validate
+  public static boolean isFile(@NotNull final String file) 
+  {
+    return new File(file).isFile();
+  }
+  
   /**
    * Moves a file from source to destination
    * 

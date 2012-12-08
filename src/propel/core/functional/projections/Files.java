@@ -122,6 +122,18 @@ public final class Files
   }
 
   /**
+   * Returns a File for a given path
+   * 
+   * @throws NullPointerException An argument is null
+   * @throws SecurityException If a required system property value cannot be accessed
+   */
+  @Function
+  public static File getFile(final String file)
+  {
+    return new File(file);
+  }
+
+  /**
    * Returns the absolute path of the file
    * 
    * @throws NullPointerException An argument is null

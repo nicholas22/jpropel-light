@@ -927,8 +927,8 @@ public final class StringUtils
   }
 
   /**
-   * Concatenates the given values using their toString() method and appending the given delimiter between all values. Returns String.Empty if
-   * an empty or null collection was provided. Ignores null collection items.
+   * Concatenates the given values using their toString() method and appending the given delimiter between all values. Returns String.Empty
+   * if an empty or null collection was provided. Ignores null collection items.
    * 
    * @throws NullPointerException An argument is null.
    */
@@ -938,8 +938,8 @@ public final class StringUtils
   }
 
   /**
-   * Concatenates the given values using their toString() method and appending the given delimiter between all values. Returns String.Empty if
-   * an empty or null collection was provided. Substitutes null items with a null-replacement value, if provided and is not null.
+   * Concatenates the given values using their toString() method and appending the given delimiter between all values. Returns String.Empty
+   * if an empty or null collection was provided. Substitutes null items with a null-replacement value, if provided and is not null.
    * 
    * @throws NullPointerException An argument is null.
    */
@@ -968,8 +968,8 @@ public final class StringUtils
   }
 
   /**
-   * Concatenates the given values using their toString() method and appending the given delimiter between all values. Returns String.Empty if
-   * an empty or null collection was provided. Ignores null collection items.
+   * Concatenates the given values using their toString() method and appending the given delimiter between all values. Returns String.Empty
+   * if an empty or null collection was provided. Ignores null collection items.
    * 
    * @throws NullPointerException An argument is null.
    */
@@ -979,8 +979,8 @@ public final class StringUtils
   }
 
   /**
-   * Concatenates the given values using their toString() method and appending the given delimiter between all values. Returns String.Empty if
-   * an empty or null collection was provided. Substitutes null items with a null-replacement value, if provided and is not null.
+   * Concatenates the given values using their toString() method and appending the given delimiter between all values. Returns String.Empty
+   * if an empty or null collection was provided. Substitutes null items with a null-replacement value, if provided and is not null.
    * 
    * @throws NullPointerException An argument is null.
    */
@@ -2819,6 +2819,20 @@ public final class StringUtils
     }
 
     return value;
+  }
+
+  /**
+   * Replace method working on a string builder, for more efficient replacement.
+   * 
+   * @throws NullPointerException An argument is null.
+   */
+  @Validate
+  public static void replace(@NotNull final StringBuilder builder, @NotNull final String textToReplace,
+                             @NotNull final String replaceWithText)
+  {
+    int indexOfTarget = -1;
+    while ((indexOfTarget = builder.indexOf(textToReplace)) > 0)
+      builder.replace(indexOfTarget, indexOfTarget + textToReplace.length(), replaceWithText);
   }
 
   /**

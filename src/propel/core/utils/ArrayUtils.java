@@ -328,6 +328,17 @@ public final class ArrayUtils
   }
 
   /**
+   * Clones the given array
+   * 
+   * @throws NullPointerException Array is null.
+   */
+  @Validate
+  public static <T> T[] copy(@NotNull final T[] array)
+  {
+    return Arrays.copyOf(array, array.length);
+  }
+
+  /**
    * Returns the length of any array (primitive or object array). This works for one-dimensional arrays.
    * 
    * @throws NullPointerException An argument is null.

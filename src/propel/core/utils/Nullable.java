@@ -23,6 +23,15 @@ package propel.core.utils;
 public final class Nullable
 {
   /**
+   * Throws a NPE if the value is null
+   */
+  public void check(final Object value)
+  {
+    if (value == null)
+      throw new NullPointerException();
+  }
+
+  /**
    * Null coalescing extension method, similar to the ?? operator of C#
    */
   public static <T> T orElse(T value, T _elseValue)

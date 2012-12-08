@@ -31,6 +31,7 @@ import lombok.Predicate;
 import lombok.Validate;
 import lombok.Validate.NotNull;
 import lombok.val;
+import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.LocalDateTime;
 import org.joda.time.Period;
@@ -1739,10 +1740,14 @@ public final class ConversionUtils
       return number.doubleValue();
     if (targetType.equals(LocalDateTime.class))
       return new LocalDateTime(number.longValue());
+    if (targetType.equals(DateTime.class))
+      return new DateTime(number.longValue());
     if (targetType.equals(BigDecimal.class))
       return new BigDecimal(number.toString());
     if (targetType.equals(Duration.class))
       return new Duration(number.longValue());
+    if (targetType.equals(Period.class))
+      return new Period(number.longValue());
     if (targetType.equals(Int128.class))
       return new Int128(number.toString());
     if (targetType.equals(UnsignedByte.class))
@@ -1810,10 +1815,14 @@ public final class ConversionUtils
 
     if (targetType.equals(LocalDateTime.class))
       return new LocalDateTime((long) ch);
+    if (targetType.equals(DateTime.class))
+      return new DateTime((long) ch);
     if (targetType.equals(BigDecimal.class))
       return new BigDecimal(ch);
     if (targetType.equals(Duration.class))
-      return new Duration(ch);
+      return new Duration((long) ch);
+    if (targetType.equals(Period.class))
+      return new Period((long) ch);
     if (targetType.equals(Int128.class))
       return new Int128(Integer.valueOf(ch).toString());
     if (targetType.equals(UnsignedByte.class))
@@ -1878,10 +1887,14 @@ public final class ConversionUtils
 
     if (targetType.equals(LocalDateTime.class))
       return bool ? new LocalDateTime(1) : new LocalDateTime(0);
+    if (targetType.equals(DateTime.class))
+      return bool ? new DateTime(1) : new DateTime(0);
     if (targetType.equals(BigDecimal.class))
       return bool ? new BigDecimal(1) : new BigDecimal(0);
     if (targetType.equals(Duration.class))
       return bool ? new Duration(1) : new Duration(0);
+    if (targetType.equals(Period.class))
+      return bool ? new Period(1) : new Period(0);
     if (targetType.equals(Int128.class))
       return bool ? new Int128("1") : new Int128("0");
     if (targetType.equals(UnsignedByte.class))
@@ -1947,10 +1960,14 @@ public final class ConversionUtils
 
     if (targetType.equals(LocalDateTime.class))
       return StringUtils.parseDateTime(str);
+    if (targetType.equals(DateTime.class))
+      return StringUtils.parseDateTime(str).toDateTime();
     if (targetType.equals(BigDecimal.class))
       return StringUtils.parseDecimal(str);
     if (targetType.equals(Duration.class))
       return StringUtils.parseTimeSpan(str);
+    if (targetType.equals(Period.class))
+      return StringUtils.parseTimeSpan(str).toPeriod();
     if (targetType.equals(Int128.class))
       return StringUtils.parseInt128(str);
     if (targetType.equals(UnsignedByte.class))

@@ -41,8 +41,8 @@ public final class XmlUtils
   }
 
   /**
-   * Compacts an XML text string, by removing CR, LF, TAB and double WHITESPACE characters. Be aware that this method does not preserve
-   * CDATA content.
+   * Compacts an XML text string, by removing CR, LF, TAB and converting double WHITESPACE characters to single. Be aware that this method
+   * does not preserve CDATA content.
    * 
    * @throws NullPointerException An argument is null.
    */
@@ -57,6 +57,23 @@ public final class XmlUtils
       xml = xml.replace(CONSTANT.DOUBLE_WHITESPACE, CONSTANT.WHITESPACE);
 
     return xml;
+  }
+
+  /**
+   * Compacts an XML string builder, by removing CR, LF, TAB and converting double WHITESPACE characters to single. Be aware that this
+   * method does not preserve CDATA content. It is more efficient than using Strings.
+   * 
+   * @throws NullPointerException An argument is null.
+   */
+  @Validate
+  public static void compact(@NotNull StringBuilder xml)
+  {
+    StringUtils.replace(xml, CONSTANT.CR, CONSTANT.EMPTY_STRING);
+    StringUtils.replace(xml, CONSTANT.LF, CONSTANT.EMPTY_STRING);
+    StringUtils.replace(xml, CONSTANT.TAB, CONSTANT.EMPTY_STRING);
+
+    while (xml.indexOf(CONSTANT.DOUBLE_WHITESPACE) >= 0)
+      StringUtils.replace(xml, CONSTANT.DOUBLE_WHITESPACE, CONSTANT.WHITESPACE);
   }
 
   /**
@@ -76,7 +93,8 @@ public final class XmlUtils
    * @throws NullPointerException An argument is null.
    */
   @Validate
-  public static Node findAttribute(@NotNull final Node node, @NotNull final String attributeName, MatchType matchType, StringComparison comparisonType)
+  public static Node findAttribute(@NotNull final Node node, @NotNull final String attributeName, MatchType matchType,
+                                   StringComparison comparisonType)
   {
     switch(matchType)
     {
@@ -220,7 +238,8 @@ public final class XmlUtils
    * @throws NullPointerException When an argument is null.
    */
   @Validate
-  public static Node findNode(@NotNull final Node node, @NotNull final String childNodeName, int index, MatchType matchType, StringComparison comparisonType)
+  public static Node findNode(@NotNull final Node node, @NotNull final String childNodeName, int index, MatchType matchType,
+                              StringComparison comparisonType)
   {
     switch(matchType)
     {
@@ -366,7 +385,8 @@ public final class XmlUtils
    * @throws NullPointerException An argument is null.
    */
   @Validate
-  public static List<Node> findAllNodes(@NotNull final Node node, @NotNull final String childNodeName, MatchType matchType, StringComparison comparisonType)
+  public static List<Node> findAllNodes(@NotNull final Node node, @NotNull final String childNodeName, MatchType matchType,
+                                        StringComparison comparisonType)
   {
     switch(matchType)
     {
