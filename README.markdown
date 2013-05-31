@@ -362,7 +362,8 @@ You may visit the [lombok](http://projectlombok.org/slideshow.html) project webs
 ####1.0.3: Minor improvements
 
 ####MapMultimap data structure
-  - Another type-aware collection, a "map of maps".
+  - Another type-aware collection, a "map of maps"
+
 
     val map = new MapMultimap<String, String, Integer>() {};
     map.put("Male", "Nick", 18);
@@ -379,6 +380,7 @@ You may visit the [lombok](http://projectlombok.org/slideshow.html) project webs
 ####Improved extension method support for java.io.File
   - Most methods in FileUtils will now accept a File object as first argument, facilitating extension method use:
 
+
     // line-oriented file input
     String[] lines = new File("myFile.txt").readFileToEnd().split("\r\n");
 
@@ -387,6 +389,7 @@ You may visit the [lombok](http://projectlombok.org/slideshow.html) project webs
 ####1.0.2: New features, upgrades, etc.
   - Lots of new statically importable predicates and projections:
 
+
     import static propel.core.functional.predicates.Predicates.*;
     import static propel.core.functional.projections.Projections.*;
 
@@ -394,6 +397,7 @@ You may visit the [lombok](http://projectlombok.org/slideshow.html) project webs
 examples: instanceOf(), appendToFile(), copyFile, moveFile(), etc.
 
 ####Matcher allowing for fewer if-then-else statements (beta!)
+
 
     val matcher = new Matcher<Object, Person>();
 
@@ -408,6 +412,7 @@ examples: instanceOf(), appendToFile(), copyFile, moveFile(), etc.
 
 ####Functional transaction manager
   - A transaction manager which accepts functions as actions and rollback actions.
+
 
     // we will transactionally replace a file, i.e. revert changes if something fails
     ITransactionManager tm = new TransactionManager();
