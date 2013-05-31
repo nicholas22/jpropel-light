@@ -245,6 +245,8 @@ You may visit the [lombok](http://projectlombok.org/slideshow.html) project webs
 
 ##Changelog
 
+
+
 ####1.1.7: minor improvements
 StringUtils faster replace with StringBuilder
 FileUtils methods for checking if a file exists
@@ -254,12 +256,18 @@ ArrayUtils copy helper method
 Nullable method for NPE check
 StackTraceLogger remove trailing CRLF chars
 
+
+
 ####1.1.6: bugfixiging
 ReifiedArrayList bug in ensureCapacity() method (Thanks to Redundent!)
+
+
 
 ####1.1.5: bugfixing
 Bugfix for ReflectionUtils getSetters and getProperties
 Block iterator for per-line file reading
+
+
 
 ####1.1.4: Enhancements & bugfixes
 Upgraded dependency lombok-pg to v0.11.0
