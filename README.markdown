@@ -361,8 +361,7 @@ You may visit the [lombok](http://projectlombok.org/slideshow.html) project webs
 
 ####1.0.3: Minor improvements
 
-####MapMultimap data structure
-  - Another type-aware collection, a "map of maps"
+####MapMultimap data structure, a "map of maps"
 
 
     val map = new MapMultimap<String, String, Integer>() {};
@@ -377,8 +376,7 @@ You may visit the [lombok](http://projectlombok.org/slideshow.html) project webs
     boolean notTrue = map.getValue(23);
 
 
-####Improved extension method support for java.io.File
-  - Most methods in FileUtils will now accept a File object as first argument, facilitating extension method use:
+####Improved extension method support for java.io.File in FileUtils
 
 
     // line-oriented file input
@@ -386,8 +384,7 @@ You may visit the [lombok](http://projectlombok.org/slideshow.html) project webs
 
 
 
-####1.0.2: New features, upgrades, etc.
-  - Lots of new statically importable predicates and projections:
+####1.0.2: Lots of new statically importable predicates and projections
 
 
     import static propel.core.functional.predicates.Predicates.*;
@@ -411,7 +408,6 @@ examples: instanceOf(), appendToFile(), copyFile, moveFile(), etc.
 
 
 ####Functional transaction manager
-  - A transaction manager which accepts functions as actions and rollback actions.
 
 
     // we will transactionally replace a file, i.e. revert changes if something fails
