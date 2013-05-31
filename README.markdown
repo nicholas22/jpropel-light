@@ -364,22 +364,22 @@ You may visit the [lombok](http://projectlombok.org/slideshow.html) project webs
 ####MapMultimap data structure
   - Another type-aware collection, a "map of maps".
 
-     val map = new MapMultimap<String, String, Integer>() {};
-     map.put("Male", "Nick", 18);
-     map.put("Male", "John", 25);
-     map.put("Female", "Jo", 20);
+    val map = new MapMultimap<String, String, Integer>() {};
+    map.put("Male", "Nick", 18);
+    map.put("Male", "John", 25);
+    map.put("Female", "Jo", 20);
 
-     // get map of all males
-     Map<String, Integer> males = map.get("Male");
+    // get map of all males
+    Map<String, Integer> males = map.get("Male");
 
-     // check if anyone is 23 years old
-     boolean notTrue = map.getValue(23);
+    // check if anyone is 23 years old
+    boolean notTrue = map.getValue(23);
 
 ####Improved extension method support for java.io.File
   - Most methods in FileUtils will now accept a File object as first argument, facilitating extension method use:
 
-     // line-oriented file input
-     String[] lines = new File("myFile.txt").readFileToEnd().split("\r\n");
+    // line-oriented file input
+    String[] lines = new File("myFile.txt").readFileToEnd().split("\r\n");
 
 
 
