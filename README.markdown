@@ -375,6 +375,7 @@ You may visit the [lombok](http://projectlombok.org/slideshow.html) project webs
     // check if anyone is 23 years old
     boolean notTrue = map.getValue(23);
 
+
 ####Improved extension method support for java.io.File
   - Most methods in FileUtils will now accept a File object as first argument, facilitating extension method use:
 
@@ -389,6 +390,7 @@ You may visit the [lombok](http://projectlombok.org/slideshow.html) project webs
     import static propel.core.functional.predicates.Predicates.*;
     import static propel.core.functional.projections.Projections.*;
 
+
 examples: instanceOf(), appendToFile(), copyFile, moveFile(), etc.
 
 ####Matcher allowing for fewer if-then-else statements (beta!)
@@ -402,6 +404,7 @@ examples: instanceOf(), appendToFile(), copyFile, moveFile(), etc.
 
     // this is the default action, will match if nothing else matches
     matcher.setDefaultAction(throwDetailed(new Exception("An unrecognised person type was given: ")));
+
 
 ####Functional transaction manager
   - A transaction manager which accepts functions as actions and rollback actions.
