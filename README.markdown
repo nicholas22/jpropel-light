@@ -248,123 +248,121 @@ You may visit the [lombok](http://projectlombok.org/slideshow.html) project webs
 
 
 ####1.1.7: minor improvements
-StringUtils faster replace with StringBuilder
-FileUtils methods for checking if a file exists
-ConversionUtils support for Period and DateTime
-XmlUtils faster compaction
-ArrayUtils copy helper method
-Nullable method for NPE check
-StackTraceLogger remove trailing CRLF chars
+  - StringUtils faster replace with StringBuilder
+  - FileUtils methods for checking if a file exists
+  - ConversionUtils support for Period and DateTime
+  - XmlUtils faster compaction
+  - ArrayUtils copy helper method
+  - Nullable method for NPE check
+  - StackTraceLogger remove trailing CRLF chars
 
 
 
 ####1.1.6: bugfixiging
-ReifiedArrayList bug in ensureCapacity() method (Thanks to Redundent!)
+  - ReifiedArrayList bug in ensureCapacity() method (Thanks to Redundent!)
 
 
 
 ####1.1.5: bugfixing
-Bugfix for ReflectionUtils getSetters and getProperties
-Block iterator for per-line file reading
+  - Bugfix for ReflectionUtils getSetters and getProperties
+  - Block iterator for per-line file reading
 
 
 
 ####1.1.4: Enhancements & bugfixes
-Upgraded dependency lombok-pg to v0.11.0
-Upgraded dependency slf4j-api to v1.6.4
-ThreadUtils methods for sleep, busy-spin, yield waiting
-Added methods getSetter and getGetter in ReflectionUtils
-Added FileUtils directory methods accepting File as arg
-NPE cleanup, using Validate.NotNull in most Util classes
-Bugfixes
-Breaking changes:
-  - Moved some ArrayUtils methods to Linq for consistency
-  - Projections organised as Arrays, Objects, Files, etc.
-  - Removed some duplicate methods
+  - Upgraded dependency lombok-pg to v0.11.0
+  - Upgraded dependency slf4j-api to v1.6.4
+  - ThreadUtils methods for sleep, busy-spin, yield waiting
+  - Added methods getSetter and getGetter in ReflectionUtils
+  - Added FileUtils directory methods accepting File as arg
+  - NPE cleanup, using Validate.NotNull in most Util classes
+  - Bugfixes
+  - Breaking changes:
+    - Moved some ArrayUtils methods to Linq for consistency
+    - Projections organised as Arrays, Objects, Files, etc.
+    - Removed some duplicate methods
 
 
 
 ####1.1.3: Minor improvements
-Included Eclipse project in sources JAR.  
-Added EnvironmentUtils utility class, allows for altering JVM env. vars at run-time.  
-Added Stopwatch.restart() convenience method.  
-Added Iterable validator (IterablePropertyMetadata)  
-Added URL validator (URLPropertyMetadata)  
-Added a few commonly used predicates (propel.core.functional.predicates.*)
-StackTraceLogger now has configurable level, showing minimal, abbreviated or full trace.  
-Fixed inaccurate comments in NumericUtils, StringUtils, Linq, etc.  
-Linq unzip() and partition() methods added. Bug-fixing (ofType, orderByThenBy, skip)  
-Using lombok-pg 0.10.8-SNAPSHOT dependency.  
+  - Included Eclipse project in sources JAR.  
+  - Added EnvironmentUtils utility class, allows for altering JVM env. vars at run-time.  
+  - Added Stopwatch.restart() convenience method.  
+  - Added Iterable validator (IterablePropertyMetadata)  
+  - Added URL validator (URLPropertyMetadata)  
+  - Added a few commonly used predicates (propel.core.functional.predicates.*)
+  - StackTraceLogger now has configurable level, showing minimal, abbreviated or full trace.  
+  - Fixed inaccurate comments in NumericUtils, StringUtils, Linq, etc.  
+  - Linq unzip() and partition() methods added. Bug-fixing (ofType, orderByThenBy, skip)  
+  - Using lombok-pg 0.10.8-SNAPSHOT dependency.  
 
 
 
 ####1.1.2: Performance improvements
-LongHashMap now has very fast lookup performance and smaller memory footprint.  
-A way to "seal" classes and make them immutable has been added via ReflectionUtils.proxy().  
-It works by preventing certain methods to be called and as such guaranteeing immutability for things like collections.  
-Using a long->T LongHashMap and this feature, you can create a hash map that is x5 faster than ConcurrentHashMap in lookups, due to absence of locking.  
-See ImmutableUtils.toReadOnly() for an implementatiof of this.  
-Also, removed SharedLongHashMap implementation for now.  
+  - LongHashMap now has very fast lookup performance and smaller memory footprint.  
+  - A way to "seal" classes and make them immutable has been added via ReflectionUtils.proxy().  
+  - It works by preventing certain methods to be called and as such guaranteeing immutability for things like collections.  
+  - Using a long->T LongHashMap and this feature, you can create a hash map that is x5 faster than ConcurrentHashMap in lookups, due to absence of locking.  
+  - See ImmutableUtils.toReadOnly() for an implementatiof of this.  
+  - Also, removed SharedLongHashMap implementation for now.  
 
 
 
 ####1.1.1: Primitive collections and counters
-Added primitive collections: FixedSizeLongBuffer, SharedFixedSizeLongBuffer, LongHashMap, SharedLongHashMap.  
-Added more counters: SharedModuloIndexer, SharedModuloIndexerLight (specialised, for traversing buffers/arrays).  
+  - Added primitive collections: FixedSizeLongBuffer, SharedFixedSizeLongBuffer, LongHashMap, SharedLongHashMap.  
+  - Added more counters: SharedModuloIndexer, SharedModuloIndexerLight (specialised, for traversing buffers/arrays).  
 
 
 
 ####1.1.0: bugfix & clean-up
-Removed old v1.0.8 and v1.0.9 JARs.  
-Bugfix for StringUtils.replace()  
+  - Removed old v1.0.8 and v1.0.9 JARs.  
+  - Bugfix for StringUtils.replace()  
 
 
 
 ####1.0.9: incremental update
-Replaces usages with StringBuilder instead of StringBuffer.  
-Fixed StringUtils padLeft/padRight comments.  
-Added projections: getClassType(), getClassName(), getClassNameSimple().  
-Updated Objects.* predicates to use Object instead of T where a type is not needed  
-(this is to alleviate some type inferencing woes with javac/ecj)  
-Added print() predicate to Objects and Strings classes.  
-Added min() and max() to Linq.  
-Added minOccurring() and maxOccurring() to Linq.  
-(using non-parallel map/reduce which could be optimised in a next version)  
-Upgraded to lombok-pg-0.10.4  
+  - Replaces usages with StringBuilder instead of StringBuffer.  
+  - Fixed StringUtils padLeft/padRight comments.  
+  - Added projections: getClassType(), getClassName(), getClassNameSimple().  
+  - Updated Objects.* predicates to use Object instead of T where a type is not needed (this is to alleviate some type inferencing woes with javac/ecj)  
+  - Added print() predicate to Objects and Strings classes.  
+  - Added min() and max() to Linq.  
+  - Added minOccurring() and maxOccurring() to Linq (using non-parallel map/reduce which could be optimised in a next version)  
+  - Upgraded to lombok-pg-0.10.4  
 
 
 
 ####1.0.8: upgrade lib
-Upgraded to lombok-pg-0.10.2 and deployed second jar, which includes sources.  
+  - Upgraded to lombok-pg-0.10.2 and deployed second jar, which includes sources.  
 
 
 
 ####1.0.7: InvokeOneArg, InvokeNoArg
-Functional invocation is now cleaner, by using static imports on methods of these two classes.  
+  - Functional invocation is now cleaner, by using static imports on methods of these two classes.  
 
 
 
 ####1.0.6: SharedMapMultimap 
-Thread-safe version of MapMultimap (SharedMapMultimap)  
-Linq.single() ensuring a single element exist in an iterable/array.  
-StringUtils.crop() is a trim-like function where you specify which characters to leave in, rather than trim.  
+  - Thread-safe version of MapMultimap (SharedMapMultimap)  
+  - Linq.single() ensuring a single element exist in an iterable/array.  
+  - StringUtils.crop() is a trim-like function where you specify which characters to leave in, rather than trim.  
 
 
 
 ####1.0.5: Predicates split up Objects, Strings, Arrays and Iterables classes
-A breaking change for the modularization of predicates
+  - A breaking change for the modularization of predicates
 
 
 
 ####1.0.4: Function1<?, Boolean> became Predicate1<?>
-A breaking change that uses the @Predicate annotation instead of @Function. Annotated methods return Predicate1<?> instead of Function1<?, Boolean>
+  - A breaking change that uses the @Predicate annotation instead of @Function. Annotated methods return Predicate1<?> instead of Function1<?, Boolean>
 
 
 
 ####1.0.3: Minor improvements
 
 ####MapMultimap data structure
-Another type-aware collection, a "map of maps".
+  - Another type-aware collection, a "map of maps".
 
      val map = new MapMultimap<String, String, Integer>() {};
      map.put("Male", "Nick", 18);
@@ -378,7 +376,7 @@ Another type-aware collection, a "map of maps".
      boolean notTrue = map.getValue(23);
 
 ####Improved extension method support for java.io.File
-Most methods in FileUtils will now accept a File object as first argument, facilitating extension method use:
+  - Most methods in FileUtils will now accept a File object as first argument, facilitating extension method use:
 
      // line-oriented file input
      String[] lines = new File("myFile.txt").readFileToEnd().split("\r\n");
@@ -386,7 +384,7 @@ Most methods in FileUtils will now accept a File object as first argument, facil
 
 
 ####1.0.2: New features, upgrades, etc.
-Lots of new statically importable predicates and projections:
+  - Lots of new statically importable predicates and projections:
 
     import static propel.core.functional.predicates.Predicates.*;
     import static propel.core.functional.projections.Projections.*;
@@ -406,7 +404,7 @@ examples: instanceOf(), appendToFile(), copyFile, moveFile(), etc.
     matcher.setDefaultAction(throwDetailed(new Exception("An unrecognised person type was given: ")));
 
 ####Functional transaction manager
-A transaction manager which accepts functions as actions and rollback actions.
+  - A transaction manager which accepts functions as actions and rollback actions.
 
     // we will transactionally replace a file, i.e. revert changes if something fails
     ITransactionManager tm = new TransactionManager();
@@ -437,4 +435,4 @@ A transaction manager which accepts functions as actions and rollback actions.
 
 
 ####1.0.0: Creation
-Lightweight version forked from [JPropel](https://github.com/nicholas22/jpropel)
+  - Lightweight version forked from [JPropel](https://github.com/nicholas22/jpropel)
