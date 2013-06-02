@@ -19,7 +19,7 @@
 package propel.core.functional.projections;
 
 import propel.core.common.CONSTANT;
-import lombok.Function;
+import propel.core.functional.Functions.Function1;
 
 /**
  * Some common, re-usable projections for objects
@@ -31,52 +31,81 @@ public final class Objects
    * 
    * @throws NullPointerException An argument is null
    */
-  @Function
-  public static Class<?> getClassType(final Object obj)
+  public static Function1<Object, Class<?>> getClassType()
   {
-    return obj.getClass();
+    return GET_CLASS_TYPE;
   }
+  private static final Function1<Object, Class<?>> GET_CLASS_TYPE = new Function1<Object, Class<?>>() {
+    @Override
+    public Class<?> apply(final Object element)
+    {
+      return element.getClass();
+    }
+  };
 
   /**
    * Calls getClass().getName() on the function argument
    * 
    * @throws NullPointerException An argument is null
    */
-  @Function
-  public static String getClassName(final Object obj)
+  public static Function1<Object, String> getClassName()
   {
-    return obj.getClass().getName();
+    return GET_CLASS_NAME;
   }
+  private static final Function1<Object, String> GET_CLASS_NAME = new Function1<Object, String>() {
+    @Override
+    public String apply(final Object element)
+    {
+      return element.getClass().getName();
+    }
+  };
 
   /**
    * Calls getClass().getSimpleName() on the function argument
    * 
    * @throws NullPointerException An argument is null
    */
-  @Function
-  public static String getClassNameSimple(final Object obj)
+  public static Function1<Object, String> getClassNameSimple()
   {
-    return obj.getClass().getSimpleName();
+    return GET_CLASS_NAME_SIMPLE;
   }
+  private static final Function1<Object, String> GET_CLASS_NAME_SIMPLE = new Function1<Object, String>() {
+    @Override
+    public String apply(final Object element)
+    {
+      return element.getClass().getSimpleName();
+    }
+  };
 
   /**
    * Returns the object's hashcode
    * 
    * @throws NullPointerException An argument is null
    */
-  @Function
-  public static int getHashCode(final Object obj)
+  public static Function1<Object, Integer> getHashCode()
   {
-    return obj.hashCode();
+    return GET_HASHCODE;
   }
+  private static final Function1<Object, Integer> GET_HASHCODE = new Function1<Object, Integer>() {
+    @Override
+    public Integer apply(final Object element)
+    {
+      return element.hashCode();
+    }
+  };
 
   /**
    * Null coalescing function, similar to ?? operator in C#
    */
-  @Function
-  public static Object orElse(final Object value, final Object _elseValue)
+  public static Object orElse(final Object _elseValue)
   {
-    return value != null ? value : _elseValue;
+    return new Function1<Object, Object>() {
+      @Override
+      public Object apply(final Object element)
+      {
+        return element != null ? element : _elseValue;
+      }
+    };
   }
 
   /**
@@ -84,32 +113,49 @@ public final class Objects
    * 
    * @throws NullPointerException An argument is null
    */
-  @Function
-  public static String toStringify(final Object object)
+  public static Function1<Object, String> toStringify()
   {
-    return object.toString();
+    return TO_STRINGIFY;
   }
+  private static final Function1<Object, String> TO_STRINGIFY = new Function1<Object, String>() {
+    @Override
+    public String apply(final Object element)
+    {
+      return element.toString();
+    }
+  };
 
   /**
    * Calls toString() on function arguments, null-coalescing (uses empty string)
    * 
    * @throws NullPointerException An argument is null
    */
-  @Function
-  public static String toStringifyNullCoalescing(final Object object)
+  public static Function1<Object, String> toStringifyNullCoalescing()
   {
-    return object != null ? object.toString() : CONSTANT.EMPTY_STRING;
+    return TO_STRINGIFY_NULL_COALESCING;
   }
+  private static final Function1<Object, String> TO_STRINGIFY_NULL_COALESCING = new Function1<Object, String>() {
+    @Override
+    public String apply(final Object element)
+    {
+      return element != null ? element.toString() : CONSTANT.EMPTY_STRING;
+    }
+  };
 
   /**
    * Calls toString() on function arguments, using a default value when null is encountered
    * 
    * @throws NullPointerException An argument is null
    */
-  @Function
-  public static String toStringifySafe(final Object object, final String _defaultValue)
+  public static Function1<Object, String> toStringifySafe(final String _defaultValue)
   {
-    return object != null ? object.toString() : _defaultValue;
+    return new Function1<Object, String>() {
+      @Override
+      public String apply(final Object element)
+      {
+        return element != null ? element.toString() : _defaultValue;
+      }
+    };
   }
 
   private Objects()

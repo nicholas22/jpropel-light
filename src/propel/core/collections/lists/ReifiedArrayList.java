@@ -635,4 +635,12 @@ public class ReifiedArrayList<T>
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String toString()
+  {
+    return Linq.toString(this);
+  }
 }

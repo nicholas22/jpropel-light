@@ -360,4 +360,12 @@ public class CircularBuffer<T>
     cb.outPos = new ModuloCounter(cb.maxSize - 1);
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String toString()
+  {
+    return Linq.toString(this);
+  }
 }

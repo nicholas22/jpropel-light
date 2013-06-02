@@ -18,6 +18,14 @@
 // /////////////////////////////////////////////////////////
 package propel.core.utils;
 
+import static propel.core.functional.predicates.Reflection.fieldEqual;
+import static propel.core.functional.predicates.Reflection.fieldNameEquals;
+import static propel.core.functional.predicates.Reflection.memberEqual;
+import static propel.core.functional.predicates.Reflection.memberNameEquals;
+import static propel.core.functional.predicates.Reflection.methodEqual;
+import static propel.core.functional.predicates.Reflection.methodNameEquals;
+import static propel.core.functional.predicates.Reflection.propertyEqual;
+import static propel.core.functional.predicates.Reflection.propertyNameEquals;
 import static propel.core.functional.projections.Objects.toStringify;
 import java.io.File;
 import java.io.IOException;
@@ -36,8 +44,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.jar.JarFile;
-import lombok.Function;
-import lombok.Predicate;
 import lombok.Validate;
 import lombok.Validate.NotNull;
 import lombok.val;
@@ -46,6 +52,9 @@ import propel.core.collections.lists.ReifiedArrayList;
 import propel.core.collections.maps.avl.AvlHashtable;
 import propel.core.collections.sets.AvlTreeSet;
 import propel.core.common.CONSTANT;
+import propel.core.functional.Functions.Function1;
+import propel.core.functional.Predicates.Predicate1;
+import propel.core.functional.predicates.Reflection;
 
 /**
  * Provides utility functionality for reflective manipulations
@@ -95,16 +104,21 @@ public final class ReflectionUtils
     return (T) constructor.newInstance(constructorArgs);
   }
 
-  @Predicate
-  private static boolean constructorParametersEqual(final Constructor<?> element, final int _len)
+  private static Predicate1<Constructor<?>> constructorParametersEqual(final int _len)
   {
-    return element.getParameterTypes().length == _len;
+    return new Predicate1<Constructor<?>>() {
+      @Override
+      public boolean evaluate(final Constructor<?> element)
+      {
+        return element.getParameterTypes().length == _len;
+      }
+    };
   }
 
   private static Constructor<?> matchConstructor(Constructor<?>[] constructors, Object[] constructorArgs)
   {
     // get constructor argument types
-    val argTypes = Linq.select(constructorArgs, getClassIfNotNull());
+    val argTypes = Linq.select(constructorArgs, getClassIfNotNull);
 
     // not found, throw ambiguous call exception
     for (val constructor : constructors)
@@ -118,7 +132,7 @@ public final class ReflectionUtils
         list.add(new KeyValuePair<Class<?>, Class<?>>(argTypes[i], parameterTypes[i]));
 
       // see if all args types are assignable to constructor parameter types
-      if (Linq.all(list, isParameterAssignable()))
+      if (Linq.all(list, isParameterAssignable))
         return constructor;
     }
 
@@ -131,30 +145,28 @@ public final class ReflectionUtils
         + StringUtils.delimit(argTypeNames, CONSTANT.COMMA));
   }
 
-  @Function
-  static String getSimpleNameIfNotNull(final Class<?> arg)
-  {
-    return arg != null ? arg.getSimpleName() : "[NULL]";
-  }
+  private static Predicate1<KeyValuePair<Class<?>, Class<?>>> isParameterAssignable = new Predicate1<KeyValuePair<Class<?>, Class<?>>>() {
+    @Override
+    public boolean evaluate(final KeyValuePair<Class<?>, Class<?>> element)
+    {
+      Class<?> argType = element.getKey();
+      Class<?> parameterType = element.getValue();
 
-  @Predicate
-  private static boolean isParameterAssignable(final KeyValuePair<Class<?>, Class<?>> element)
-  {
-    Class<?> argType = element.getKey();
-    Class<?> parameterType = element.getValue();
+      // check if assignable
+      if (parameterType.isAssignableFrom(argType))
+        return true;
 
-    // check if assignable
-    if (parameterType.isAssignableFrom(argType))
-      return true;
+      return false;
+    }
+  };
 
-    return false;
-  }
-
-  @Function
-  private static Class<?> getClassIfNotNull(final Object arg)
-  {
-    return arg != null ? arg.getClass() : null;
-  }
+  private static Function1<Object, Class<?>> getClassIfNotNull = new Function1<Object, Class<?>>() {
+    @Override
+    public Class<?> apply(final Object element)
+    {
+      return element != null ? element.getClass() : null;
+    }
+  };
 
   /**
    * Activates an object from the class name given.
@@ -438,7 +450,8 @@ public final class ReflectionUtils
    * @throws NullPointerException An argument is null.
    */
   @Validate
-  public static <T extends Annotation> List<T> getAnnotations(@NotNull final Class<?> annotatedClass, @NotNull final Class<T> annotationType, boolean includeInherited)
+  public static <T extends Annotation> List<T> getAnnotations(@NotNull final Class<?> annotatedClass,
+                                                              @NotNull final Class<T> annotationType, boolean includeInherited)
   {
     val result = new ArrayList<T>(16);
 
@@ -544,8 +557,8 @@ public final class ReflectionUtils
    * @throws NullPointerException An argument is null.
    */
   @Validate
-  public static <T extends Annotation> List<T> getMethodAnnotations(@NotNull final Method annotatedMethod, @NotNull final Class<T> annotationType,
-                                                                    boolean includeInherited)
+  public static <T extends Annotation> List<T> getMethodAnnotations(@NotNull final Method annotatedMethod,
+                                                                    @NotNull final Class<T> annotationType, boolean includeInherited)
   {
     val result = new ArrayList<T>(16);
 
@@ -742,12 +755,6 @@ public final class ReflectionUtils
     return Linq.firstOrDefault(getFields(type, includeInherited), fieldNameEquals(name));
   }
 
-  @Predicate
-  private static boolean fieldNameEquals(final Field element, final String _name)
-  {
-    return element.getName().equals(_name);
-  }
-
   /**
    * Gets all properties found in a type. Optionally returns inherited ones too, rather than just declared ones.
    * 
@@ -849,12 +856,6 @@ public final class ReflectionUtils
     return Linq.firstOrDefault(getProperties(type, includeInherited), propertyNameEquals(name));
   }
 
-  @Predicate
-  private static boolean propertyNameEquals(final PropertyInfo element, final String _name)
-  {
-    return element.getName().equals(_name);
-  }
-
   /**
    * Returns all getters found in a class type. Optionally returns inherited ones too, rather than just declared ones.
    * 
@@ -864,7 +865,7 @@ public final class ReflectionUtils
   public static Method[] getGetters(Class<?> type, boolean includeInherited)
   {
     val methods = getMethods(type, includeInherited);
-    return Linq.where(methods, methodIsGetter());
+    return Linq.where(methods, Reflection.isGetter());
   }
 
   /**
@@ -878,12 +879,6 @@ public final class ReflectionUtils
     return Linq.firstOrDefault(Linq.where(getGetters(type, includeInherited), methodNameEquals(name)));
   }
 
-  @Predicate
-  private static boolean methodIsGetter(final Method element)
-  {
-    return isGetter(element);
-  }
-
   /**
    * Returns all setters found in a class type. Optionally returns inherited ones too, rather than just declared ones.
    * 
@@ -893,7 +888,7 @@ public final class ReflectionUtils
   public static Method[] getSetters(Class<?> type, boolean includeInherited)
   {
     val methods = getMethods(type, includeInherited);
-    return Linq.where(methods, methodIsSetter());
+    return Linq.where(methods, Reflection.isSetter());
   }
 
   /**
@@ -905,12 +900,6 @@ public final class ReflectionUtils
   public static Method getSetter(Class<?> type, String name, boolean includeInherited)
   {
     return Linq.firstOrDefault(Linq.where(getSetters(type, includeInherited), methodNameEquals(name)));
-  }
-
-  @Predicate
-  private static boolean methodIsSetter(final Method element)
-  {
-    return isSetter(element);
   }
 
   /**
@@ -962,12 +951,6 @@ public final class ReflectionUtils
     return Linq.firstOrDefault(getMethods(type, includeInherited), methodNameEquals(name));
   }
 
-  @Predicate
-  private static boolean methodNameEquals(final Method element, final String _name)
-  {
-    return element.getName().equals(_name);
-  }
-
   /**
    * Returns all methods found in a class type. Optionally returns inherited ones too, rather than just declared ones.
    * 
@@ -991,28 +974,48 @@ public final class ReflectionUtils
     return result.toArray();
   }
 
-  @Function
-  private static MemberInfo constructorToMemberInfo(final Constructor<?> arg)
+  private static Function1<Constructor<?>, MemberInfo> constructorToMemberInfo()
   {
-    return new MemberInfo(arg);
+    return new Function1<Constructor<?>, MemberInfo>() {
+      @Override
+      public MemberInfo apply(final Constructor<?> element)
+      {
+        return new MemberInfo(element);
+      }
+    };
   }
 
-  @Function
-  private static MemberInfo propertyToMemberInfo(final PropertyInfo arg)
+  private static Function1<PropertyInfo, MemberInfo> propertyToMemberInfo()
   {
-    return new MemberInfo(arg);
+    return new Function1<PropertyInfo, MemberInfo>() {
+      @Override
+      public MemberInfo apply(final PropertyInfo element)
+      {
+        return new MemberInfo(element);
+      }
+    };
   }
 
-  @Function
-  private static MemberInfo methodToMemberInfo(final Method arg)
+  private static Function1<Method, MemberInfo> methodToMemberInfo()
   {
-    return new MemberInfo(arg);
+    return new Function1<Method, MemberInfo>() {
+      @Override
+      public MemberInfo apply(final Method element)
+      {
+        return new MemberInfo(element);
+      }
+    };
   }
 
-  @Function
-  private static MemberInfo fieldToMemberInfo(final Field arg)
+  private static Function1<Field, MemberInfo> fieldToMemberInfo()
   {
-    return new MemberInfo(arg);
+    return new Function1<Field, MemberInfo>() {
+      @Override
+      public MemberInfo apply(final Field element)
+      {
+        return new MemberInfo(element);
+      }
+    };
   }
 
   /**
@@ -1039,12 +1042,6 @@ public final class ReflectionUtils
     return Linq.firstOrDefault(getMembers(type, includeInherited), memberNameEquals(name));
   }
 
-  @Predicate
-  private static <T> boolean memberNameEquals(MemberInfo element, String _name)
-  {
-    return element.getName().equals(_name);
-  }
-
   /**
    * Returns true if a method appears to be part of a type.
    * 
@@ -1053,13 +1050,7 @@ public final class ReflectionUtils
   @Validate
   public static boolean hasMethod(@NotNull final Class<?> type, @NotNull final Method method, boolean includeInherited)
   {
-    return Linq.firstOrDefault(getMethods(type, includeInherited), methodsAreEqual(method)) != null;
-  }
-
-  @Predicate
-  private static boolean methodsAreEqual(final Method element, final Method _method)
-  {
-    return equal(element, _method);
+    return Linq.firstOrDefault(getMethods(type, includeInherited), methodEqual(method)) != null;
   }
 
   /**
@@ -1070,13 +1061,7 @@ public final class ReflectionUtils
   @Validate
   public static boolean hasProperty(@NotNull final Class<?> type, @NotNull final PropertyInfo property, boolean includeInherited)
   {
-    return Linq.firstOrDefault(getProperties(type, includeInherited), propertiesAreEqual(property)) != null;
-  }
-
-  @Predicate
-  private static boolean propertiesAreEqual(final PropertyInfo element, final PropertyInfo _pi)
-  {
-    return equal(element, _pi);
+    return Linq.firstOrDefault(getProperties(type, includeInherited), propertyEqual(property)) != null;
   }
 
   /**
@@ -1087,13 +1072,7 @@ public final class ReflectionUtils
   @Validate
   public static boolean hasField(@NotNull final Class<?> type, @NotNull final Field field, boolean includeInherited)
   {
-    return Linq.firstOrDefault(getFields(type, includeInherited), fieldsAreEqual(field)) != null;
-  }
-
-  @Predicate
-  private static boolean fieldsAreEqual(final Field element, final Field _field)
-  {
-    return equal(element, _field);
+    return Linq.firstOrDefault(getFields(type, includeInherited), fieldEqual(field)) != null;
   }
 
   /**
@@ -1104,13 +1083,7 @@ public final class ReflectionUtils
   @Validate
   public static boolean hasMember(@NotNull final Class<?> type, @NotNull final MemberInfo member, boolean includeInherited)
   {
-    return Linq.firstOrDefault(getMembers(type, includeInherited), membersAreEqual(member)) != null;
-  }
-
-  @Predicate
-  private static boolean membersAreEqual(final MemberInfo element, final MemberInfo _member)
-  {
-    return equal(element, _member);
+    return Linq.firstOrDefault(getMembers(type, includeInherited), memberEqual(member)) != null;
   }
 
   /**
@@ -1189,7 +1162,8 @@ public final class ReflectionUtils
    * @throws SecurityException Cannot perform reflection operations in this context.
    */
   @Validate
-  public static void injectProperty(@NotNull final Object obj, @NotNull final String propertyName, Object propertyValue, boolean includeInherited)
+  public static void injectProperty(@NotNull final Object obj, @NotNull final String propertyName, Object propertyValue,
+                                    boolean includeInherited)
   {
     // find property
     val pi = getProperty(obj.getClass(), propertyName, includeInherited);
@@ -1271,10 +1245,15 @@ public final class ReflectionUtils
     return Linq.all(methods, methodHasMethod(type, includeTypeInherited));
   }
 
-  @Predicate
-  private static boolean methodHasMethod(final Method element, final Class<?> _type, final boolean _includeTypeInherited)
+  private static Predicate1<Method> methodHasMethod(final Class<?> _type, final boolean _includeTypeInherited)
   {
-    return hasMethod(_type, element, _includeTypeInherited);
+    return new Predicate1<Method>() {
+      @Override
+      public boolean evaluate(final Method element)
+      {
+        return hasMethod(_type, element, _includeTypeInherited);
+      }
+    };
   }
 
   /**
@@ -1451,7 +1430,9 @@ public final class ReflectionUtils
   /**
    * Quick-and-dirty proxy-ing utility method, allows dynamic dispatch on any object using a specified interface. The run-time object and
    * the interface given need not have an inheritance relationship. Method calls to interface methods are routed to the given run-time
-   * object. TODO: support overloaded methods.
+   * object.
+   * 
+   * TODO: support overloaded methods.
    * 
    * @throws NullPointerException An argument is null
    * @throws IllegalArgumentException The interface class type is not an actual interface type
@@ -1487,7 +1468,9 @@ public final class ReflectionUtils
 
   /**
    * Overloaded variation of the above method, which allows certain methods to be prevented from being called. Useful for "sealing" classes
-   * in a fashion similar to e.g. UnmodifiableMap and such classes. TODO: support overloaded methods.
+   * in a fashion similar to e.g. UnmodifiableMap and such classes.
+   * 
+   * TODO: support overloaded methods.
    * 
    * @throws NullPointerException An argument is null
    * @throws IllegalArgumentException The interface class type is not an actual interface type
@@ -1522,6 +1505,65 @@ public final class ReflectionUtils
         return dispatchedMethod.invoke(obj, args);
       }
     });
+  }
+
+  /**
+   * Returns a reflective toString() of the fields of this object
+   * 
+   * @throws SecurityException if cannot perform reflection operations in this context
+   * @throws IllegalAccessException if this Field object is enforcing Java language access control and the underlying field is inaccessible
+   * @throws IllegalArgumentException if the specified object is not an instance of the class or interface declaring the underlying field
+   *           (or a subclass or implementor thereof)
+   * @throws ExceptionInInitializerError if the initialization provoked by this method fails
+   */
+  public static String toString(final Object obj)
+      throws IllegalArgumentException, IllegalAccessException
+  {
+    return toString(obj, true);
+  }
+
+  /**
+   * Returns a reflective toString() of the fields of this object
+   * 
+   * @throws SecurityException if cannot perform reflection operations in this context
+   * @throws IllegalAccessException if this Field object is enforcing Java language access control and the underlying field is inaccessible
+   * @throws IllegalArgumentException if the specified object is not an instance of the class or interface declaring the underlying field
+   *           (or a subclass or implementor thereof)
+   * @throws ExceptionInInitializerError if the initialization provoked by this method fails
+   */
+  public static String toString(final Object obj, final boolean includeInherited)
+      throws IllegalArgumentException, IllegalAccessException
+  {
+    if (obj == null)
+      return "null";
+
+    StringBuilder result = new StringBuilder();
+    result.append(obj.getClass().getName());
+    result.append(" {");
+
+    // determine fields declared in this class only (no fields of superclass)
+    Field[] fields = getFields(obj.getClass(), includeInherited);
+    if (fields.length == 0)
+    {
+      result.append("}");
+      return result.toString();
+    }
+    {
+      // print field names paired with their values
+      for (Field field : fields)
+      {
+        result.append(field.getName());
+        result.append(": ");
+        field.setAccessible(true);
+        result.append(field.get(obj));
+        result.append(", ");
+      }
+
+      result.delete(result.length() - 2, result.length());
+      result.append("}");
+    }
+
+    return result.toString();
   }
 
   /**

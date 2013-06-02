@@ -19,6 +19,7 @@
 package propel.core.collections.arrays;
 
 import propel.core.utils.ArrayUtils;
+import propel.core.utils.Linq;
 import propel.core.utils.PrimitiveArrayType;
 import java.lang.reflect.Array;
 import java.util.Iterator;
@@ -128,4 +129,12 @@ public class ReifiedArray<T>
     return originalArray;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String toString()
+  {
+    return Linq.toString(this);
+  }
 }

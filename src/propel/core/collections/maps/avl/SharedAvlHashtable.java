@@ -500,6 +500,23 @@ public class SharedAvlHashtable<TKey extends Comparable<TKey>, TValue>
   }
 
   /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String toString()
+  {
+    lock();
+    try
+    {
+      return Linq.toString(hashtable);
+    }
+    finally
+    {
+      unlock();
+    }
+  }
+
+  /**
    * Locks the collection
    */
   @Override

@@ -27,7 +27,6 @@ import java.util.GregorianCalendar;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import lombok.Predicate;
 import lombok.Validate;
 import lombok.Validate.NotNull;
 import lombok.val;
@@ -37,6 +36,7 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.Period;
 import propel.core.collections.maps.avl.AvlHashtable;
 import propel.core.common.CONSTANT;
+import propel.core.functional.Predicates.Predicate1;
 import propel.core.userTypes.Int128;
 import propel.core.userTypes.SignedByte;
 import propel.core.userTypes.UnsignedByte;
@@ -1423,10 +1423,15 @@ public final class ConversionUtils
     return values.get(key) + suffix;
   }
 
-  @Predicate
-  private static boolean keyGreaterThan(Double key, final double _totalMinutes)
+  private static Predicate1<Double> keyGreaterThan(final double _totalMinutes)
   {
-    return _totalMinutes < key;
+    return new Predicate1<Double>() {
+      @Override
+      public boolean evaluate(final Double value)
+      {
+        return _totalMinutes < value;
+      }
+    };
   }
 
   /**

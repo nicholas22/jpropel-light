@@ -18,6 +18,7 @@
 // /////////////////////////////////////////////////////////
 package propel.core.collections.buffers.primitive;
 
+import java.util.Arrays;
 import lombok.Validate;
 import lombok.Validate.NotNull;
 
@@ -61,5 +62,14 @@ public final class FixedSizeLongBuffer
     if (position >= buffer.length)
       position = 0;
     buffer[position] = value;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String toString()
+  {
+    return Arrays.toString(buffer);
   }
 }

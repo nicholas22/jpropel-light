@@ -19,11 +19,11 @@
 package propel.core.transactional;
 
 import static propel.core.functional.projections.MiscProjections.empty;
-import propel.core.common.CONSTANT;
-import propel.core.utils.ExceptionUtils;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.Actions.Action0;
+import propel.core.common.CONSTANT;
+import propel.core.functional.Actions.Action0;
+import propel.core.utils.ExceptionUtils;
 
 /**
  * Allows for actions to be executed in a transactional manner, i.e. guarantees that all actions run to completion or rolls back committed

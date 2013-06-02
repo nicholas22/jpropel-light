@@ -21,6 +21,7 @@ package propel.core.collections.sets;
 import propel.core.collections.ReifiedIterable;
 import propel.core.collections.lists.ReifiedList;
 import propel.core.model.IShared;
+import propel.core.utils.Linq;
 import propel.core.utils.SuperTypeTokenException;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
@@ -337,5 +338,22 @@ public class SharedAvlTreeSet<T extends Comparable<T>>
   public void unlock()
   {
     reEntrantLock.unlock();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String toString()
+  {
+    lock();
+    try
+    {
+      return Linq.toString(this);
+    }
+    finally
+    {
+      unlock();
+    }
   }
 }

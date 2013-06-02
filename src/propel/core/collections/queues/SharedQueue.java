@@ -21,6 +21,7 @@ package propel.core.collections.queues;
 import propel.core.collections.ReifiedIterable;
 import propel.core.collections.lists.ReifiedLinkedList;
 import propel.core.collections.lists.ReifiedList;
+import propel.core.utils.Linq;
 import propel.core.utils.SuperTypeToken;
 import propel.core.utils.SuperTypeTokenException;
 import java.util.ArrayList;
@@ -361,7 +362,6 @@ public class SharedQueue<T>
   @Override
   public ReifiedList<T> toList()
   {
-
     lock();
     try
     {
@@ -391,5 +391,22 @@ public class SharedQueue<T>
   public void unlock()
   {
     lockObject.unlock();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String toString()
+  {
+    lock();
+    try
+    {
+      return Linq.toString(this);
+    }
+    finally
+    {
+      unlock();
+    }
   }
 }

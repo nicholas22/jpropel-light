@@ -19,7 +19,7 @@
 package propel.core.transactional;
 
 import java.util.List;
-import lombok.Actions.Action0;
+import propel.core.functional.Actions.Action0;
 
 /**
  * The interface of the transaction manager, capable of running actions in a transactional fashion.

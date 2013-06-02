@@ -22,6 +22,7 @@ import propel.core.collections.ReifiedIterable;
 import propel.core.collections.lists.ReifiedArrayList;
 import propel.core.collections.lists.ReifiedList;
 import propel.core.model.IShared;
+import propel.core.utils.Linq;
 import propel.core.utils.SuperTypeTokenException;
 import java.util.Iterator;
 import java.util.concurrent.locks.Condition;
@@ -335,6 +336,23 @@ public class SharedBuffer<T>
     try
     {
       return super.toList();
+    }
+    finally
+    {
+      unlock();
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String toString()
+  {
+    lock();
+    try
+    {
+      return Linq.toString(this);
     }
     finally
     {

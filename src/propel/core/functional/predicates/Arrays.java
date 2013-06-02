@@ -18,7 +18,9 @@
 // /////////////////////////////////////////////////////////
 package propel.core.functional.predicates;
 
-import lombok.Predicate;
+import lombok.Validate;
+import lombok.Validate.NotNull;
+import propel.core.functional.Predicates.Predicate1;
 import propel.core.utils.Linq;
 
 /**
@@ -26,16 +28,20 @@ import propel.core.utils.Linq;
  */
 public final class Arrays
 {
-
   /**
    * Predicate returning true when the function argument contains an item
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Predicate
-  public static <T> boolean contains(final T[] element, final T _item)
+  @Validate
+  public static <T> Predicate1<T> contains(@NotNull final T[] _values)
   {
-    return Linq.contains(element, _item);
+    return new Predicate1<T>() {
+      public boolean evaluate(final T element)
+      {
+        return Linq.contains(_values, element);
+      }
+    };
   }
 
   /**
@@ -43,10 +49,15 @@ public final class Arrays
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Predicate
-  public static <T> boolean containsAll(final T[] element, final T[] _items)
+  @Validate
+  public static <T> Predicate1<T[]> containsAll(@NotNull final T[] _values)
   {
-    return Linq.containsAll(element, _items);
+    return new Predicate1<T[]>() {
+      public boolean evaluate(final T[] element)
+      {
+        return Linq.containsAll(_values, element);
+      }
+    };
   }
 
   /**
@@ -54,52 +65,67 @@ public final class Arrays
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Predicate
-  public static <T> boolean containsAny(final T[] element, final T[] _items)
+  @Validate
+  public static <T> Predicate1<T[]> containsAny(@NotNull final T[] _values)
   {
-    return Linq.containsAny(element, _items);
+    return new Predicate1<T[]>() {
+      public boolean evaluate(final T[] element)
+      {
+        return Linq.containsAny(_values, element);
+      }
+    };
   }
 
   /**
    * Predicate returning true when the function argument is deeply equal to another array
    */
-  @Predicate
-  public static <T> boolean deepEqual(final T[] element, final T[] _value)
+  @Validate
+  public static <T> Predicate1<T[]> deepEqual(@NotNull final T[] _values)
   {
-    if (element == null)
-    {
-      if (_value == null)
-        return true;
-      else
-        return false;
-    } else
-    {
-      if (_value == null)
-        return false;
-      else
-        return java.util.Arrays.deepEquals(element, _value);
-    }
+    return new Predicate1<T[]>() {
+      public boolean evaluate(final T[] element)
+      {
+        if (element == null)
+        {
+          if (_values == null)
+            return true;
+          else
+            return false;
+        } else
+        {
+          if (_values == null)
+            return false;
+          else
+            return java.util.Arrays.deepEquals(element, _values);
+        }
+      }
+    };
   }
 
   /**
    * Predicate returning true when the function argument is equal to another array
    */
-  @Predicate
-  public static <T> boolean equal(final T[] element, final T[] _value)
+  @Validate
+  public static <T> Predicate1<T[]> equal(@NotNull final T[] _value)
   {
-    if (element == null)
-    {
-      if (_value == null)
-        return true;
-      else
-        return false;
-    } else
-    {
-      if (_value == null)
-        return false;
-      else
-        return java.util.Arrays.equals(element, _value);
-    }
+    return new Predicate1<T[]>() {
+      public boolean evaluate(final T[] element)
+      {
+        if (element == null)
+        {
+          if (_value == null)
+            return true;
+          else
+            return false;
+        } else
+        {
+          if (_value == null)
+            return false;
+          else
+            return java.util.Arrays.equals(element, _value);
+        }
+      }
+    };
   }
 
   /**
@@ -107,10 +133,14 @@ public final class Arrays
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Predicate
-  public static <T> boolean isEmpty(final T[] element)
+  public static <T> Predicate1<T[]> isEmpty()
   {
-    return element.length == 0;
+    return new Predicate1<T[]>() {
+      public boolean evaluate(final T[] element)
+      {
+        return element.length == 0;
+      }
+    };
   }
 
   /**
@@ -118,10 +148,14 @@ public final class Arrays
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Predicate
-  public static <T> boolean isNotEmpty(final T[] element)
+  public static <T> Predicate1<T[]> isNotEmpty()
   {
-    return element.length > 0;
+    return new Predicate1<T[]>() {
+      public boolean evaluate(final T[] element)
+      {
+        return element.length > 0;
+      }
+    };
   }
 
   /**
@@ -129,10 +163,14 @@ public final class Arrays
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Predicate
-  public static <T> boolean lengthEquals(final T[] element, final int _len)
+  public static <T> Predicate1<T[]> lengthEquals(@NotNull final int _len)
   {
-    return element.length == _len;
+    return new Predicate1<T[]>() {
+      public boolean evaluate(final T[] element)
+      {
+        return element.length == _len;
+      }
+    };
   }
 
   /**
@@ -140,10 +178,14 @@ public final class Arrays
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Predicate
-  public static <T> boolean lengthGreaterThan(final T[] element, final int _len)
+  public static <T> Predicate1<T[]> lengthGreaterThan(@NotNull final int _len)
   {
-    return element.length > _len;
+    return new Predicate1<T[]>() {
+      public boolean evaluate(final T[] element)
+      {
+        return element.length > _len;
+      }
+    };
   }
 
   /**
@@ -151,10 +193,14 @@ public final class Arrays
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Predicate
-  public static <T> boolean lengthGreaterThanOrEqual(final T[] element, final int _len)
+  public static <T> Predicate1<T[]> lengthGreaterThanOrEqual(@NotNull final int _len)
   {
-    return element.length >= _len;
+    return new Predicate1<T[]>() {
+      public boolean evaluate(final T[] element)
+      {
+        return element.length >= _len;
+      }
+    };
   }
 
   /**
@@ -162,10 +208,14 @@ public final class Arrays
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Predicate
-  public static <T> boolean lengthLessThan(final T[] element, final int _len)
+  public static <T> Predicate1<T[]> lengthLessThan(@NotNull final int _len)
   {
-    return element.length < _len;
+    return new Predicate1<T[]>() {
+      public boolean evaluate(final T[] element)
+      {
+        return element.length < _len;
+      }
+    };
   }
 
   /**
@@ -173,10 +223,14 @@ public final class Arrays
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Predicate
-  public static <T> boolean lengthLessThanOrEqual(final T[] element, final int _len)
+  public static <T> Predicate1<T[]> lengthLessThanOrEqual(@NotNull final int _len)
   {
-    return element.length <= _len;
+    return new Predicate1<T[]>() {
+      public boolean evaluate(final T[] element)
+      {
+        return element.length <= _len;
+      }
+    };
   }
 
   /**
@@ -184,31 +238,40 @@ public final class Arrays
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Predicate
-  public static <T> boolean lengthNotEqual(final T[] element, final int _len)
+  public static <T> Predicate1<T[]> lengthNotEqual(@NotNull final int _len)
   {
-    return element.length != _len;
+    return new Predicate1<T[]>() {
+      public boolean evaluate(final T[] element)
+      {
+        return element.length != _len;
+      }
+    };
   }
 
   /**
    * Predicate returning true when the function argument is not equal to another array
    */
-  @Predicate
-  public static <T> boolean notEqual(final T[] element, final T[] _value)
+  @Validate
+  public static <T> Predicate1<T[]> notEqual(@NotNull final T[] _value)
   {
-    if (element == null)
-    {
-      if (_value == null)
-        return false;
-      else
-        return true;
-    } else
-    {
-      if (_value == null)
-        return true;
-      else
-        return !java.util.Arrays.equals(element, _value);
-    }
+    return new Predicate1<T[]>() {
+      public boolean evaluate(final T[] element)
+      {
+        if (element == null)
+        {
+          if (_value == null)
+            return false;
+          else
+            return true;
+        } else
+        {
+          if (_value == null)
+            return true;
+          else
+            return !java.util.Arrays.equals(element, _value);
+        }
+      }
+    };
   }
 
   /**
@@ -216,10 +279,15 @@ public final class Arrays
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Predicate
-  public static <T> boolean notContains(final T[] element, final T _item)
+  @Validate
+  public static <T> Predicate1<T[]> notContains(@NotNull final T _item)
   {
-    return !Linq.contains(element, _item);
+    return new Predicate1<T[]>() {
+      public boolean evaluate(final T[] element)
+      {
+        return !Linq.contains(element, _item);
+      }
+    };
   }
 
   /**
@@ -227,10 +295,15 @@ public final class Arrays
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Predicate
-  public static <T> boolean notContainsAll(final T[] element, final T[] _items)
+  @Validate
+  public static <T> Predicate1<T[]> notContainsAll(@NotNull final T[] _items)
   {
-    return !Linq.containsAll(element, _items);
+    return new Predicate1<T[]>() {
+      public boolean evaluate(final T[] element)
+      {
+        return !Linq.containsAll(element, _items);
+      }
+    };
   }
 
   /**
@@ -238,10 +311,15 @@ public final class Arrays
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Predicate
-  public static <T> boolean notContainsAny(final T[] element, final T[] _items)
+  @Validate
+  public static <T> Predicate1<T[]> notContainsAny(@NotNull final T[] _items)
   {
-    return !Linq.containsAny(element, _items);
+    return new Predicate1<T[]>() {
+      public boolean evaluate(final T[] element)
+      {
+        return !Linq.containsAny(element, _items);
+      }
+    };
   }
 
   private Arrays()

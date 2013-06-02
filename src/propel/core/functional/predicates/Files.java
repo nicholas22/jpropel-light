@@ -19,90 +19,131 @@
 package propel.core.functional.predicates;
 
 import java.io.File;
-import lombok.Predicate;
+import propel.core.functional.Predicates.Predicate1;
 
 /**
  * Some common, re-usable predicates for Files
  */
 public final class Files
 {
-
   /**
    * Returns true if the file can be executed
    * 
    * @throws NullPointerException An argument is null
    */
-  @Predicate
-  public static boolean canExecute(final File file)
+  public static Predicate1<File> canExecute()
   {
-    return file.canExecute();
+    return CAN_EXECUTE;
   }
+  private static final Predicate1<File> CAN_EXECUTE = new Predicate1<File>() {
+    @Override
+    public boolean evaluate(final File file)
+    {
+      return file.canExecute();
+    }
+  };
 
   /**
    * Returns true if the file can be read
    * 
    * @throws NullPointerException An argument is null
    */
-  @Predicate
-  public static boolean canRead(final File file)
+  public static Predicate1<File> canRead()
   {
-    return file.canRead();
+    return CAN_READ;
   }
+  private static final Predicate1<File> CAN_READ = new Predicate1<File>() {
+    @Override
+    public boolean evaluate(final File file)
+    {
+      return file.canRead();
+    }
+  };
 
   /**
    * Returns true if the file can be written to
    * 
    * @throws NullPointerException An argument is null
    */
-  @Predicate
-  public static boolean canWrite(final File file)
+  public static Predicate1<File> canWrite()
   {
-    return file.canWrite();
+    return CAN_WRITE;
   }
+  private static final Predicate1<File> CAN_WRITE = new Predicate1<File>() {
+    @Override
+    public boolean evaluate(final File file)
+    {
+      return file.canWrite();
+    }
+  };
 
   /**
    * Returns true if the file exists
    * 
    * @throws NullPointerException An argument is null
    */
-  @Predicate
-  public static boolean exists(final File file)
+  public static Predicate1<File> exists()
   {
-    return file.exists();
+    return EXISTS;
   }
+  private static final Predicate1<File> EXISTS = new Predicate1<File>() {
+    @Override
+    public boolean evaluate(final File file)
+    {
+      return file.exists();
+    }
+  };
 
   /**
    * Returns true if the file is a directory
    * 
    * @throws NullPointerException An argument is null
    */
-  @Predicate
-  public static boolean isDirectory(final File file)
+  public static Predicate1<File> isDirectory()
   {
-    return file.isDirectory();
+    return IS_DIRECTORY;
   }
+  private static final Predicate1<File> IS_DIRECTORY = new Predicate1<File>() {
+    @Override
+    public boolean evaluate(final File file)
+    {
+      return file.isDirectory();
+    }
+  };
 
   /**
    * Returns true if the file is not a directory
    * 
    * @throws NullPointerException An argument is null
    */
-  @Predicate
-  public static boolean isFile(final File file)
+  public static Predicate1<File> isFile()
   {
-    return file.isFile();
+    return IS_FILE;
   }
+  private static final Predicate1<File> IS_FILE = new Predicate1<File>() {
+    @Override
+    public boolean evaluate(final File file)
+    {
+      return file.isFile();
+    }
+  };
 
   /**
    * Returns true if the file is a hidden file
    * 
    * @throws NullPointerException An argument is null
    */
-  @Predicate
-  public static boolean isHidden(final File file)
+  public static Predicate1<File> isHidden()
   {
-    return file.isHidden();
+    return IS_HIDDEN;
   }
+  private static final Predicate1<File> IS_HIDDEN = new Predicate1<File>() {
+    @Override
+    public boolean evaluate(final File file)
+    {
+      return file.isHidden();
+    }
+  };
 
   private Files()
   {

@@ -23,13 +23,13 @@ import static propel.core.functional.projections.Tuples.kvpValueSelector;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import lombok.Functions.Function1;
 import lombok.Validate;
 import lombok.Validate.NotNull;
 import propel.core.collections.KeyNotFoundException;
 import propel.core.collections.KeyValuePair;
 import propel.core.collections.lists.ReifiedArrayList;
 import propel.core.collections.maps.ReifiedMap;
+import propel.core.functional.Functions.Function1;
 import propel.core.utils.Linq;
 import propel.core.utils.SuperTypeToken;
 import propel.core.utils.SuperTypeTokenException;
@@ -437,4 +437,12 @@ public class ListMap<TKey extends Comparable<TKey>, TValue>
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String toString()
+  {
+    return Linq.toString(this);
+  }
 }

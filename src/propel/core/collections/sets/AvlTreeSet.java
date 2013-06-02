@@ -21,6 +21,7 @@ package propel.core.collections.sets;
 import propel.core.collections.ReifiedIterable;
 import propel.core.collections.lists.ReifiedList;
 import propel.core.collections.maps.avl.AvlHashtable;
+import propel.core.utils.Linq;
 import propel.core.utils.SuperTypeToken;
 import propel.core.utils.SuperTypeTokenException;
 import java.util.Iterator;
@@ -274,5 +275,14 @@ public class AvlTreeSet<T extends Comparable<T>>
   public Class<?> getGenericTypeParameter()
   {
     return store.getGenericTypeParameterKey();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String toString()
+  {
+    return Linq.toString(this);
   }
 }

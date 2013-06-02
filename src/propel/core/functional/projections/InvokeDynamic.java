@@ -20,12 +20,12 @@ package propel.core.functional.projections;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import lombok.Actions.Action0;
-import lombok.Actions.Action1;
 import lombok.SneakyThrows;
 import lombok.Validate;
 import lombok.Validate.NotNull;
 import lombok.val;
+import propel.core.functional.Actions.Action0;
+import propel.core.functional.Actions.Action1;
 import propel.core.utils.ReflectionUtils;
 
 /**

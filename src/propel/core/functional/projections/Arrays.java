@@ -19,7 +19,7 @@
 package propel.core.functional.projections;
 
 import java.util.List;
-import lombok.Function;
+import propel.core.functional.Functions.Function1;
 import propel.core.collections.lists.ReifiedArrayList;
 import propel.core.collections.lists.ReifiedList;
 import propel.core.utils.ArrayUtils;
@@ -35,10 +35,15 @@ public final class Arrays
    * @throws NullPointerException An argument is null
    * @throws ArrayIndexOutOfBoundsException The index is out of bounds
    */
-  @Function
-  public static <T> List<T> asList(final T[] array)
+  public static <T> Function1<T[], List<T>> asList()
   {
-    return java.util.Arrays.asList(array);
+    return new Function1<T[], List<T>>() {
+      @Override
+      public List<T> apply(final T[] element)
+      {
+        return java.util.Arrays.asList(element);
+      }
+    };
   }
 
   /**
@@ -47,10 +52,15 @@ public final class Arrays
    * @throws NullPointerException An argument is null
    * @throws ArrayIndexOutOfBoundsException The index is out of bounds
    */
-  @Function
-  public static <T> ReifiedList<T> asReifiedList(final T[] array)
+  public static <T> Function1<T[], ReifiedList<T>> asReifiedList()
   {
-    return new ReifiedArrayList(array);
+    return new Function1<T[], ReifiedList<T>>() {
+      @Override
+      public ReifiedList<T> apply(final T[] element)
+      {
+        return new ReifiedArrayList<T>(element);
+      }
+    };
   }
 
   /**
@@ -59,10 +69,15 @@ public final class Arrays
    * @throws NullPointerException An argument is null
    * @throws ArrayIndexOutOfBoundsException The index is out of bounds
    */
-  @Function
-  public static <T> T getElement(final T[] array, final int _index)
+  public static <T> Function1<T[], T> getElement(final int _index)
   {
-    return array[_index];
+    return new Function1<T[], T>() {
+      @Override
+      public T apply(final T[] element)
+      {
+        return element[_index];
+      }
+    };
   }
 
   /**
@@ -71,33 +86,43 @@ public final class Arrays
    * @throws NullPointerException An argument is null
    * @throws ArrayIndexOutOfBoundsException The index is out of bounds
    */
-  @Function
-  public static <T> T getElementNulling(final T[] array, final int _index)
+  public static <T> Function1<T[], T> getElementNulling(final int _index)
   {
-    try
-    {
-      return array[_index];
-    }
-    catch(Exception e)
-    {
-      return null;
-    }
+    return new Function1<T[], T>() {
+      @Override
+      public T apply(final T[] element)
+      {
+        try
+        {
+          return element[_index];
+        }
+        catch(Exception e)
+        {
+          return null;
+        }
+      }
+    };
   }
 
   /**
    * Returns the element at specified index, but if this is not possible, it returns the specified default value
    */
-  @Function
-  public static <T> T getElementSafe(final T[] array, final int _index, final T _defaultValue)
+  public static <T> Function1<T[], T> getElementSafe(final int _index, final T _defaultValue)
   {
-    try
-    {
-      return array[_index];
-    }
-    catch(Exception e)
-    {
-      return _defaultValue;
-    }
+    return new Function1<T[], T>() {
+      @Override
+      public T apply(final T[] element)
+      {
+        try
+        {
+          return element[_index];
+        }
+        catch(Exception e)
+        {
+          return _defaultValue;
+        }
+      }
+    };
   }
 
   /**
@@ -105,10 +130,15 @@ public final class Arrays
    * 
    * @throws NullPointerException An argument is null
    */
-  @Function
-  public static <T> int length(final T[] array)
+  public static <T> Function1<T[], Integer> length()
   {
-    return array.length;
+    return new Function1<T[], Integer>() {
+      @Override
+      public Integer apply(final T[] element)
+      {
+        return element.length;
+      }
+    };
   }
 
   /**
@@ -117,10 +147,15 @@ public final class Arrays
    * @throws NullPointerException An argument is null
    * @throws ArrayIndexOutOfBoundsException An argument is null
    */
-  @Function
-  public static <T> T[] subArray(final T[] array, final int _startIndex, final int _endIndex)
+  public static <T> Function1<T[], T[]> subArray(final int _startIndex, final int _endIndex)
   {
-    return ArrayUtils.subArray(array, _startIndex, _endIndex);
+    return new Function1<T[], T[]>() {
+      @Override
+      public T[] apply(final T[] element)
+      {
+        return ArrayUtils.subArray(element, _startIndex, _endIndex);
+      }
+    };
   }
 
   /**
@@ -129,10 +164,15 @@ public final class Arrays
    * @throws NullPointerException An argument is null
    * @throws ArrayIndexOutOfBoundsException The index is out of bounds
    */
-  @Function
-  public static <T> String toStringify(final T[] array)
+  public static <T> Function1<T[], String> toStringify()
   {
-    return java.util.Arrays.toString(array);
+    return new Function1<T[], String>() {
+      @Override
+      public String apply(final T[] element)
+      {
+        return java.util.Arrays.toString(element);
+      }
+    };
   }
 
   /**
@@ -141,10 +181,15 @@ public final class Arrays
    * @throws NullPointerException An argument is null
    * @throws ArrayIndexOutOfBoundsException The index is out of bounds
    */
-  @Function
-  public static <T> String toStringifyDeep(final T[] array)
+  public static <T> Function1<T[], String> toStringifyDeep()
   {
-    return java.util.Arrays.deepToString(array);
+    return new Function1<T[], String>() {
+      @Override
+      public String apply(final T[] element)
+      {
+        return java.util.Arrays.deepToString(element);
+      }
+    };
   }
 
   private Arrays()

@@ -18,10 +18,14 @@
 // /////////////////////////////////////////////////////////
 package propel.core.functional.projections;
 
-import propel.core.utils.ReflectionUtils;
-import lombok.Action;
-import lombok.Function;
 import lombok.SneakyThrows;
+import lombok.Validate;
+import lombok.Validate.NotNull;
+import propel.core.functional.Actions.Action0;
+import propel.core.functional.Actions.Action1;
+import propel.core.functional.Functions.Function0;
+import propel.core.functional.Functions.Function1;
+import propel.core.utils.ReflectionUtils;
 
 /**
  * Some common, re-usable projections (miscellaneous)
@@ -31,38 +35,55 @@ public final class MiscProjections
   /**
    * Identity function
    */
-  @Function
-  public static Object argToResult(final Object arg)
+  public static Function1<Object, Object> argToResult()
   {
-    return arg;
+    return ARG_TO_RESULT;
   }
+  private static final Function1<Object, Object> ARG_TO_RESULT = new Function1<Object, Object>() {
+    @Override
+    public Object apply(final Object element)
+    {
+      return element;
+    }
+  };
 
   /**
    * Identity function
    */
-  @Function
-  public static <T> T argumentToResult(final T arg)
+  @SuppressWarnings("unchecked")
+  public static <T> Function1<T, T> argumentToResult()
   {
-    return arg;
+    return (Function1<T, T>) ARG_TO_RESULT;
   }
 
   /**
    * Returns an action with an empty body
    */
-  @Action
-  public static void empty()
+  public static Action0 empty()
   {
-    // does nothing
+    return EMPTY;
   }
+  private static final Action0 EMPTY = new Action0() {
+    @Override
+    public void apply()
+    {
+    }
+  };
 
   /**
    * Returns a no-argument function with an empty body
    */
-  @Function
-  public static Void emptyFunc()
+  public static Function0<Void> emptyFunc()
   {
-    return null;
+    return EMPTY_FUNC;
   }
+  private static final Function0<Void> EMPTY_FUNC = new Function0<Void>() {
+    @Override
+    public Void apply()
+    {
+      return null;
+    }
+  };
 
   /**
    * Action that throws the specified exception when being invoked. For the correct stack trace to be used, a new exception needs to be
@@ -73,28 +94,34 @@ public final class MiscProjections
    * 
    * @throws Throwable When the action is called
    */
-  @Action
-  @SneakyThrows
-  public static void throwException(final Throwable _e)
+  @Validate
+  public static Action0 throwException(@NotNull final Throwable _e)
   {
-    Throwable actual;
-    try
-    {
-      actual = ReflectionUtils.activate(_e.getClass(), new Object[] {_e.getMessage()});
-    }
-    catch(Throwable e)
-    {
-      try
+    return new Action0() {
+      @Override
+      @SneakyThrows
+      public void apply()
       {
-        actual = ReflectionUtils.activate(_e.getClass());
-      }
-      catch(Throwable ex)
-      {
-        actual = new Exception(_e.getMessage());
-      }
-    }
+        Throwable actual;
+        try
+        {
+          actual = ReflectionUtils.activate(_e.getClass(), new Object[] {_e.getMessage()});
+        }
+        catch(Throwable e)
+        {
+          try
+          {
+            actual = ReflectionUtils.activate(_e.getClass());
+          }
+          catch(Throwable ex)
+          {
+            actual = new Exception(_e.getMessage());
+          }
+        }
 
-    throw actual;
+        throw actual;
+      }
+    };
   }
 
   /**
@@ -106,21 +133,27 @@ public final class MiscProjections
    * 
    * @throws Throwable When the action is called
    */
-  @Action
-  @SneakyThrows
-  public static void throwDetailed(final Object obj, final Throwable _e)
+  @Validate
+  public static Action1<Object> throwDetailed(@NotNull final Throwable _e)
   {
-    Throwable actual;
-    try
-    {
-      actual = ReflectionUtils.activate(_e.getClass(), new Object[] {_e.getMessage() + obj});
-    }
-    catch(Throwable e)
-    {
-      actual = new Exception(_e.getMessage() + obj);
-    }
+    return new Action1<Object>() {
+      @Override
+      @SneakyThrows
+      public void apply(final Object element)
+      {
+        Throwable actual;
+        try
+        {
+          actual = ReflectionUtils.activate(_e.getClass(), new Object[] {_e.getMessage() + element});
+        }
+        catch(Throwable e)
+        {
+          actual = new Exception(_e.getMessage() + element);
+        }
 
-    throw actual;
+        throw actual;
+      }
+    };
   }
 
   /**
@@ -132,28 +165,34 @@ public final class MiscProjections
    * 
    * @throws Throwable When the action is called
    */
-  @Function
-  @SneakyThrows
-  public static Void throwExceptionFunc(final Throwable _e)
+  @Validate
+  public static Function0<Void> throwExceptionFunc(@NotNull final Throwable _e)
   {
-    Throwable actual;
-    try
-    {
-      actual = ReflectionUtils.activate(_e.getClass(), new Object[] {_e.getMessage()});
-    }
-    catch(Throwable e)
-    {
-      try
+    return new Function0<Void>() {
+      @Override
+      @SneakyThrows
+      public Void apply()
       {
-        actual = ReflectionUtils.activate(_e.getClass());
-      }
-      catch(Throwable ex)
-      {
-        actual = new Exception(_e.getMessage());
-      }
-    }
+        Throwable actual;
+        try
+        {
+          actual = ReflectionUtils.activate(_e.getClass(), new Object[] {_e.getMessage()});
+        }
+        catch(Throwable e)
+        {
+          try
+          {
+            actual = ReflectionUtils.activate(_e.getClass());
+          }
+          catch(Throwable ex)
+          {
+            actual = new Exception(_e.getMessage());
+          }
+        }
 
-    throw actual;
+        throw actual;
+      }
+    };
   }
 
   /**
@@ -165,21 +204,28 @@ public final class MiscProjections
    * 
    * @throws Throwable When the action is called
    */
-  @Function
-  @SneakyThrows
-  public static Void throwDetailedFunc(final Object obj, final Throwable _e)
+  @Validate
+  public static Function1<Object, Void> throwDetailedFunc(@NotNull final Throwable _e)
   {
-    Throwable actual;
-    try
-    {
-      actual = ReflectionUtils.activate(_e.getClass(), new Object[] {_e.getMessage() + obj});
-    }
-    catch(Throwable e)
-    {
-      actual = new Exception(_e.getMessage() + obj);
-    }
+    return new Function1<Object, Void>() {
+      @Override
+      @SneakyThrows
+      public Void apply(final Object element)
+      {
+        Throwable actual;
+        try
+        {
+          actual = ReflectionUtils.activate(_e.getClass(), new Object[] {_e.getMessage() + element});
+        }
+        catch(Throwable e)
+        {
+          actual = new Exception(_e.getMessage() + element);
+        }
 
-    throw actual;
+        throw actual;
+      }
+     
+    };
   }
 
   private MiscProjections()

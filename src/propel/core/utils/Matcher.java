@@ -20,13 +20,13 @@ package propel.core.utils;
 
 import java.util.ArrayList;
 import java.util.List;
-import lombok.Actions.Action0;
-import lombok.Actions.Action1;
-import lombok.Functions.Function1;
-import lombok.Predicates.Predicate1;
 import lombok.Validate;
 import lombok.Validate.NotNull;
 import lombok.val;
+import propel.core.functional.Actions.Action0;
+import propel.core.functional.Actions.Action1;
+import propel.core.functional.Functions.Function1;
+import propel.core.functional.Predicates.Predicate1;
 import propel.core.functional.projections.MiscProjections;
 import propel.core.functional.tuples.Pair;
 

@@ -19,9 +19,13 @@
 package propel.core.functional.projections;
 
 import java.io.File;
-import lombok.Action;
-import lombok.Function;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import lombok.SneakyThrows;
+import lombok.Validate;
+import lombok.Validate.NotNull;
+import propel.core.functional.Actions.Action1;
+import propel.core.functional.Functions.Function1;
 import propel.core.utils.FileUtils;
 
 /**
@@ -38,11 +42,17 @@ public final class Files
    * @throws FileNotFoundException The file specified is a directory, or it does not exist and cannot be created, or cannot be appended to.
    * @throws SecurityException Access to filesystem is denied by a SecurityManager
    */
-  @Action
-  @SneakyThrows
-  public static void appendToFile(final File _file, final String _text)
+  @Validate
+  public static Action1<File> appendToFile(@NotNull final String _text)
   {
-    FileUtils.appendText(_file, _text);
+    return new Action1<File>() {
+      @Override
+      @SneakyThrows
+      public void apply(final File element)
+      {
+        FileUtils.appendText(element, _text);
+      }
+    };
   }
 
   /**
@@ -54,11 +64,17 @@ public final class Files
    * @throws FileNotFoundException The file specified is a directory, or it does not exist and cannot be created, or cannot be appended to.
    * @throws SecurityException Access to filesystem is denied by a SecurityManager
    */
-  @Action
-  @SneakyThrows
-  public static void appendLineToFile(final File _file, final String _text)
+  @Validate
+  public static Action1<File> appendLineToFile(@NotNull final String _text)
   {
-    FileUtils.appendTextLine(_file, _text);
+    return new Action1<File>() {
+      @Override
+      @SneakyThrows
+      public void apply(final File element)
+      {
+        FileUtils.appendTextLine(element, _text);
+      }
+    };
   }
 
   /**
@@ -69,11 +85,17 @@ public final class Files
    * @throws FileNotFoundException The file specified is a directory, it does not exist or cannot be read/created.
    * @throws SecurityException Access to filesystem is denied by a SecurityManager
    */
-  @Action
-  @SneakyThrows
-  public static void copyFile(final File _srcFile, final String _destFilePath)
+  @Validate
+  public static Action1<File> copyFile(@NotNull final String _destFilePath)
   {
-    FileUtils.copyFile(_srcFile, _destFilePath);
+    return new Action1<File>() {
+      @Override
+      @SneakyThrows
+      public void apply(final File element)
+      {
+        FileUtils.copyFile(element, _destFilePath);
+      }
+    };
   }
 
   /**
@@ -84,12 +106,18 @@ public final class Files
    * @throws FileNotFoundException The file was a directory
    * @throws SecurityException Access to filesystem is denied by a SecurityManager
    */
-  @Action
-  @SneakyThrows
-  public static void deleteFile(final File _file)
+  public static Action1<File> deleteFile()
   {
-    FileUtils.deleteFile(_file);
+    return DELETE_FILE;
   }
+  private static final Action1<File> DELETE_FILE = new Action1<File>() {
+    @Override
+    @SneakyThrows
+    public void apply(final File element)
+    {
+      FileUtils.deleteFile(element);
+    }
+  };
 
   /**
    * Action that deletes a directory from an absolute file path.
@@ -99,12 +127,18 @@ public final class Files
    * @throws FileNotFoundException The file was not a directory
    * @throws SecurityException Access to filesystem is denied by a SecurityManager
    */
-  @Action
-  @SneakyThrows
-  public static void deleteDirectory(final File _dir)
+  public static Action1<File> deleteDirectory()
   {
-    FileUtils.deleteDirectory(_dir);
+    return DELETE_DIRECTORY;
   }
+  private static final Action1<File> DELETE_DIRECTORY = new Action1<File>() {
+    @Override
+    @SneakyThrows
+    public void apply(final File element)
+    {
+      FileUtils.deleteDirectory(element);
+    }
+  };
 
   /**
    * Action that deletes a directory tree from an absolute file path.
@@ -114,12 +148,18 @@ public final class Files
    * @throws FileNotFoundException The file was not a directory
    * @throws SecurityException Access to filesystem is denied by a SecurityManager
    */
-  @Action
-  @SneakyThrows
-  public static void deleteDirectoryRecursive(final File _dir)
+  public static Action1<File> deleteDirectoryRecursive()
   {
-    FileUtils.deleteDirectoryRecursive(_dir);
+    return DELETE_DIRECTORY_RECURSIVE;
   }
+  private static final Action1<File> DELETE_DIRECTORY_RECURSIVE = new Action1<File>() {
+    @Override
+    @SneakyThrows
+    public void apply(final File element)
+    {
+      FileUtils.deleteDirectoryRecursive(element);
+    }
+  };
 
   /**
    * Returns a File for a given path
@@ -127,11 +167,17 @@ public final class Files
    * @throws NullPointerException An argument is null
    * @throws SecurityException If a required system property value cannot be accessed
    */
-  @Function
-  public static File getFile(final String file)
+  public static Function1<String, File> getFile()
   {
-    return new File(file);
+    return GET_FILE;
   }
+  private static final Function1<String, File> GET_FILE = new Function1<String, File>() {
+    @Override
+    public File apply(final String element)
+    {
+      return new File(element);
+    }
+  };
 
   /**
    * Returns the absolute path of the file
@@ -139,33 +185,52 @@ public final class Files
    * @throws NullPointerException An argument is null
    * @throws SecurityException If a required system property value cannot be accessed
    */
-  @Function
-  public static String getAbsolutePath(final File file)
+  public static Function1<File, String> getAbsolutePath()
   {
-    return file.getAbsolutePath();
+    return GET_ABSOLUTE_PATH;
   }
+  private static final Function1<File, String> GET_ABSOLUTE_PATH = new Function1<File, String>() {
+    @Override
+    public String apply(final File element)
+    {
+      return element.getAbsolutePath();
+    }
+  };
 
   /**
    * Returns the extension of the file
    * 
    * @throws NullPointerException An argument is null
    */
-  @Function
-  public static String getExtension(final File file)
+  @Validate
+  public static Function1<File, String> getExtension(@NotNull final File file)
   {
-    return FileUtils.getFileExtension(file);
+    return GET_EXTENSION;
   }
+  private static final Function1<File, String> GET_EXTENSION = new Function1<File, String>() {
+    @Override
+    public String apply(final File element)
+    {
+      return FileUtils.getFileExtension(element);
+    }
+  };
 
   /**
    * Returns the name of the file
    * 
    * @throws NullPointerException An argument is null
    */
-  @Function
-  public static String getName(final File file)
+  public static Function1<File, String> getName()
   {
-    return file.getName();
+    return GET_NAME;
   }
+  private static final Function1<File, String> GET_NAME = new Function1<File, String>() {
+    @Override
+    public String apply(final File element)
+    {
+      return element.getName();
+    }
+  };
 
   /**
    * Returns the parent of the file
@@ -173,11 +238,17 @@ public final class Files
    * @throws NullPointerException An argument is null
    * @throws SecurityException If a required system property value cannot be accessed
    */
-  @Function
-  public static File getParent(final File file)
+  public static Function1<File, File> getParent()
   {
-    return file.getParentFile();
+    return GET_PARENT_FILE;
   }
+  private static final Function1<File, File> GET_PARENT_FILE = new Function1<File, File>() {
+    @Override
+    public File apply(final File element)
+    {
+      return element.getParentFile();
+    }
+  };
 
   /**
    * Action that moves a file from an absolute file path to another
@@ -187,57 +258,97 @@ public final class Files
    * @throws FileNotFoundException The file specified is a directory, it does not exist or cannot be read/created.
    * @throws SecurityException Access to filesystem is denied by a SecurityManager
    */
-  @Action
-  @SneakyThrows
-  public static void moveFile(final File _srcFile, final String _destFilePath)
+  @Validate
+  public static Action1<File> moveFile(@NotNull final String _destFilePath)
   {
-    FileUtils.moveFile(_srcFile, _destFilePath);
-  }
-
-  /**
-   * Action that copies a file from an absolute file path to another. No exception is thrown under any circumstance.
-   */
-  @Action
-  public static void tryCopyFile(final File _srcFile, final String _destFilePath)
-  {
-    FileUtils.tryCopyFile(_srcFile, _destFilePath);
-  }
-
-  /**
-   * Action that deletes a file from an absolute file path. No exception is thrown under any circumstance.
-   */
-  @Action
-  public static void tryDeleteFile(final File _file)
-  {
-    FileUtils.tryDeleteFile(_file);
-  }
-
-  /**
-   * Action that deletes a directory from an absolute file path. No exception is thrown under any circumstance.
-   */
-  @Action
-  public static void tryDeleteDirectory(final File _dir)
-  {
-    FileUtils.tryDeleteDirectory(_dir);
-  }
-
-  /**
-   * Action that deletes a directory tree from an absolute file path. No exception is thrown under any circumstance.
-   */
-  @Action
-  public static void tryDeleteDirectoryRecursive(final File _dir)
-  {
-    FileUtils.tryDeleteDirectoryRecursive(_dir);
+    return new Action1<File>() {
+      @Override
+      @SneakyThrows
+      public void apply(final File element)
+      {
+        FileUtils.moveFile(element, _destFilePath);
+      }
+    };
   }
 
   /**
    * Action that moves a file from one absolute file path to another. No exception is thrown under any circumstance.
    */
-  @Action
-  public static void tryMoveFile(final File _srcFile, final String _destFilePath)
+  @Validate
+  public static Action1<File> tryMoveFile(@NotNull final String _destFilePath)
   {
-    FileUtils.tryMoveFile(_srcFile, _destFilePath);
+    return new Action1<File>() {
+      @Override
+      @SneakyThrows
+      public void apply(final File element)
+      {
+        FileUtils.tryMoveFile(element, _destFilePath);
+      }
+    };
   }
+
+  /**
+   * Action that copies a file from an absolute file path to another. No exception is thrown under any circumstance.
+   */
+  @Validate
+  public static Action1<File> tryCopyFile(@NotNull final String _destFilePath)
+  {
+    return new Action1<File>() {
+      @Override
+      public void apply(final File element)
+      {
+        FileUtils.tryCopyFile(element, _destFilePath);
+      }
+    };
+  }
+
+  /**
+   * Action that deletes a file from an absolute file path. No exception is thrown under any circumstance.
+   */
+  public static Action1<File> tryDeleteFile()
+  {
+    return TRY_DELETE_FILE;
+  }
+  private static final Action1<File> TRY_DELETE_FILE = new Action1<File>() {
+    @Override
+    @SneakyThrows
+    public void apply(final File element)
+    {
+      FileUtils.tryDeleteFile(element);
+    }
+  };
+
+  /**
+   * Action that deletes a directory from an absolute file path. No exception is thrown under any circumstance.
+   */
+  public static Action1<File> tryDeleteDirectory()
+  {
+    return TRY_DELETE_DIRECTORY;
+  }
+  private static final Action1<File> TRY_DELETE_DIRECTORY = new Action1<File>() {
+    @Override
+    @SneakyThrows
+    public void apply(final File element)
+    {
+      FileUtils.tryDeleteDirectory(element);
+    }
+  };
+
+  /**
+   * Action that deletes a directory tree from an absolute file path. No exception is thrown under any circumstance.
+   */
+  public static Action1<File> tryDeleteDirectoryRecursive()
+  {
+    return TRY_DELETE_DIRECTORY_RECURSIVE;
+  }
+  private static final Action1<File> TRY_DELETE_DIRECTORY_RECURSIVE = new Action1<File>() {
+    @Override
+    @SneakyThrows
+    public void apply(final File element)
+    {
+      FileUtils.tryDeleteDirectory(element);
+    }
+  };
 
   private Files()
   {

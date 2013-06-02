@@ -12,7 +12,7 @@ jpropel-light is a Java library which can seriously hinder your salary if you ar
     new String[] { "james", "john", "john", "eddie" }.where(startsWith("j")).distinct().all(println());
     
 
-It is a free and open-source Java library aiming to cut down code bloat, boilerplate and generally the number of lines of code Java developers have to write in order to complete a task.
+It is a free and open-source LGPL Java library aiming to cut down code bloat, boilerplate and generally the number of lines of code Java developers have to write in order to complete a task.
 
 It comes with full LINQ support, reified generic collections and concise one-liners for performing common tasks such as reading an entire text file into memory, array manipulations, XML processing/querying, etc. 
 Let's examine some of them.
@@ -231,21 +231,30 @@ A [Scala port of JPropel](https://github.com/nicholas22/propels) has been starte
 
 
 
-##Lombok-pg
+##Lombok
 
-JPropel and JPropel-light depend on the [lombok-pg](https://github.com/peichhorn/lombok-pg) library. 
+JPropel and JPropel-light depend on the [lombok](http://projectlombok.org/) library. 
 
 If you are using an IDE such as Eclipse, Netbeans or IntelliJ, you should patch it so that it uses lombok as 
 a Java agent. The process is very simple: just double-click on the lombok.jar found in the "lib" folder. This will enable much of the syntactic sugar shown above.
 
-Javac and Ant do not require any patching as such.
+Javac, Ant, Ivy, Gradle and continuous integration servers relying on these tools do not require any patching or anything like that.
 
-You may visit the [lombok](http://projectlombok.org/slideshow.html) project website for more info, or ask [Philipp](https://github.com/peichhorn) more about it.
 
 
 ##Changelog
 
-
+####1.1.8: minor improvements
+- Remove runtime dependency of lombok-pg
+- Library is now compile-time only dependent on lombok (the parent project)
+- Using lombok 0.11.8 in this version
+- Added Nullable check methods
+- Added Linq.toString for collections
+- Added ReflectionUtils.toString for POJOs
+- FileUtils.moveFile returns boolean
+- Linq toList optimisation (checks instanceof List)
+- ExceptionUtils unchecked throw (as sneakyThrows replacement)
+- Made it clearer that license is LGPL
 
 ####1.1.7: minor improvements
   - StringUtils faster replace with StringBuilder

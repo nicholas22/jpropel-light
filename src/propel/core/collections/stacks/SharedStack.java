@@ -21,6 +21,7 @@ package propel.core.collections.stacks;
 import propel.core.collections.ReifiedIterable;
 import propel.core.collections.lists.ReifiedLinkedList;
 import propel.core.collections.lists.ReifiedList;
+import propel.core.utils.Linq;
 import propel.core.utils.SuperTypeToken;
 import propel.core.utils.SuperTypeTokenException;
 import java.util.ArrayList;
@@ -393,4 +394,20 @@ public class SharedStack<T>
     lockObject.unlock();
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String toString()
+  {
+    lock();
+    try
+    {
+      return Linq.toString(this);
+    }
+    finally
+    {
+      unlock();
+    }
+  }
 }

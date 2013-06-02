@@ -23,6 +23,7 @@ import propel.core.collections.IValueStore;
 import propel.core.collections.lists.ReifiedList;
 import propel.core.collections.maps.avl.AvlHashtable;
 import propel.core.common.CONSTANT;
+import propel.core.utils.Linq;
 import propel.core.utils.SuperTypeToken;
 import propel.core.utils.SuperTypeTokenException;
 import java.util.*;
@@ -371,6 +372,15 @@ public class ValueSessionStore<T extends Comparable<T>>
     reEntrantLock.unlock();
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String toString()
+  {
+    return Linq.toString(this);
+  }
+  
   /**
    * Scans all objects and removes the ones that have expired. This is an O(nlog2(n)) operation.
    */

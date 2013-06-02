@@ -20,9 +20,11 @@ package propel.core.functional.projections;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import lombok.Action;
-import lombok.Function;
 import lombok.SneakyThrows;
+import lombok.Validate;
+import lombok.Validate.NotNull;
+import propel.core.functional.Actions.Action1;
+import propel.core.functional.Functions.Function1;
 
 /**
  * Some common, re-usable method invocation projections; methods accept an argument to be specified.
@@ -37,19 +39,25 @@ public final class InvokeOneArg
    * @throws IllegalArgumentException There is no method found having the specified method name on the given object, or more than one
    *           methods have the specified name
    */
-  @Action
-  @SneakyThrows
-  public static void invokeMethod(final Object arg, final Object _obj, final Method _method)
+  @Validate
+  public static Action1<Object> invokeMethod(@NotNull final Object _obj, @NotNull final Method _method)
   {
-    try
-    {
-      _method.invoke(_obj, arg);
-    }
-    catch(InvocationTargetException e)
-    {
-      // get rid of wrapper exception
-      throw e.getCause();
-    }
+    return new Action1<Object>() {
+      @Override
+      @SneakyThrows
+      public void apply(final Object element)
+      {
+        try
+        {
+          _method.invoke(_obj, element);
+        }
+        catch(InvocationTargetException e)
+        {
+          // get rid of wrapper exception
+          throw e.getCause();
+        }
+      }
+    };
   }
 
   /**
@@ -59,20 +67,26 @@ public final class InvokeOneArg
    * @throws IllegalArgumentException There is no method found having the specified method name on the given object, or more than one
    *           methods have the specified name
    */
-  @Function
-  @SneakyThrows
-  public static Void invokeMethodFunc(final Object arg, final Object _obj, final Method _method)
+  @Validate
+  public static Function1<Object, Void> invokeMethodFunc(@NotNull final Object _obj, @NotNull final Method _method)
   {
-    try
-    {
-      _method.invoke(_obj, arg);
-      return null;
-    }
-    catch(InvocationTargetException e)
-    {
-      // get rid of wrapper exception
-      throw e.getCause();
-    }
+    return new Function1<Object, Void>() {
+      @Override
+      @SneakyThrows
+      public Void apply(final Object element)
+      {
+        try
+        {
+          _method.invoke(_obj, element);
+          return null;
+        }
+        catch(InvocationTargetException e)
+        {
+          // get rid of wrapper exception
+          throw e.getCause();
+        }
+      }
+    };
   }
 
   /**
@@ -82,19 +96,25 @@ public final class InvokeOneArg
    * @throws IllegalArgumentException There is no method found having the specified method name on the given object, or more than one
    *           methods have the specified name
    */
-  @Function
-  @SneakyThrows
-  public static <T> T invokeFunction(final Object arg, final Object _obj, final Method _method)
+  @Validate
+  public static <T> Function1<Object, T> invokeFunction(@NotNull final Object _obj, @NotNull final Method _method)
   {
-    try
-    {
-      return (T) _method.invoke(_obj, arg);
-    }
-    catch(InvocationTargetException e)
-    {
-      // get rid of wrapper exception
-      throw e.getCause();
-    }
+    return new Function1<Object, T>() {
+      @Override
+      @SneakyThrows
+      public T apply(final Object element)
+      {
+        try
+        {
+          return (T) _method.invoke(_obj, element);
+        }
+        catch(InvocationTargetException e)
+        {
+          // get rid of wrapper exception
+          throw e.getCause();
+        }
+      }
+    };
   }
 
   private InvokeOneArg()

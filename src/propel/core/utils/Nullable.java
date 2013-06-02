@@ -23,12 +23,15 @@ package propel.core.utils;
 public final class Nullable
 {
   /**
-   * Throws a NPE if the value is null
+   * Throws a NPE if any of the values is null
    */
-  public void check(final Object value)
+  public static void check(final Object... values)
   {
-    if (value == null)
+    if (values == null)
       throw new NullPointerException();
+    for (int i = 0; i < values.length; i++)
+      if (values[i] == null)
+        throw new NullPointerException("Argument #" + (i + 1) + " is null!");
   }
 
   /**

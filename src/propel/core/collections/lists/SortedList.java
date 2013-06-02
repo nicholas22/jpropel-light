@@ -128,7 +128,7 @@ public class SortedList<T extends Comparable<T>>
       throw new NullPointerException("genericTypeParameter");
     this.genericTypeParameter = genericTypeParameter;
   }
-
+  
   /**
    * {@inheritDoc}
    */
@@ -157,7 +157,9 @@ public class SortedList<T extends Comparable<T>>
     int size = size();
 
     T[] result = (T[]) Array.newInstance(getGenericTypeParameter(), size);
-
+    if(size==0)
+      return result;
+    
     // make a copy
     PriorityQueue<T> copy;
 

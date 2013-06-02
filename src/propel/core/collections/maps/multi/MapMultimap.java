@@ -365,4 +365,13 @@ public class MapMultimap<T extends Comparable<? super T>, K extends Comparable<?
   {
     return valueType;
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String toString()
+  {
+    return Linq.toString(this);
+  }
 }

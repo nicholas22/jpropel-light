@@ -18,6 +18,7 @@
 // /////////////////////////////////////////////////////////
 package propel.core.collections.buffers.primitive;
 
+import java.util.Arrays;
 import lombok.Validate;
 import lombok.Validate.NotNull;
 import propel.core.counters.SharedModuloIndexerLight;
@@ -28,7 +29,7 @@ import propel.core.counters.SharedModuloIndexerLight;
 public final class SharedFixedSizeLongBuffer
     implements ILongBuffer
 {
-  private final long[] buffer;
+  private volatile long[] buffer;
   private final SharedModuloIndexerLight indexer;
 
   /**
@@ -59,5 +60,14 @@ public final class SharedFixedSizeLongBuffer
   public void put(final long value)
   {
     buffer[indexer.next()] = value;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String toString()
+  {
+    return Arrays.toString(buffer);
   }
 }

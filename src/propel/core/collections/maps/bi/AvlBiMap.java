@@ -22,6 +22,7 @@ import propel.core.collections.KeyNotFoundException;
 import propel.core.collections.KeyValuePair;
 import propel.core.collections.maps.ReifiedMap;
 import propel.core.collections.maps.avl.AvlHashtable;
+import propel.core.utils.Linq;
 import propel.core.utils.SuperTypeToken;
 import propel.core.utils.SuperTypeTokenException;
 import java.util.Iterator;
@@ -410,4 +411,12 @@ public class AvlBiMap<TKey extends Comparable<TKey>, TValue extends Comparable<T
     return normalMap.size();
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String toString()
+  {
+    return Linq.toString(this);
+  }
 }

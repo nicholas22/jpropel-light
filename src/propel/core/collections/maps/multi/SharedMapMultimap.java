@@ -406,4 +406,13 @@ public class SharedMapMultimap<T extends Comparable<? super T>, K extends Compar
   {
     return valueType;
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String toString()
+  {
+    return Linq.toString(this);
+  }
 }

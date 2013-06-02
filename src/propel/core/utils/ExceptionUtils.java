@@ -20,6 +20,10 @@ package propel.core.utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.SneakyThrows;
+import lombok.Validate;
+import lombok.Validate.NotNull;
+import propel.core.functional.Actions.Action0;
 
 /**
  * Provides utility functionality for Exception manipulations
@@ -92,5 +96,24 @@ public final class ExceptionUtils
       e = e.getCause();
 
     throw e;
+  }
+
+  /**
+   * Throws an exception as unchecked exception
+   */
+  @Validate
+  public static void uncheckedThrow(@NotNull final Throwable e)
+  {
+    throw (e instanceof RuntimeException) ? (RuntimeException) e : new RuntimeException(e);
+  }
+
+  /**
+   * Executes the given block of code using sneaky throws
+   */
+  @Validate
+  @SneakyThrows
+  public static void unchecked(@NotNull final Action0 action)
+  {
+    action.apply();
   }
 }

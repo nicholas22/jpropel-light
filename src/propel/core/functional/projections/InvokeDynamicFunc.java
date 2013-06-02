@@ -20,8 +20,8 @@ package propel.core.functional.projections;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import lombok.Functions.Function0;
-import lombok.Functions.Function1;
+import propel.core.functional.Functions.Function0;
+import propel.core.functional.Functions.Function1;
 import lombok.SneakyThrows;
 import lombok.Validate;
 import lombok.Validate.NotNull;

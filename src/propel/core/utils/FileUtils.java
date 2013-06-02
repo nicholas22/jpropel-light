@@ -414,25 +414,25 @@ public final class FileUtils
       return false;
     }
   }
-  
+
   /**
    * Returns true if the file exists
    * 
    * @throws NullPointerException An argument is null
    */
   @Validate
-  public static boolean exists(@NotNull final File file) 
+  public static boolean exists(@NotNull final File file)
   {
     return file.exists();
   }
-  
+
   /**
    * Returns true if the file exists
    * 
    * @throws NullPointerException An argument is null
    */
   @Validate
-  public static boolean exists(@NotNull final String file) 
+  public static boolean exists(@NotNull final String file)
   {
     return new File(file).exists();
   }
@@ -545,13 +545,7 @@ public final class FileUtils
   private static Pair<InputStream, Long> getResourceStream(@NotNull final URL url)
       throws FileNotFoundException, IOException
   {
-    // Thanks to Marcin Lamparski, we don't need the following anymore
-    /*
-     * if file:// { File file = new File(EscapingUtils.fromUrl(url.getFile())); InputStream is = new FileInputStream(file);
-     * 
-     * return new Pair<InputStream, Long>(is, file.length()); } else
-     */
-
+    // Thanks to Marcin Lamparski for contribution
     val connection = url.openConnection();
     int length = connection.getContentLength();
 
@@ -614,58 +608,64 @@ public final class FileUtils
     val input = tuple.getFirst();
     val length = tuple.getSecond();
 
-    val result = StreamUtils.readFully(input, length);
-
-    // important not to forget to close the opened stream
-    input.close();
+    byte[] result = null;
+    try
+    {
+      result = StreamUtils.readFully(input, length);
+    }
+    finally
+    {
+      // important not to forget to close the opened stream
+      input.close();
+    }
 
     return result;
   }
-  
+
   /**
-   * Returns true if the File is a directory 
+   * Returns true if the File is a directory
    * 
    * @throws NullPointerException An argument is null
    */
   @Validate
-  public static boolean isDirectory(@NotNull final File file) 
+  public static boolean isDirectory(@NotNull final File file)
   {
     return file.isDirectory();
   }
 
   /**
-   * Returns true if the File is a directory 
+   * Returns true if the File is a directory
    * 
    * @throws NullPointerException An argument is null
    */
   @Validate
-  public static boolean isDirectory(@NotNull final String file) 
+  public static boolean isDirectory(@NotNull final String file)
   {
     return new File(file).isDirectory();
   }
-  
+
   /**
-   * Returns true if the File is not a directory 
+   * Returns true if the File is not a directory
    * 
    * @throws NullPointerException An argument is null
    */
   @Validate
-  public static boolean isFile(@NotNull final File file) 
+  public static boolean isFile(@NotNull final File file)
   {
     return file.isFile();
   }
 
   /**
-   * Returns true if the File is not a directory 
+   * Returns true if the File is not a directory
    * 
    * @throws NullPointerException An argument is null
    */
   @Validate
-  public static boolean isFile(@NotNull final String file) 
+  public static boolean isFile(@NotNull final String file)
   {
     return new File(file).isFile();
   }
-  
+
   /**
    * Moves a file from source to destination
    * 
@@ -674,10 +674,10 @@ public final class FileUtils
    * @throws FileNotFoundException The file specified is a directory, it does not exist or cannot be read/created.
    * @throws SecurityException Access to filesystem is denied by a SecurityManager
    */
-  public static void moveFile(File originatingFile, String destinationPath)
+  public static boolean moveFile(File originatingFile, String destinationPath)
       throws IOException
   {
-    moveFile(originatingFile.getAbsolutePath(), destinationPath);
+    return moveFile(originatingFile.getAbsolutePath(), destinationPath);
   }
 
   /**
@@ -689,12 +689,12 @@ public final class FileUtils
    * @throws SecurityException Access to filesystem is denied by a SecurityManager
    */
   @Validate
-  public static void moveFile(@NotNull final String originatingPath, @NotNull final String destinationPath)
+  public static boolean moveFile(@NotNull final String originatingPath, @NotNull final String destinationPath)
       throws IOException
   {
     val source = new File(originatingPath);
     val dest = new File(destinationPath);
-    source.renameTo(dest);
+    return source.renameTo(dest);
   }
 
   /**
@@ -714,8 +714,7 @@ public final class FileUtils
   {
     try
     {
-      moveFile(sourceAbsPath, destAbsPath);
-      return true;
+      return moveFile(sourceAbsPath, destAbsPath);
     }
     catch(Throwable e)
     {

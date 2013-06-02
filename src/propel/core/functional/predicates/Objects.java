@@ -18,11 +18,13 @@
 // /////////////////////////////////////////////////////////
 package propel.core.functional.predicates;
 
+import lombok.Validate;
+import lombok.Validate.NotNull;
+import propel.core.functional.Predicates.Predicate1;
 import propel.core.utils.Linq;
-import propel.core.utils.StringUtils;
-import propel.core.utils.StringComparison;
 import propel.core.utils.ReflectionUtils;
-import lombok.Predicate;
+import propel.core.utils.StringComparison;
+import propel.core.utils.StringUtils;
 
 /**
  * Some common, re-usable predicates for objects
@@ -34,50 +36,65 @@ public final class Objects
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Predicate
-  public static boolean contains(final Object element, final String _part)
+  @Validate
+  public static <T> Predicate1<T> contains(@NotNull final String _part)
   {
-    return StringUtils.contains(element.toString(), _part, StringComparison.Ordinal);
+    return new Predicate1<T>() {
+      @Override
+      public boolean evaluate(final T element)
+      {
+        return StringUtils.contains(element.toString(), _part, StringComparison.Ordinal);
+      }
+    };
   }
-  
+
   /**
    * Predicate returning true when the function argument's toString() contains some string
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Predicate
-  public static boolean contains(final Object element, final String _part, final StringComparison _comparison)
+  @Validate
+  public static <T> Predicate1<T> contains(@NotNull final String _part, @NotNull final StringComparison _comparison)
   {
-    return StringUtils.contains(element.toString(), _part, _comparison);
+    return new Predicate1<T>() {
+      @Override
+      public boolean evaluate(final T element)
+      {
+        return StringUtils.contains(element.toString(), _part, _comparison);
+      }
+    };
   }
 
   /**
    * Predicate returning true if an element is contained in the function argument (Array)
    */
-  @Predicate
-  public static <T> boolean containedIn(final T element, final T[] _elements)
+  @Validate
+  public static <T> Predicate1<T> containedIn(@NotNull final T[] _elements)
   {
-    return Linq.contains(_elements, element);
+    return new Predicate1<T>() {
+      @Override
+      public boolean evaluate(final T element)
+      {
+        return Linq.contains(_elements, element);
+      }
+    };
   }
-  
+
   /**
    * Predicate returning true if an element is contained in the function argument (Iterable)
    */
-  @Predicate
-  public static boolean containedBy(final Object element, final Iterable _elements)
+  @Validate
+  @SuppressWarnings("rawtypes")
+  public static <T> Predicate1<T> containedBy(@NotNull final Iterable _elements)
   {
-    return Linq.contains(_elements, element);
-  }
-  
-  /**
-   * Predicate returning true when the function argument's toString() ends with a suffix
-   * 
-   * @throws NullPointerException When an argument is null
-   */
-  @Predicate
-  public static boolean endsWith(final Object element, final String _suffix)
-  {
-    return StringUtils.endsWith(element.toString(), _suffix, StringComparison.Ordinal);
+    return new Predicate1<T>() {
+      @Override
+      @SuppressWarnings("unchecked")
+      public boolean evaluate(final T element)
+      {
+        return Linq.contains(_elements, element);
+      }
+    };
   }
 
   /**
@@ -85,31 +102,59 @@ public final class Objects
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Predicate
-  public static boolean endsWith(final Object element, final String _suffix, final StringComparison _comparison)
+  @Validate
+  public static <T> Predicate1<T> endsWith(@NotNull final String _suffix)
   {
-    return StringUtils.endsWith(element.toString(), _suffix, _comparison);
+    return new Predicate1<T>() {
+      @Override
+      public boolean evaluate(final T element)
+      {
+        return StringUtils.endsWith(element.toString(), _suffix, StringComparison.Ordinal);
+      }
+    };
   }
 
   /**
-   * Predicate returning true when the function argument is equal to a value
+   * Predicate returning true when the function argument's toString() ends with a suffix
+   * 
+   * @throws NullPointerException When an argument is null
    */
-  @Predicate
-  public static boolean equal(final Object element, final Object _value)
+  @Validate
+  public static <T> Predicate1<T> endsWith(@NotNull final String _suffix, @NotNull final StringComparison _comparison)
   {
-    if (element == null)
-    {
-      if (_value == null)
-        return true;
-      else
-        return false;
-    } else
-    {
-      if (_value == null)
-        return false;
-      else
-        return element.equals(_value);
-    }
+    return new Predicate1<T>() {
+      @Override
+      public boolean evaluate(final T element)
+      {
+        return StringUtils.endsWith(element.toString(), _suffix, _comparison);
+      }
+    };
+  }
+
+  /**
+   * Predicate returning true when the function argument is equal to a value (nulls are allowed)
+   */
+  public static <T> Predicate1<T> equal(final Object _value)
+  {
+    return new Predicate1<T>() {
+      @Override
+      public boolean evaluate(final T element)
+      {
+        if (element == null)
+        {
+          if (_value == null)
+            return true;
+          else
+            return false;
+        } else
+        {
+          if (_value == null)
+            return false;
+          else
+            return element.equals(_value);
+        }
+      }
+    };
   }
 
   /**
@@ -117,10 +162,16 @@ public final class Objects
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Predicate
-  public static <T extends Comparable<T>> boolean greaterThan(final T element, final T _value)
+  @Validate
+  public static <T extends Comparable<T>> Predicate1<T> greaterThan(@NotNull final T _value)
   {
-    return element.compareTo(_value) > 0;
+    return new Predicate1<T>() {
+      @Override
+      public boolean evaluate(final T element)
+      {
+        return element.compareTo(_value) > 0;
+      }
+    };
   }
 
   /**
@@ -128,10 +179,16 @@ public final class Objects
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Predicate
-  public static <T extends Comparable<T>> boolean greaterThanOrEqual(final T element, final T _value)
+  @Validate
+  public static <T extends Comparable<T>> Predicate1<T> greaterThanOrEqual(@NotNull final T _value)
   {
-    return element.compareTo(_value) >= 0;
+    return new Predicate1<T>() {
+      @Override
+      public boolean evaluate(final T element)
+      {
+        return element.compareTo(_value) >= 0;
+      }
+    };
   }
 
   /**
@@ -139,10 +196,16 @@ public final class Objects
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Predicate
-  public static boolean isEqual(final Object element, final String _other)
+  @Validate
+  public static <T> Predicate1<T> isEqual(@NotNull final String _other)
   {
-    return StringUtils.equal(element.toString(), _other, StringComparison.Ordinal);
+    return new Predicate1<T>() {
+      @Override
+      public boolean evaluate(final T element)
+      {
+        return StringUtils.equal(element.toString(), _other, StringComparison.Ordinal);
+      }
+    };
   }
 
   /**
@@ -150,10 +213,16 @@ public final class Objects
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Predicate
-  public static boolean isEqual(final Object element, final String _other, final StringComparison _comparison)
+  @Validate
+  public static <T> Predicate1<T> isEqual(@NotNull final String _other, @NotNull final StringComparison _comparison)
   {
-    return StringUtils.equal(element.toString(), _other, _comparison);
+    return new Predicate1<T>() {
+      @Override
+      public boolean evaluate(final T element)
+      {
+        return StringUtils.equal(element.toString(), _other, _comparison);
+      }
+    };
   }
 
   /**
@@ -162,10 +231,16 @@ public final class Objects
    * @throws NullPointerException When an argument is null
    * @throws IllegalArgumentException When a non-class (e.g. interface) was provided
    */
-  @Predicate
-  public static boolean isExtending(final Object obj, final Class<?> _class)
+  @Validate
+  public static <T> Predicate1<T> isExtending(final Class<?> _class)
   {
-    return ReflectionUtils.isExtending(obj.getClass(), _class);
+    return new Predicate1<T>() {
+      @Override
+      public boolean evaluate(final T element)
+      {
+        return ReflectionUtils.isExtending(element.getClass(), _class);
+      }
+    };
   }
 
   /**
@@ -174,10 +249,16 @@ public final class Objects
    * @throws NullPointerException When an argument is null
    * @throws IllegalArgumentException When a non-interface (e.g. class) was provided
    */
-  @Predicate
-  public static boolean isImplementing(final Object obj, final Class<?> _class)
+  @Validate
+  public static <T> Predicate1<T> isImplementing(@NotNull final Class<?> _class)
   {
-    return ReflectionUtils.isImplementing(obj.getClass(), _class);
+    return new Predicate1<T>() {
+      @Override
+      public boolean evaluate(final T element)
+      {
+        return ReflectionUtils.isImplementing(element.getClass(), _class);
+      }
+    };
   }
 
   /**
@@ -186,10 +267,16 @@ public final class Objects
    * @throws NullPointerException When an argument is null
    * @throws IllegalArgumentException When a non-class (e.g. interface) was provided
    */
-  @Predicate
-  public static boolean isNotExtending(final Object obj, final Class<?> _class)
+  @Validate
+  public static <T> Predicate1<T> isNotExtending(@NotNull final Class<?> _class)
   {
-    return !ReflectionUtils.isExtending(obj.getClass(), _class);
+    return new Predicate1<T>() {
+      @Override
+      public boolean evaluate(final T element)
+      {
+        return !ReflectionUtils.isExtending(element.getClass(), _class);
+      }
+    };
   }
 
   /**
@@ -198,10 +285,16 @@ public final class Objects
    * @throws NullPointerException When an argument is null
    * @throws IllegalArgumentException When a non-interface (e.g. class) was provided
    */
-  @Predicate
-  public static boolean isNotImplementing(final Object obj, final Class<?> _class)
+  @Validate
+  public static <T> Predicate1<T> isNotImplementing(@NotNull final Class<?> _class)
   {
-    return !ReflectionUtils.isImplementing(obj.getClass(), _class);
+    return new Predicate1<T>() {
+      @Override
+      public boolean evaluate(final T element)
+      {
+        return !ReflectionUtils.isImplementing(element.getClass(), _class);
+      }
+    };
   }
 
   /**
@@ -209,63 +302,107 @@ public final class Objects
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Predicate
-  public static boolean instanceOf(final Object obj, final Class<?> _class)
+  @Validate
+  public static <T> Predicate1<T> instanceOf(@NotNull final Class<?> _class)
   {
-    return ReflectionUtils.instanceOf(obj.getClass(), _class);
+    return new Predicate1<T>() {
+      @Override
+      public boolean evaluate(final T element)
+      {
+        return ReflectionUtils.instanceOf(element.getClass(), _class);
+      }
+    };
   }
 
   /**
    * Predicate returning true when the function argument is null
    */
-  @Predicate
-  public static boolean isNull(final Object element)
+  @SuppressWarnings("unchecked")
+  public static <T> Predicate1<T> isNull()
   {
-    return element == null;
+    return IS_NULL;
   }
+  @SuppressWarnings("rawtypes")
+  private static final Predicate1 IS_NULL = new Predicate1() {
+    @Override
+    public boolean evaluate(final Object element)
+    {
+      return element == null;
+    }
+  };
 
   /**
    * Predicate returning true when the function argument is not null
    */
-  @Predicate
-  public static boolean isNotNull(final Object element)
+  @SuppressWarnings("unchecked")
+  public static <T> Predicate1<T> isNotNull()
   {
-    return element != null;
+    return IS_NOT_NULL;
   }
+  @SuppressWarnings("rawtypes")
+  private static final Predicate1 IS_NOT_NULL = new Predicate1() {
+    @Override
+    public boolean evaluate(final Object element)
+    {
+      return element == null;
+    }
+  };
 
   /**
    * Predicate returning true always, can be used to print out all elements in an all() Linq statement
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Predicate
-  public static boolean println(final Object element)
+  @SuppressWarnings("unchecked")
+  public static <T> Predicate1<T> println()
   {
-    System.out.println(element);
-    return true;
+    return PRINTLN;
   }
+  @SuppressWarnings("rawtypes")
+  private static final Predicate1 PRINTLN = new Predicate1() {
+    @Override
+    public boolean evaluate(final Object element)
+    {
+      System.out.println(element);
+      return true;
+    }
+  };
 
   /**
    * Predicate returning true always, can be used to print out all elements in an all() Linq statement
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Predicate
-  public static boolean print(final Object element)
+  @SuppressWarnings("unchecked")
+  public static <T> Predicate1<T> print()
   {
-    System.out.print(element);
-    return true;
+    return PRINT;
   }
-  
+  @SuppressWarnings("rawtypes")
+  private static final Predicate1 PRINT =new Predicate1() {
+    @Override
+    public boolean evaluate(final Object element)
+    {
+      System.out.print(element);
+      return true;
+    }
+  };
+
   /**
    * Predicate returning true when the function argument is less than a value
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Predicate
-  public static <T extends Comparable<T>> boolean lessThan(final T element, final T _value)
+  @Validate
+  public static <T extends Comparable<T>> Predicate1<T> lessThan(@NotNull final T _value)
   {
-    return element.compareTo(_value) < 0;
+    return new Predicate1<T>() {
+      @Override
+      public boolean evaluate(final T element)
+      {
+        return element.compareTo(_value) < 0;
+      }
+    };
   }
 
   /**
@@ -273,10 +410,16 @@ public final class Objects
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Predicate
-  public static <T extends Comparable<T>> boolean lessThanOrEqual(final T element, final T _value)
+  @Validate
+  public static <T extends Comparable<T>> Predicate1<T> lessThanOrEqual(@NotNull final T _value)
   {
-    return element.compareTo(_value) <= 0;
+    return new Predicate1<T>() {
+      @Override
+      public boolean evaluate(final T element)
+      {
+        return element.compareTo(_value) <= 0;
+      }
+    };
   }
 
   /**
@@ -284,10 +427,16 @@ public final class Objects
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Predicate
-  public static boolean notContains(final Object element, final String _part)
+  @Validate
+  public static <T> Predicate1<T> notContains(@NotNull final String _part)
   {
-    return !StringUtils.contains(element.toString(), _part, StringComparison.Ordinal);
+    return new Predicate1<T>() {
+      @Override
+      public boolean evaluate(final T element)
+      {
+        return !StringUtils.contains(element.toString(), _part, StringComparison.Ordinal);
+      }
+    };
   }
 
   /**
@@ -295,28 +444,46 @@ public final class Objects
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Predicate
-  public static boolean notContains(final Object element, final String _part, final StringComparison _comparison)
+  @Validate
+  public static <T> Predicate1<T> notContains(@NotNull final String _part, @NotNull final StringComparison _comparison)
   {
-    return !StringUtils.contains(element.toString(), _part, _comparison);
+    return new Predicate1<T>() {
+      @Override
+      public boolean evaluate(final T element)
+      {
+        return !StringUtils.contains(element.toString(), _part, _comparison);
+      }
+    };
   }
 
   /**
    * Predicate returning true if an element is not contained in the function argument (Array)
    */
-  @Predicate
-  public static <T> boolean notContainedIn(final T element, final T[] _elements)
+  @Validate
+  public static <T> Predicate1<T> notContainedIn(@NotNull final T[] _elements)
   {
-    return !Linq.contains(_elements, element);
+    return new Predicate1<T>() {
+      @Override
+      public boolean evaluate(final T element)
+      {
+        return !Linq.contains(_elements, element);
+      }
+    };
   }
 
   /**
    * Predicate returning true if an element is not contained in the function argument (Iterable)
    */
-  @Predicate
-  public static boolean notContainedBy(final Object element, final Iterable _elements)
+  @Validate
+  public static <T> Predicate1<T> notContainedBy(@NotNull final Iterable _elements)
   {
-    return !Linq.contains(_elements, element);
+    return new Predicate1<T>() {
+      @Override
+      public boolean evaluate(final T element)
+      {
+        return !Linq.contains(_elements, element);
+      }
+    };
   }
 
   /**
@@ -324,10 +491,16 @@ public final class Objects
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Predicate
-  public static boolean notEndsWith(final Object element, final String _suffix)
+  @Validate
+  public static <T> Predicate1<T> notEndsWith(@NotNull final String _suffix)
   {
-    return !StringUtils.endsWith(element.toString(), _suffix, StringComparison.Ordinal);
+    return new Predicate1<T>() {
+      @Override
+      public boolean evaluate(final T element)
+      {
+        return !StringUtils.endsWith(element.toString(), _suffix, StringComparison.Ordinal);
+      }
+    };
   }
 
   /**
@@ -335,31 +508,42 @@ public final class Objects
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Predicate
-  public static boolean notEndsWith(final Object element, final String _suffix, final StringComparison _comparison)
+  @Validate
+  public static <T> Predicate1<T> notEndsWith(@NotNull final String _suffix, @NotNull final StringComparison _comparison)
   {
-    return !StringUtils.endsWith(element.toString(), _suffix, _comparison);
+    return new Predicate1<T>() {
+      @Override
+      public boolean evaluate(final T element)
+      {
+        return !StringUtils.endsWith(element.toString(), _suffix, _comparison);
+      }
+    };
   }
 
   /**
    * Predicate returning true when the function argument is not equal to a value
    */
-  @Predicate
-  public static boolean notEqual(final Object element, final Object _value)
+  public static <T> Predicate1<T> notEqual(final Object _value)
   {
-    if (element == null)
-    {
-      if (_value == null)
-        return false;
-      else
-        return true;
-    } else
-    {
-      if (_value == null)
-        return true;
-      else
-        return !element.equals(_value);
-    }
+    return new Predicate1<T>() {
+      @Override
+      public boolean evaluate(final T element)
+      {
+        if (element == null)
+        {
+          if (_value == null)
+            return false;
+          else
+            return true;
+        } else
+        {
+          if (_value == null)
+            return true;
+          else
+            return !element.equals(_value);
+        }
+      }
+    };
   }
 
   /**
@@ -367,10 +551,16 @@ public final class Objects
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Predicate
-  public static boolean notInstanceOf(final Object obj, final Class<?> _class)
+  @Validate
+  public static <T> Predicate1<T> notInstanceOf(@NotNull final Class<?> _class)
   {
-    return !ReflectionUtils.instanceOf(obj.getClass(), _class);
+    return new Predicate1<T>() {
+      @Override
+      public boolean evaluate(final T element)
+      {
+        return !ReflectionUtils.instanceOf(element.getClass(), _class);
+      }
+    };
   }
 
   /**
@@ -378,10 +568,16 @@ public final class Objects
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Predicate
-  public static boolean notStartsWith(final Object element, final String _prefix)
+  @Validate
+  public static <T> Predicate1<T> notStartsWith(@NotNull final String _prefix)
   {
-    return !StringUtils.startsWith(element.toString(), _prefix, StringComparison.Ordinal);
+    return new Predicate1<T>() {
+      @Override
+      public boolean evaluate(final T element)
+      {
+        return !StringUtils.startsWith(element.toString(), _prefix, StringComparison.Ordinal);
+      }
+    };
   }
 
   /**
@@ -389,10 +585,16 @@ public final class Objects
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Predicate
-  public static boolean notStartsWith(final Object element, final String _prefix, final StringComparison _comparison)
+  @Validate
+  public static <T> Predicate1<T> notStartsWith(@NotNull final String _prefix, @NotNull final StringComparison _comparison)
   {
-    return !StringUtils.startsWith(element.toString(), _prefix, _comparison);
+    return new Predicate1<T>() {
+      @Override
+      public boolean evaluate(final T element)
+      {
+        return !StringUtils.startsWith(element.toString(), _prefix, _comparison);
+      }
+    };
   }
 
   /**
@@ -400,10 +602,16 @@ public final class Objects
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Predicate
-  public static boolean startsWith(final Object element, final String _prefix)
+  @Validate
+  public static <T> Predicate1<T> startsWith(@NotNull final String _prefix)
   {
-    return StringUtils.startsWith(element.toString(), _prefix, StringComparison.Ordinal);
+    return new Predicate1<T>() {
+      @Override
+      public boolean evaluate(final T element)
+      {
+        return StringUtils.startsWith(element.toString(), _prefix, StringComparison.Ordinal);
+      }
+    };
   }
 
   /**
@@ -411,10 +619,16 @@ public final class Objects
    * 
    * @throws NullPointerException When an argument is null
    */
-  @Predicate
-  public static boolean startsWith(final Object element, final String _prefix, final StringComparison _comparison)
+  @Validate
+  public static <T> Predicate1<T> startsWith(@NotNull final String _prefix, @NotNull final StringComparison _comparison)
   {
-    return StringUtils.startsWith(element.toString(), _prefix, _comparison);
+    return new Predicate1<T>() {
+      @Override
+      public boolean evaluate(final T element)
+      {
+        return StringUtils.startsWith(element.toString(), _prefix, _comparison);
+      }
+    };
   }
 
   private Objects()
