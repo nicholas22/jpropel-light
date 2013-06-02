@@ -248,6 +248,7 @@ Javac, Ant, Ivy, Gradle and continuous integration servers relying on these tool
 - Remove runtime dependency of lombok-pg
 - Library is now compile-time only dependent on lombok (the parent project)
 - Using lombok 0.11.8 in this version
+- Added validation framework from JPropel
 - Added Nullable check methods
 - Added Linq.toString for collections
 - Added ReflectionUtils.toString for POJOs
