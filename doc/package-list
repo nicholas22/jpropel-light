@@ -1,3 +1,5 @@
+
+lombok
 propel.core
 propel.core.collections
 propel.core.collections.arrays
@@ -8,6 +10,7 @@ propel.core.collections.maps
 propel.core.collections.maps.avl
 propel.core.collections.maps.bi
 propel.core.collections.maps.combinational
+propel.core.collections.maps.data
 propel.core.collections.maps.multi
 propel.core.collections.maps.primitive
 propel.core.collections.queues
@@ -15,7 +18,9 @@ propel.core.collections.sets
 propel.core.collections.stacks
 propel.core.collections.volatiles
 propel.core.common
+propel.core.configuration
 propel.core.counters
+propel.core.functional
 propel.core.functional.closure
 propel.core.functional.predicates
 propel.core.functional.projections
@@ -27,3 +32,5 @@ propel.core.tracing
 propel.core.transactional
 propel.core.userTypes
 propel.core.utils
+propel.core.validation
+propel.core.validation.propertyMetadata
