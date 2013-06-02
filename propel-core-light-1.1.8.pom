@@ -1,0 +1,41 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.github.nicholas22</groupId>
+  <artifactId>propel-core-light</artifactId>
+  <packaging>jar</packaging>
+  <name>propel</name>
+  <version>1.1.8</version>
+  <description>The core project of the JPropel library</description>
+  <url>https://github.com/nicholas22/jpropel-light</url>
+  <licenses>
+    <license>
+      <name>GNU LESSER GENERAL PUBLIC LICENSE, Version 3.0</name>
+      <url>http://www.gnu.org/copyleft/lesser.html</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <scm>
+    <connection>git://github.com/nicholas22/jpropel-light.git</connection>
+    <url>https://github.com/nicholas22/jpropel-light</url>
+  </scm>
+  <developers>
+    <developer>
+      <id>nicholas22</id>
+      <name>Nick Tountas</name>
+      <email>salam.kaser@gmail.com</email>
+    </developer>
+  </developers>
+  
+  <dependencies>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>0.11.8</version>
+    </dependency>
+    <dependency>
+      <groupId>joda-time</groupId>
+      <artifactId>joda-time</artifactId>
+      <version>1.6.2</version>
+    </dependency>
+  </dependencies>
+</project>
