@@ -185,6 +185,29 @@ There are a lot of very concise one-liners supported by the library which allow 
 There are too many utilities to cover here, around the areas of reflection, XML, conversions (e.g. binary, octal, hex, decimal, base64, etc.), character escaping, hashing, strings, etc. Have a look at the [propel.core.utils.*](https://github.com/nicholas22/jpropel-light/tree/master/src/propel/core/utils) package for more. For more examples also see [the JPropel changelog] (https://github.com/nicholas22/jpropel) 
 
 
+
+## Input validation
+
+Finally, another nice feature is a validation framework, where you define your POJOs' metadata and can validate in a single line of code, removing the need for convoluted if-then-else statements sprinkled around many places in your code:
+
+    // static validation setup in the beginning of the app
+    boolean notNull = true;
+    boolean notEmpty = true;
+    boolean notNullChars = true;
+    StringPropertyMetadata name = new StringPropertyMetadata("Name", 3, 20, notNull, notEmpty, notNullChars);
+
+    // ...
+
+    // perform validation at runtime
+    name.validate(null); // "Name cannot be null"
+    name.validate(""); // "Name cannot be empty"
+    name.validate("John"); // OK
+    name.validate("Jo"); // "Name cannot be 2 or fewer characters in length"
+    name.validate("123456789012345678901"); // "Name cannot be 21 or more characters in length"
+
+
+
+
 ## JPropel
 
 JPropel-light (this project!) is a lightweight version of the [JPropel](https://github.com/nicholas22/jpropel) library. If you do not mind an extra dependency (SLF4j), have a look as it contains some extra utility functionality.
@@ -208,21 +231,6 @@ This allows you to focus on the task at hand without worrying if you have enough
     MyInterface myClass = new Tracer<MyInterface>(new MyClass());
 
 All calls to methods of the myClass instance that have been annotated with @Trace will emit logging statements of all method arguments, results (if not void) and exceptions (if thrown). The logger uses  SLF4j so will plug into any popular logging library you are using. The format of messages is highly configurable as well.
-
-Finally, another nice feature is a validation framework, where you define your POJOs' metadata and can validate in a single line of code, removing the need for convoluted if-then-else statements sprinkled around many places in your code:
-
-    boolean notNull = true;
-    boolean notEmpty = true;
-    boolean notNullChars = true;
-    StringPropertyMetadata name = new StringPropertyMetadata("Name", 3, 20, notNull, notEmpty, notNullChars);
-
-    // perform validation
-    name.validate(null); // "Name cannot be null"
-    name.validate(""); // "Name cannot be empty"
-    name.validate("John"); // OK
-    name.validate("Jo"); // "Name cannot be 2 or fewer characters in length"
-    name.validate("123456789012345678901"); // "Name cannot be 21 or more characters in length"
-
 
 
 ## PropelS
